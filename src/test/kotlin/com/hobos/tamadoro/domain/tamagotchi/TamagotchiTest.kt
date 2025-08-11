@@ -16,8 +16,7 @@ class TamagotchiTest {
     fun setUp() {
         user = User(
             id = UUID.randomUUID(),
-            email = "test@example.com",
-            name = "Test User"
+            providerId = UUID.randomUUID().toString(),
         )
         
         tamagotchi = Tamagotchi(

@@ -34,8 +34,7 @@ class TaskServiceTest {
         taskService = TaskService(taskRepository, dailyStatsRepository)
         user = User(
             id = UUID.randomUUID(),
-            email = "test@example.com",
-            name = "Test User"
+            providerId = UUID.randomUUID().toString(),
         )
 
         task = Task(

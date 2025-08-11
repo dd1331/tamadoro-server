@@ -13,10 +13,14 @@ interface UserRepository : JpaRepository<User, UUID> {
     /**
      * Find a user by email.
      */
-    fun findByEmail(email: String): Optional<User>
-    
+
     /**
      * Check if a user exists with the given email.
      */
-    fun existsByEmail(email: String): Boolean
+
+
+    /**
+     * Find a user by providerId.
+     */
+    fun findByProviderId(providerId: String): Optional<User>
 }

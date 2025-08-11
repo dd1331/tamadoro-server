@@ -27,15 +27,11 @@ class UserApplicationService(
      * Updates a user's profile.
      */
     @Transactional
-    fun updateUserProfile(userId: UUID, request: UpdateUserRequest): UserDto {
+    fun updateUserProfile(userId: UUID): UserDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        user.updateProfile(
-            name = request.name,
-            email = request.email
-        )
-        
+
         val updatedUser = userRepository.save(user)
         return UserDto.fromEntity(updatedUser)
     }
@@ -46,8 +42,6 @@ class UserApplicationService(
  */
 data class UserDto(
     val id: UUID,
-    val email: String,
-    val name: String,
     val isPremium: Boolean,
     val createdAt: String,
     val updatedAt: String,
@@ -58,8 +52,6 @@ data class UserDto(
         fun fromEntity(entity: User): UserDto {
             return UserDto(
                 id = entity.id,
-                email = entity.email,
-                name = entity.name,
                 isPremium = entity.isPremium,
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),
@@ -90,11 +82,3 @@ data class SubscriptionDto(
         }
     }
 }
-
-/**
- * Request for updating user profile.
- */
-data class UpdateUserRequest(
-    val name: String? = null,
-    val email: String? = null
-) 

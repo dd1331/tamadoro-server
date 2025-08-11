@@ -22,8 +22,6 @@ data class AppleAuthRequest(
  */
 data class AppleUser(
     val id: String,
-    val email: String?,
-    val name: AppleUserName?
 )
 
 /**
@@ -49,16 +47,11 @@ class AuthApplicationService(
     fun authenticateWithApple(request: AppleAuthRequest): AuthResponse {
         // Validate Apple identity token (in a real implementation, this would verify with Apple)
         val appleUserId = request.user.id
-        val email = request.user.email
-        val name = request.user.name?.let { "${it.firstName ?: ""} ${it.lastName ?: ""}".trim() }
-        
+
         // Find or create user
-        val user = userRepository.findByEmail(email ?: "")
+        val user = userRepository.findByProviderId(appleUserId)
             .orElseGet {
-                val newUser = User(
-                    email = email ?: "$appleUserId@apple.com",
-                    name = name ?: "Apple User"
-                )
+                val newUser = User(providerId = appleUserId)
                 userRepository.save(newUser)
             }
         
@@ -117,8 +110,6 @@ data class AuthResponse(
  */
 data class UserDto(
     val id: UUID,
-    val email: String,
-    val name: String,
     val isPremium: Boolean,
     val createdAt: String,
     val updatedAt: String,
@@ -129,8 +120,6 @@ data class UserDto(
         fun fromEntity(entity: User): UserDto {
             return UserDto(
                 id = entity.id,
-                email = entity.email,
-                name = entity.name,
                 isPremium = entity.isPremium,
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),

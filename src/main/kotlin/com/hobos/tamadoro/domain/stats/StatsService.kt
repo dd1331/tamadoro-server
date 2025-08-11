@@ -5,6 +5,7 @@ import com.hobos.tamadoro.domain.task.TaskRepository
 import com.hobos.tamadoro.domain.timer.TimerSessionRepository
 import com.hobos.tamadoro.domain.timer.TimerSessionType
 import com.hobos.tamadoro.domain.user.User
+import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
@@ -24,7 +25,8 @@ class StatsService(
     private val dailyStatsRepository: DailyStatsRepository,
     private val timerSessionRepository: TimerSessionRepository,
     private val taskRepository: TaskRepository,
-    private val userInventoryRepository: UserInventoryRepository
+    private val userInventoryRepository: UserInventoryRepository,
+    private val userRepository: UserRepository
 ) {
     /**
      * Gets or creates daily stats for a user on a specific date.
@@ -195,24 +197,25 @@ class StatsService(
      */
     @Transactional
     fun updateDailyStats(userId: UUID, date: LocalDate = LocalDate.now()) {
-        val dailyStats = getOrCreateDailyStats(User(id = userId, email = "", name = ""), date)
-        
+        val user = userRepository.findById(userId).orElseThrow()
+        val dailyStats = getOrCreateDailyStats(user = user, date)
+
         // Calculate completed pomodoros
         val startOfDay = date.atStartOfDay()
         val endOfDay = date.plusDays(1).atStartOfDay().minusNanos(1)
-        
+
         val completedWorkSessions = timerSessionRepository.findByUserIdAndStartedAtBetween(userId, startOfDay, endOfDay)
             .filter { it.completed && it.type == TimerSessionType.WORK }
-        
+
         dailyStats.completedPomodoros = completedWorkSessions.size
-        
+
         // Calculate total focus time
         dailyStats.totalFocusTime = completedWorkSessions.sumOf { it.calculateActualDuration() }
-        
+
         // Calculate completed tasks
         val completedTasks = taskRepository.findByUserIdAndCompletedIsTrueAndCompletedAtBetween(userId, startOfDay, endOfDay)
         dailyStats.completedTasks = completedTasks.size
-        
+
         dailyStatsRepository.save(dailyStats)
     }
 }

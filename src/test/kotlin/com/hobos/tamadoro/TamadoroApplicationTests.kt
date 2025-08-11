@@ -32,42 +32,8 @@ class TamadoroApplicationTests {
 		assertNotNull(userRepository)
 	}
 
-	@Test
-	@Transactional
-	fun `should create and save user`() {
-		// Given
-		val user = User(
-			email = "test@example.com",
-			name = "Test User"
-		)
 
-		// When
-		val savedUser = userRepository.save(user)
 
-		// Then
-		assertNotNull(savedUser.id)
-		assertEquals("test@example.com", savedUser.email)
-		assertEquals("Test User", savedUser.name)
-		assertFalse(savedUser.isPremium)
-	}
-
-	@Test
-	@Transactional
-	fun `should find user by email`() {
-		// Given
-		val user = User(
-			email = "find@example.com",
-			name = "Find User"
-		)
-		userRepository.save(user)
-
-		// When
-		val foundUser = userRepository.findByEmail("find@example.com")
-
-		// Then
-		assertTrue(foundUser.isPresent)
-		assertEquals("find@example.com", foundUser.get().email)
-	}
 
 	@Test
 	fun `should return 404 for non-existent endpoint`() {

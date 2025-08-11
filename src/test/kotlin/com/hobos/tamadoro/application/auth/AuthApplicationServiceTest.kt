@@ -37,8 +37,7 @@ class AuthApplicationServiceTest {
     fun setUp() {
         user = User(
             id = UUID.randomUUID(),
-            email = "test@example.com",
-            name = "Test User"
+            providerId = UUID.randomUUID().toString()
         )
 
         appleAuthRequest = AppleAuthRequest(
@@ -46,11 +45,6 @@ class AuthApplicationServiceTest {
             authorizationCode = "test.auth.code",
             user = AppleUser(
                 id = "apple.user.id",
-                email = "test@example.com",
-                name = AppleUserName(
-                    firstName = "Test",
-                    lastName = "User"
-                )
             )
         )
     }
@@ -61,7 +55,6 @@ class AuthApplicationServiceTest {
         val token = "jwt.token"
         val refreshToken = "refresh.token"
 
-        `when`(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty())
         `when`(userRepository.save(any())).thenReturn(user)
         lenient().`when`(authService.generateToken(any())).thenReturn(token)
         lenient().`when`(authService.generateRefreshToken(any())).thenReturn(refreshToken)
@@ -72,8 +65,6 @@ class AuthApplicationServiceTest {
         // Then
         assertNotNull(result)
         assertEquals(user.id, result.user.id)
-        assertEquals("test@example.com", result.user.email)
-        assertEquals("Test User", result.user.name)
         assertEquals(token, result.token)
         assertEquals(refreshToken, result.refreshToken)
 
@@ -86,7 +77,6 @@ class AuthApplicationServiceTest {
         val token = "jwt.token"
         val refreshToken = "refresh.token"
 
-        `when`(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user))
         `when`(userRepository.save(any())).thenReturn(user)
         lenient().`when`(authService.generateToken(any())).thenReturn(token)
         lenient().`when`(authService.generateRefreshToken(any())).thenReturn(refreshToken)
@@ -160,11 +150,6 @@ class AuthApplicationServiceTest {
             authorizationCode = "test.auth.code",
             user = AppleUser(
                 id = "apple.user.id",
-                email = null,
-                name = AppleUserName(
-                    firstName = "Test",
-                    lastName = "User"
-                )
             )
         )
 
@@ -172,12 +157,6 @@ class AuthApplicationServiceTest {
         val refreshToken = "refresh.token"
         val expectedEmail = "apple.user.id@apple.com"
 
-        `when`(userRepository.findByEmail("")).thenReturn(Optional.empty())
-        `when`(userRepository.save(any())).thenAnswer { invocation ->
-            val savedUser = invocation.arguments[0] as User
-            assertEquals(expectedEmail, savedUser.email)
-            savedUser
-        }
         lenient().`when`(authService.generateToken(any())).thenReturn(token)
         lenient().`when`(authService.generateRefreshToken(any())).thenReturn(refreshToken)
 
@@ -186,8 +165,6 @@ class AuthApplicationServiceTest {
 
         // Then
         assertNotNull(result)
-        assertEquals(expectedEmail, result.user.email)
-        assertEquals("Test User", result.user.name)
     }
 
     @Test
@@ -198,8 +175,6 @@ class AuthApplicationServiceTest {
             authorizationCode = "test.auth.code",
             user = AppleUser(
                 id = "apple.user.id",
-                email = "test@example.com",
-                name = null
             )
         )
 
@@ -207,10 +182,8 @@ class AuthApplicationServiceTest {
         val refreshToken = "refresh.token"
         val expectedName = "Apple User"
 
-        `when`(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty())
         `when`(userRepository.save(any())).thenAnswer { invocation ->
             val savedUser = invocation.arguments[0] as User
-            assertEquals(expectedName, savedUser.name)
             savedUser
         }
         `when`(authService.generateToken(user.id)).thenReturn(token)
@@ -221,6 +194,5 @@ class AuthApplicationServiceTest {
 
         // Then
         assertNotNull(result)
-        assertEquals(expectedName, result.user.name)
     }
 } 

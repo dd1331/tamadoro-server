@@ -15,11 +15,8 @@ class User(
     @Column(name = "id")
     val id: UUID = UUID.randomUUID(),
 
-    @Column(name = "email", nullable = false, unique = true)
-    var email: String,
-
-    @Column(name = "name")
-    var name: String,
+    @Column(name = "providerId")
+    var providerId: String,
 
     @Column(name = "is_premium")
     var isPremium: Boolean = false,
@@ -38,11 +35,6 @@ class User(
     /**
      * Updates the user's profile information
      */
-    fun updateProfile(name: String?, email: String?) {
-        name?.let { this.name = it }
-        email?.let { this.email = it }
-        this.updatedAt = LocalDateTime.now()
-    }
 
     /**
      * Records a login event
