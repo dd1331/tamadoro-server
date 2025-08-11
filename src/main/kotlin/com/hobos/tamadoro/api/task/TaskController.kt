@@ -6,6 +6,7 @@ import com.hobos.tamadoro.application.task.CreateTaskRequest
 import com.hobos.tamadoro.application.task.UpdateTaskRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -21,7 +22,7 @@ class TaskController(
      * Gets all tasks for a user.
      */
     @GetMapping
-    fun getTasks(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<List<TaskDto>>> {
+    fun getTasks(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TaskDto>>> {
         val tasks = taskApplicationService.getTasks(userId)
         return ResponseEntity.ok(ApiResponse.success(tasks))
     }
@@ -31,7 +32,7 @@ class TaskController(
      */
     @GetMapping("/{taskId}")
     fun getTask(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable taskId: UUID
     ): ResponseEntity<ApiResponse<TaskDto>> {
         val task = taskApplicationService.getTask(userId, taskId)
@@ -43,7 +44,7 @@ class TaskController(
      */
     @PostMapping
     fun createTask(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: CreateTaskRequest
     ): ResponseEntity<ApiResponse<TaskDto>> {
         val task = taskApplicationService.createTask(userId, request)
@@ -55,7 +56,7 @@ class TaskController(
      */
     @PutMapping("/{taskId}")
     fun updateTask(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable taskId: UUID,
         @RequestBody request: UpdateTaskRequest
     ): ResponseEntity<ApiResponse<TaskDto>> {
@@ -68,7 +69,7 @@ class TaskController(
      */
     @DeleteMapping("/{taskId}")
     fun deleteTask(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable taskId: UUID
     ): ResponseEntity<ApiResponse<Unit>> {
         taskApplicationService.deleteTask(userId, taskId)
@@ -80,7 +81,7 @@ class TaskController(
      */
     @PostMapping("/{taskId}/complete")
     fun completeTask(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable taskId: UUID
     ): ResponseEntity<ApiResponse<TaskDto>> {
         val task = taskApplicationService.completeTask(userId, taskId)

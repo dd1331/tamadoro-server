@@ -6,6 +6,7 @@ import com.hobos.tamadoro.application.tamagotchi.CreateTamagotchiRequest
 import com.hobos.tamadoro.application.tamagotchi.UpdateTamagotchiRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -21,7 +22,7 @@ class TamagotchiController(
      * Gets all tamagotchis for a user.
      */
     @GetMapping
-    fun getTamagotchis(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<List<TamagotchiDto>>> {
+    fun getTamagotchis(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamagotchiDto>>> {
         val tamagotchis = tamagotchiApplicationService.getTamagotchis(userId)
         return ResponseEntity.ok(ApiResponse.success(tamagotchis))
     }
@@ -31,7 +32,7 @@ class TamagotchiController(
      */
     @GetMapping("/{tamagotchiId}")
     fun getTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID
     ): ResponseEntity<ApiResponse<TamagotchiDto>> {
         val tamagotchi = tamagotchiApplicationService.getTamagotchi(userId, tamagotchiId)
@@ -43,7 +44,7 @@ class TamagotchiController(
      */
     @PostMapping
     fun createTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: CreateTamagotchiRequest
     ): ResponseEntity<ApiResponse<TamagotchiDto>> {
         val tamagotchi = tamagotchiApplicationService.createTamagotchi(userId, request)
@@ -55,7 +56,7 @@ class TamagotchiController(
      */
     @PutMapping("/{tamagotchiId}")
     fun updateTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID,
         @RequestBody request: UpdateTamagotchiRequest
     ): ResponseEntity<ApiResponse<TamagotchiDto>> {
@@ -68,7 +69,7 @@ class TamagotchiController(
      */
     @DeleteMapping("/{tamagotchiId}")
     fun deleteTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID
     ): ResponseEntity<ApiResponse<Unit>> {
         tamagotchiApplicationService.deleteTamagotchi(userId, tamagotchiId)
@@ -80,7 +81,7 @@ class TamagotchiController(
      */
     @PostMapping("/{tamagotchiId}/feed")
     fun feedTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID
     ): ResponseEntity<ApiResponse<TamagotchiDto>> {
         val tamagotchi = tamagotchiApplicationService.feedTamagotchi(userId, tamagotchiId)
@@ -92,7 +93,7 @@ class TamagotchiController(
      */
     @PostMapping("/{tamagotchiId}/play")
     fun playWithTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID
     ): ResponseEntity<ApiResponse<TamagotchiDto>> {
         val tamagotchi = tamagotchiApplicationService.playWithTamagotchi(userId, tamagotchiId)
@@ -104,7 +105,7 @@ class TamagotchiController(
      */
     @PostMapping("/{tamagotchiId}/activate")
     fun activateTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID
     ): ResponseEntity<ApiResponse<Unit>> {
         tamagotchiApplicationService.activateTamagotchi(userId, tamagotchiId)
@@ -116,7 +117,7 @@ class TamagotchiController(
      */
     @PostMapping("/{tamagotchiId}/experience")
     fun addExperience(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable tamagotchiId: UUID,
         @RequestBody req: ExperienceRequest
     ): ResponseEntity<ApiResponse<TamagotchiDto>> {

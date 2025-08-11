@@ -4,6 +4,7 @@ import com.hobos.tamadoro.application.user.UserApplicationService
 import com.hobos.tamadoro.application.user.UserDto
 import com.hobos.tamadoro.application.user.UpdateUserRequest
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -19,7 +20,7 @@ class UserController(
      * Gets a user's profile.
      */
     @GetMapping("/profile")
-    fun getUserProfile(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<UserDto>> {
+    fun getUserProfile(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<UserDto>> {
         val user = userApplicationService.getUserProfile(userId)
         return ResponseEntity.ok(ApiResponse.success(user))
     }
@@ -29,7 +30,7 @@ class UserController(
      */
     @PutMapping("/profile")
     fun updateUserProfile(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: UpdateUserRequest
     ): ResponseEntity<ApiResponse<UserDto>> {
         val user = userApplicationService.updateUserProfile(userId, request)

@@ -4,6 +4,7 @@ import com.hobos.tamadoro.application.attendance.AttendanceApplicationService
 import com.hobos.tamadoro.application.attendance.AttendanceDto
 import com.hobos.tamadoro.application.attendance.AttendanceStreakDto
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -19,7 +20,7 @@ class AttendanceController(
      * Gets attendance records for a user.
      */
     @GetMapping
-    fun getAttendance(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<List<AttendanceDto>>> {
+    fun getAttendance(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<AttendanceDto>>> {
         val attendance = attendanceApplicationService.getAttendance(userId)
         return ResponseEntity.ok(ApiResponse.success(attendance))
     }
@@ -28,7 +29,7 @@ class AttendanceController(
      * Checks in for attendance.
      */
     @PostMapping("/check")
-    fun checkAttendance(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<AttendanceDto>> {
+    fun checkAttendance(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<AttendanceDto>> {
         val attendance = attendanceApplicationService.checkAttendance(userId)
         return ResponseEntity.ok(ApiResponse.success(attendance))
     }
@@ -37,7 +38,7 @@ class AttendanceController(
      * Gets attendance streak for a user.
      */
     @GetMapping("/streak")
-    fun getAttendanceStreak(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<AttendanceStreakDto>> {
+    fun getAttendanceStreak(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<AttendanceStreakDto>> {
         val streak = attendanceApplicationService.getAttendanceStreak(userId)
         return ResponseEntity.ok(ApiResponse.success(streak))
     }

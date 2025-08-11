@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.api.purchase
 
 import com.hobos.tamadoro.application.purchase.PurchaseApplicationService
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -19,28 +20,28 @@ class PurchaseController(
     data class PurchaseRequest(val packageId: String)
 
     @PostMapping("/purchase/coins")
-    fun buyCoins(@RequestHeader("User-ID") userId: UUID, @RequestBody req: PurchaseRequest) =
+    fun buyCoins(@CurrentUserId userId: UUID, @RequestBody req: PurchaseRequest) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.buyCoins(userId, req.packageId)))
 
     @PostMapping("/purchase/gems")
-    fun buyGems(@RequestHeader("User-ID") userId: UUID, @RequestBody req: PurchaseRequest) =
+    fun buyGems(@CurrentUserId userId: UUID, @RequestBody req: PurchaseRequest) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.buyGems(userId, req.packageId)))
 
     @GetMapping("/subscription/plans")
     fun plans() = ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionPlans()))
 
     @GetMapping("/subscription/status")
-    fun status(@RequestHeader("User-ID") userId: UUID) =
+    fun status(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionStatus(userId)))
 
     data class SubscribeRequest(val type: String)
 
     @PostMapping("/subscription/subscribe")
-    fun subscribe(@RequestHeader("User-ID") userId: UUID, @RequestBody req: SubscribeRequest) =
+    fun subscribe(@CurrentUserId userId: UUID, @RequestBody req: SubscribeRequest) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.type)))
 
     @PostMapping("/subscription/cancel")
-    fun cancel(@RequestHeader("User-ID") userId: UUID) =
+    fun cancel(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.cancel(userId)))
 }
 

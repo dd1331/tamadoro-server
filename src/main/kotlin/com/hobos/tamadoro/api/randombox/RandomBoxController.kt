@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.api.randombox
 
 import com.hobos.tamadoro.application.randombox.RandomBoxApplicationService
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -11,12 +12,12 @@ class RandomBoxController(
     private val randomBoxApplicationService: RandomBoxApplicationService
 ) {
     @GetMapping
-    fun list(@RequestHeader("User-ID") userId: UUID) =
+    fun list(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(randomBoxApplicationService.list(userId)))
 
     @PostMapping("/{id}/purchase")
     fun purchase(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @PathVariable id: String
     ) = ResponseEntity.ok(ApiResponse.success(randomBoxApplicationService.purchase(userId, id)))
 }

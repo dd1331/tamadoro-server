@@ -5,6 +5,7 @@ import com.hobos.tamadoro.application.timer.TimerApplicationService
 import com.hobos.tamadoro.application.timer.TimerSessionDto
 import com.hobos.tamadoro.application.timer.TimerSettingsDto
 import com.hobos.tamadoro.domain.timer.TimerSessionType
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -24,7 +25,7 @@ class TimerController(
      * Gets a user's timer settings.
      */
     @GetMapping("/settings")
-    fun getTimerSettings(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<TimerSettingsDto>> {
+    fun getTimerSettings(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<TimerSettingsDto>> {
         val settings = timerApplicationService.getTimerSettings(userId)
         return ResponseEntity.ok(ApiResponse.success(settings))
     }
@@ -34,7 +35,7 @@ class TimerController(
      */
     @PutMapping("/settings")
     fun updateTimerSettings(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: UpdateTimerSettingsRequest
     ): ResponseEntity<ApiResponse<TimerSettingsDto>> {
         val settings = timerApplicationService.updateTimerSettings(
@@ -55,7 +56,7 @@ class TimerController(
      */
     @PostMapping("/sessions")
     fun startTimerSession(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: StartTimerSessionRequest
     ): ResponseEntity<ApiResponse<TimerSessionDto>> {
         val sessionType = when (request.type.lowercase()) {
@@ -85,7 +86,7 @@ class TimerController(
      * Gets the current active timer session for a user.
      */
     @GetMapping("/sessions/current")
-    fun getCurrentSession(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<TimerSessionDto?>> {
+    fun getCurrentSession(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<TimerSessionDto?>> {
         val session = timerApplicationService.getCurrentSession(userId)
         return ResponseEntity.ok(ApiResponse.success(session))
     }
@@ -95,7 +96,7 @@ class TimerController(
      */
     @GetMapping("/stats/daily")
     fun getDailyStatistics(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
     ): ResponseEntity<ApiResponse<DailyStatisticsDto>> {
         val stats = timerApplicationService.getDailyStatistics(userId, date ?: LocalDate.now())

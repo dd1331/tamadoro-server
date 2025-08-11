@@ -6,6 +6,7 @@ import com.hobos.tamadoro.application.inventory.UpdateCoinsRequest
 import com.hobos.tamadoro.application.inventory.UpdateGemsRequest
 import com.hobos.tamadoro.application.inventory.SetActiveTamagotchiRequest
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -21,7 +22,7 @@ class InventoryController(
      * Gets a user's inventory.
      */
     @GetMapping
-    fun getInventory(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<InventoryDto>> {
+    fun getInventory(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<InventoryDto>> {
         val inventory = inventoryApplicationService.getInventory(userId)
         return ResponseEntity.ok(ApiResponse.success(inventory))
     }
@@ -31,7 +32,7 @@ class InventoryController(
      */
     @PutMapping("/coins")
     fun updateCoins(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: UpdateCoinsRequest
     ): ResponseEntity<ApiResponse<InventoryDto>> {
         val inventory = inventoryApplicationService.updateCoins(userId, request.amount)
@@ -43,7 +44,7 @@ class InventoryController(
      */
     @PutMapping("/gems")
     fun updateGems(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: UpdateGemsRequest
     ): ResponseEntity<ApiResponse<InventoryDto>> {
         val inventory = inventoryApplicationService.updateGems(userId, request.amount)
@@ -55,7 +56,7 @@ class InventoryController(
      */
     @PutMapping("/active-tamagotchi")
     fun setActiveTamagotchi(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: SetActiveTamagotchiRequest
     ): ResponseEntity<ApiResponse<InventoryDto>> {
         val inventory = inventoryApplicationService.setActiveTamagotchi(userId, request.tamagotchiId)

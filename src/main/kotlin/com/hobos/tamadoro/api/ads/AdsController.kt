@@ -2,6 +2,7 @@ package com.hobos.tamadoro.api.ads
 
 import com.hobos.tamadoro.application.ads.AdsApplicationService
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
@@ -16,7 +17,7 @@ class AdsController(
 ) {
     @PostMapping("/interstitial")
     fun logInterstitial(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: InterstitialRequest
     ): ResponseEntity<ApiResponse<Unit>> {
         adsApplicationService.logInterstitial(userId, request.context)
@@ -25,7 +26,7 @@ class AdsController(
 
     @PostMapping("/banner")
     fun logBanner(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: BannerRequest
     ): ResponseEntity<ApiResponse<Unit>> {
         adsApplicationService.logBanner(userId, request.placement)

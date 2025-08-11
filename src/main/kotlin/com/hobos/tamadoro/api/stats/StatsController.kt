@@ -8,6 +8,7 @@ import com.hobos.tamadoro.application.stats.WeeklyGoalDto
 import com.hobos.tamadoro.application.stats.UpdateWeeklyGoalRequest
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 import java.util.UUID
@@ -25,7 +26,7 @@ class StatsController(
      */
     @GetMapping("/daily")
     fun getDailyStats(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
     ): ResponseEntity<ApiResponse<DailyStatsDto>> {
         val stats = statsApplicationService.getDailyStats(userId, date ?: LocalDate.now())
@@ -37,7 +38,7 @@ class StatsController(
      */
     @GetMapping("/daily/range")
     fun getDailyStatsRange(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
     ): ResponseEntity<ApiResponse<List<DailyStatsDto>>> {
@@ -50,7 +51,7 @@ class StatsController(
      */
     @GetMapping("/weekly")
     fun getWeeklyStats(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) week: LocalDate?
     ): ResponseEntity<ApiResponse<WeeklyStatsDto>> {
         val stats = statsApplicationService.getWeeklyStats(userId, week ?: LocalDate.now())
@@ -62,7 +63,7 @@ class StatsController(
      */
     @GetMapping("/monthly")
     fun getMonthlyStats(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestParam(required = false) month: String?
     ): ResponseEntity<ApiResponse<MonthlyStatsDto>> {
         val stats = statsApplicationService.getMonthlyStats(userId, month)
@@ -73,7 +74,7 @@ class StatsController(
      * Gets weekly goals for a user.
      */
     @GetMapping("/goals/weekly")
-    fun getWeeklyGoals(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<WeeklyGoalDto>> {
+    fun getWeeklyGoals(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<WeeklyGoalDto>> {
         val goals = statsApplicationService.getWeeklyGoals(userId)
         return ResponseEntity.ok(ApiResponse.success(goals))
     }
@@ -83,7 +84,7 @@ class StatsController(
      */
     @PutMapping("/goals/weekly")
     fun updateWeeklyGoals(
-        @RequestHeader("User-ID") userId: UUID,
+        @CurrentUserId userId: UUID,
         @RequestBody request: UpdateWeeklyGoalRequest
     ): ResponseEntity<ApiResponse<WeeklyGoalDto>> {
         val goals = statsApplicationService.updateWeeklyGoals(userId, request)
@@ -91,13 +92,13 @@ class StatsController(
     }
 
     @PostMapping("/pomodoros")
-    fun postPomodoro(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<Unit>> {
+    fun postPomodoro(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
         statsApplicationService.recordPomodoroEvent(userId)
         return ResponseEntity.ok(ApiResponse.success(Unit))
     }
 
     @PostMapping("/tasks")
-    fun postTaskEvent(@RequestHeader("User-ID") userId: UUID): ResponseEntity<ApiResponse<Unit>> {
+    fun postTaskEvent(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
         statsApplicationService.recordTaskEvent(userId)
         return ResponseEntity.ok(ApiResponse.success(Unit))
     }
