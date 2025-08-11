@@ -11,17 +11,17 @@ import java.util.UUID
 @Repository
 interface SubscriptionRepository : JpaRepository<Subscription, UUID> {
     /**
-     * Find a subscription by user ID.
+     * Find all subscriptions of a user ordered by start date desc.
      */
-    fun findByUserId(userId: UUID): Optional<Subscription>
-    
+    fun findByUserIdOrderByStartDateDesc(userId: UUID): List<Subscription>
+
+    /**
+     * Find current active subscriptions of a user.
+     */
+    fun findByUserIdAndStatus(userId: UUID, status: SubscriptionStatus): List<Subscription>
+
     /**
      * Find all active subscriptions.
      */
     fun findByStatus(status: SubscriptionStatus): List<Subscription>
-    
-    /**
-     * Delete a subscription by user ID.
-     */
-    fun deleteByUserId(userId: UUID)
 }

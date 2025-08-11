@@ -1,32 +1,38 @@
 package com.hobos.tamadoro.domain.collections
 
-data class BackgroundItem(
-    val id: String,
-    val name: String,
-    val value: String,
-    val type: String, // gradient | image
-    val focusColor: String? = null,
-    val breakColor: String? = null,
-    val theme: String, // light | dark | color | nature
-    val imagePath: String? = null,
-    val isPremium: Boolean
+open class Item(
+    open val id: String,
+    open val title: String,
+    open val theme: String,
+    open val url: String,
+    open val isPremium: Boolean
 )
+
+
+data class BackgroundItem(
+    override val id: String,
+    override val title: String,
+    override val theme: String,
+    override val url: String,
+    override val isPremium: Boolean,
+) : Item(id, title, theme, url, isPremium)
+
 
 data class MusicItem(
-    val id: String,
-    val name: String,
-    val value: String,
-    val type: String, // ambient | nature | focus | none
-    val volume: Int,
-    val isPremium: Boolean
-)
+    override val id: String,
+    override val title: String,
+    override val theme: String,
+    override val url: String,
+    override val isPremium: Boolean,
+    val resource: String
+) : Item(id, title, theme, url, isPremium)
 
 data class CharacterItem(
-    val id: String,
-    val name: String,
-    val type: String, // Tamagotchi type
-    val size: Int,
-    val isPremium: Boolean
-)
+    override val id: String,
+    override val title: String,
+    override val url: String,
+    override val theme: String, // Tamagotchi type
+    override val isPremium: Boolean,
+): Item(id, title, theme, url, isPremium)
 
 

@@ -5,7 +5,9 @@ import com.hobos.tamadoro.domain.user.SubscriptionStatus
 import com.hobos.tamadoro.domain.user.SubscriptionType
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 data class CoinPackage(val amount: Int, val price: Int, val bonus: Int)
@@ -30,8 +32,10 @@ class PurchaseService(
     )
 
     private val subs = listOf(
+        PremiumSubscription("weekly", 1_500, listOf("No Ads")),
         PremiumSubscription("monthly", 4_900, listOf("No Ads", "Premium Themes")),
-        PremiumSubscription("yearly", 39_000, listOf("No Ads", "Premium Themes", "2 months free"))
+        PremiumSubscription("yearly", 39_000, listOf("No Ads", "Premium Themes", "2 months free")),
+        PremiumSubscription("unlimited", 99_000, listOf("No Ads", "Premium Themes", "Lifetime access"))
     )
 
     fun coinPackages(): List<CoinPackage> = coinPackages
@@ -61,7 +65,10 @@ class PurchaseService(
 
     fun subscriptionStatus(userId: UUID): Map<String, Any?> {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
-        val sub = user.subscription
+        val today = LocalDate.now()
+        val sub = user.subscriptions
+            .filter { it.status == SubscriptionStatus.ACTIVE && (it.endDate == null || !it.endDate!!.toLocalDate().isBefore(today)) }
+            .maxByOrNull { it.startDate }
         return mapOf(
             "type" to sub?.type?.name?.lowercase(),
             "startDate" to sub?.startDate?.toString(),
@@ -70,11 +77,45 @@ class PurchaseService(
         )
     }
 
-    fun subscribe(userId: UUID, type: String): Map<String, Any?> {
+    fun subscribe(userId: UUID, type: SubscriptionType): Map<String, Any?> {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
-        val subType = SubscriptionType.valueOf(type.uppercase())
-        val end = if (subType == SubscriptionType.MONTHLY) LocalDateTime.now().plusMonths(1) else LocalDateTime.now().plusYears(1)
-        user.activatePremium(subType, end)
+
+        val today = LocalDate.now()
+        val active = user.subscriptions
+            .filter { it.status == SubscriptionStatus.ACTIVE && (it.endDate == null || !it.endDate!!.toLocalDate().isBefore(today)) }
+            .maxByOrNull { it.startDate }
+
+        if (active != null) {
+            // If already subscribed, extend the current active subscription
+            if (type == SubscriptionType.UNLIMITED) {
+                // Convert to unlimited by clearing endDate and updating type
+                active.type = SubscriptionType.UNLIMITED
+                active.endDate = null
+            } else {
+                val baseDate = active.endDate?.toLocalDate()?.let { if (!it.isBefore(today)) it else today } ?: today
+                val newDate = when (type) {
+                    SubscriptionType.WEEKLY -> baseDate.plusWeeks(1)
+                    SubscriptionType.MONTHLY -> baseDate.plusMonths(1)
+                    SubscriptionType.YEARLY -> baseDate.plusYears(1)
+                    SubscriptionType.UNLIMITED -> baseDate // unused
+                }
+                val newEnd = LocalDateTime.of(newDate, LocalTime.MAX)
+                active.type = type
+                active.endDate = newEnd
+            }
+            userRepository.save(user)
+            return subscriptionStatus(userId)
+        }
+
+        // No active subscription: create a new one starting now
+        val startDate = today
+        val end: LocalDateTime? = when (type) {
+            SubscriptionType.WEEKLY -> LocalDateTime.of(startDate.plusWeeks(1), LocalTime.MAX)
+            SubscriptionType.MONTHLY -> LocalDateTime.of(startDate.plusMonths(1), LocalTime.MAX)
+            SubscriptionType.YEARLY -> LocalDateTime.of(startDate.plusYears(1), LocalTime.MAX)
+            SubscriptionType.UNLIMITED -> null
+        }
+        user.activatePremium(type, end)
         userRepository.save(user)
         return subscriptionStatus(userId)
     }
@@ -82,9 +123,22 @@ class PurchaseService(
     fun cancel(userId: UUID): Map<String, Any?> {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
         user.cancelPremium()
-        user.subscription?.status = SubscriptionStatus.CANCELLED
         userRepository.save(user)
         return subscriptionStatus(userId)
+    }
+
+    fun subscriptionHistory(userId: UUID): List<Map<String, Any?>> {
+        val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
+        return user.subscriptions
+            .sortedByDescending { it.startDate }
+            .map { sub ->
+                mapOf(
+                    "type" to sub.type.name.lowercase(),
+                    "startDate" to sub.startDate.toString(),
+                    "endDate" to sub.endDate?.toString(),
+                    "status" to sub.status.name.lowercase()
+                )
+            }
     }
 }
 

@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.domain.user
 
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -14,7 +15,7 @@ class Subscription(
     @Column(name = "id")
     val id: UUID = UUID.randomUUID(),
     
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
     
@@ -25,8 +26,8 @@ class Subscription(
     @Column(name = "start_date", nullable = false)
     var startDate: LocalDateTime,
     
-    @Column(name = "end_date", nullable = false)
-    var endDate: LocalDateTime,
+    @Column(name = "end_date")
+    var endDate: LocalDateTime?,
     
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -36,16 +37,12 @@ class Subscription(
      * Checks if the subscription is active
      */
     fun isActive(): Boolean {
-        return status == SubscriptionStatus.ACTIVE && endDate.isAfter(LocalDateTime.now())
+        if (status != SubscriptionStatus.ACTIVE) return false
+        // UNLIMITED has null endDate; treat as active while status is ACTIVE
+        if (endDate == null) return true
+        val today: LocalDate = LocalDate.now()
+        return !endDate!!.toLocalDate().isBefore(today)
     }
     
-    /**
-     * Extends the subscription by the specified number of months
-     */
-    fun extend(months: Int) {
-        endDate = endDate.plusMonths(months.toLong())
-        if (status == SubscriptionStatus.EXPIRED) {
-            status = SubscriptionStatus.ACTIVE
-        }
-    }
+    // No extend method: renewals are represented as separate Subscription rows
 }

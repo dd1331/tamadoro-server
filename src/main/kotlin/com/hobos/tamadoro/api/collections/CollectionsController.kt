@@ -12,8 +12,8 @@ class CollectionsController(
     private val collectionsApplicationService: CollectionsApplicationService
 ) {
     @GetMapping("/backgrounds")
-    fun getBackgrounds(@CurrentUserId userId: UUID) =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getBackgrounds(userId)))
+    fun getBackgrounds() =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getBackgrounds()))
 
     @PutMapping("/backgrounds/active")
     fun setActiveBackground(
@@ -25,23 +25,23 @@ class CollectionsController(
     fun purchaseBackground(@CurrentUserId userId: UUID, @PathVariable id: String) =
         ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.purchaseBackground(userId, id)))
 
-    @GetMapping("/music/tracks")
-    fun getMusic(@CurrentUserId userId: UUID) =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getMusic(userId)))
+    @GetMapping("/sound/tracks")
+    fun getMusic() =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getSound()))
 
-    @PutMapping("/music/active")
+    @PutMapping("/sound/active")
     fun setActiveMusic(
         @CurrentUserId userId: UUID,
         @RequestBody req: SetActiveRequest
     ) = ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.setActiveMusic(userId, req.id)))
 
-    @PostMapping("/music/tracks/{id}/purchase")
+    @PostMapping("/sound/tracks/{id}/purchase")
     fun purchaseMusic(@CurrentUserId userId: UUID, @PathVariable id: String) =
         ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.purchaseMusic(userId, id)))
 
     @GetMapping("/characters")
-    fun getCharacters(@CurrentUserId userId: UUID) =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getCharacters(userId)))
+    fun getCharacters() =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getCharacters()))
 
     @PutMapping("/characters/active")
     fun setActiveCharacter(

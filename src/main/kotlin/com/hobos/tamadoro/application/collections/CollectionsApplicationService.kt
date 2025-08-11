@@ -8,15 +8,15 @@ import java.util.UUID
 class CollectionsApplicationService(
     private val collectionsService: CollectionsService
 ) {
-    fun getBackgrounds(userId: UUID) = collectionsService.getBackgrounds(userId)
+    fun getBackgrounds() = collectionsService.getBackgrounds()
     fun setActiveBackground(userId: UUID, id: String) = collectionsService.setActiveBackground(userId, id)
     fun purchaseBackground(userId: UUID, id: String) = collectionsService.purchaseBackground(userId, id)
 
-    fun getMusic(userId: UUID) = collectionsService.getMusic(userId)
+    fun getSound() = collectionsService.getSound()
     fun setActiveMusic(userId: UUID, id: String) = collectionsService.setActiveMusic(userId, id)
     fun purchaseMusic(userId: UUID, id: String) = collectionsService.purchaseMusic(userId, id)
 
-    fun getCharacters(userId: UUID) = collectionsService.getCharacters(userId)
+    fun getCharacters() = collectionsService.getCharacters()
     fun setActiveCharacter(userId: UUID, id: String) = collectionsService.setActiveCharacter(userId, id)
     fun purchaseCharacter(userId: UUID, id: String) = collectionsService.purchaseCharacter(userId, id)
 }

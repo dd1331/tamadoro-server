@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.application.purchase
 
 import com.hobos.tamadoro.domain.purchase.PurchaseService
+import com.hobos.tamadoro.domain.user.SubscriptionType
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -14,8 +15,9 @@ class PurchaseApplicationService(
     fun buyGems(userId: UUID, packageId: String) = purchaseService.buyGems(userId, packageId)
     fun subscriptionPlans() = purchaseService.subscriptionPlans()
     fun subscriptionStatus(userId: UUID) = purchaseService.subscriptionStatus(userId)
-    fun subscribe(userId: UUID, type: String) = purchaseService.subscribe(userId, type)
+    fun subscribe(userId: UUID, type: SubscriptionType) = purchaseService.subscribe(userId, type)
     fun cancel(userId: UUID) = purchaseService.cancel(userId)
+    fun subscriptionHistory(userId: UUID) = purchaseService.subscriptionHistory(userId)
 }
 
 

@@ -10,23 +10,27 @@ class CollectionsService(
 ) {
     // For now serve static catalog; persistence for ownership would be added later
     private val backgrounds = listOf(
-        BackgroundItem("bg1", "Sunrise", "gradient:orange", "gradient", focusColor = "#FFA500", breakColor = "#FFD580", theme = "light", isPremium = false),
-        BackgroundItem("bg2", "Forest", "image:forest.jpg", "image", theme = "nature", imagePath = "/images/forest.jpg", isPremium = true)
+        BackgroundItem("bg1", "Sunrise",  url = "https://picsum.photos/600/600", theme = "light", isPremium = false),
+        BackgroundItem("bg2", "Forest", theme = "nature", url = "https://picsum.photos/800/600", isPremium = true),
+                BackgroundItem("bg3", "Sunrise2",  url = "https://picsum.photos/200", theme = "light", isPremium = false),
+    BackgroundItem("bg4", "Forest2", theme = "nature", url = "https://picsum.photos/400", isPremium = true)
     )
 
-    private val music = listOf(
-        MusicItem("m1", "Rain", "rain", "nature", volume = 70, isPremium = false),
-        MusicItem("m2", "Focus Tones", "focus_tones", "focus", volume = 60, isPremium = true)
+    private val sound = listOf(
+        MusicItem("m1", "Rain", "rain", "https://picsum.photos/600/600",  isPremium = false, resource="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"),
+        MusicItem("m2", "Focus Tones2", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3"),
+        MusicItem("m3", "Focus Tones3", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"),
+        MusicItem("m4", "Focus Tones4", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3"),
     )
 
     private val characters = listOf(
-        CharacterItem("c1", "Tomato", "tomato", 1, isPremium = false),
-        CharacterItem("c2", "Dragon", "dragon", 2, isPremium = true)
+        CharacterItem("c1", "Tomato", "https://picsum.photos/600/600", "rest", isPremium = false),
+        CharacterItem("c2", "Dragon", "https://picsum.photos/800/600", "tes", isPremium = true)
     )
 
-    fun getBackgrounds(userId: UUID): List<BackgroundItem> = backgrounds
-    fun getMusic(userId: UUID): List<MusicItem> = music
-    fun getCharacters(userId: UUID): List<CharacterItem> = characters
+    fun getBackgrounds(): List<BackgroundItem> = backgrounds
+    fun getSound(): List<MusicItem> = sound
+    fun getCharacters(): List<CharacterItem> = characters
 
     fun setActiveBackground(userId: UUID, id: String): Map<String, Any?> {
         // Placeholder: return active id; a real impl would persist selection per user

@@ -50,13 +50,16 @@ data class UserDto(
 ) {
     companion object {
         fun fromEntity(entity: User): UserDto {
+            val latest = entity.subscriptions
+                .sortedByDescending { it.startDate }
+                .firstOrNull()
             return UserDto(
                 id = entity.id,
                 isPremium = entity.isPremium,
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),
                 lastLoginAt = entity.lastLoginAt?.toString(),
-                subscription = entity.subscription?.let { SubscriptionDto.fromEntity(it) }
+                subscription = latest?.let { SubscriptionDto.fromEntity(it) }
             )
         }
     }
@@ -68,7 +71,7 @@ data class UserDto(
 data class SubscriptionDto(
     val type: String,
     val startDate: String,
-    val endDate: String,
+    val endDate: String?,
     val status: String
 ) {
     companion object {
@@ -76,7 +79,7 @@ data class SubscriptionDto(
             return SubscriptionDto(
                 type = entity.type.name,
                 startDate = entity.startDate.toString(),
-                endDate = entity.endDate.toString(),
+                endDate = entity.endDate?.toString(),
                 status = entity.status.name
             )
         }

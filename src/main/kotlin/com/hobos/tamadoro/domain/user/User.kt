@@ -30,8 +30,8 @@ class User(
     @Column(name = "last_login_at")
     var lastLoginAt: LocalDateTime? = null
 ) {
-    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var subscription: Subscription? = null
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var subscriptions: MutableList<Subscription> = mutableListOf()
     /**
      * Updates the user's profile information
      */
@@ -46,24 +46,16 @@ class User(
     /**
      * Activates premium subscription
      */
-    fun activatePremium(type: SubscriptionType, endDate: LocalDateTime) {
+    fun activatePremium(type: SubscriptionType, endDate: LocalDateTime?) {
+        val newSubscription = Subscription(
+            user = this,
+            type = type,
+            startDate = LocalDateTime.now(),
+            endDate = endDate,
+            status = SubscriptionStatus.ACTIVE
+        )
+        this.subscriptions.add(newSubscription)
         this.isPremium = true
-        if (this.subscription == null) {
-            this.subscription = Subscription(
-                user = this,
-                type = type,
-                startDate = LocalDateTime.now(),
-                endDate = endDate,
-                status = SubscriptionStatus.ACTIVE
-            )
-        } else {
-            this.subscription?.let {
-                it.type = type
-                it.startDate = LocalDateTime.now()
-                it.endDate = endDate
-                it.status = SubscriptionStatus.ACTIVE
-            }
-        }
         this.updatedAt = LocalDateTime.now()
     }
 
@@ -71,9 +63,11 @@ class User(
      * Cancels premium subscription
      */
     fun cancelPremium() {
-        this.subscription?.let {
-            it.status = SubscriptionStatus.CANCELLED
-        }
+        // Cancel the latest active subscription, if any
+        val latestActive = this.subscriptions
+            .filter { it.status == SubscriptionStatus.ACTIVE }
+            .maxByOrNull { it.startDate }
+        latestActive?.status = SubscriptionStatus.CANCELLED
         this.updatedAt = LocalDateTime.now()
     }
 
@@ -81,19 +75,27 @@ class User(
      * Checks if subscription is expired and updates status accordingly
      */
     fun checkSubscriptionStatus() {
-        this.subscription?.let {
-            if (it.endDate.isBefore(LocalDateTime.now()) && it.status == SubscriptionStatus.ACTIVE) {
-                it.status = SubscriptionStatus.EXPIRED
-                this.isPremium = false
-                this.updatedAt = LocalDateTime.now()
+        // Day-based: expire if endDate's date is before today (unlimited has null)
+        val today = java.time.LocalDate.now()
+        var anyActive = false
+        this.subscriptions.forEach { sub ->
+            if (sub.status == SubscriptionStatus.ACTIVE) {
+                val endDate = sub.endDate?.toLocalDate()
+                if (endDate != null && endDate.isBefore(today)) {
+                    sub.status = SubscriptionStatus.EXPIRED
+                } else {
+                    anyActive = true
+                }
             }
         }
+        this.isPremium = anyActive
+        this.updatedAt = LocalDateTime.now()
     }
 
     /**
      * Checks if the user has an active premium subscription
      */
     fun hasPremium(): Boolean {
-        return isPremium && subscription?.isActive() == true
+        return subscriptions.any { it.isActive() }
     }
 }

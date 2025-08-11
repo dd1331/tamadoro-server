@@ -2,6 +2,7 @@ package com.hobos.tamadoro.api.purchase
 
 import com.hobos.tamadoro.application.purchase.PurchaseApplicationService
 import com.hobos.tamadoro.config.CurrentUserId
+import com.hobos.tamadoro.domain.user.SubscriptionType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -34,7 +35,7 @@ class PurchaseController(
     fun status(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionStatus(userId)))
 
-    data class SubscribeRequest(val type: String)
+    data class SubscribeRequest(val type: SubscriptionType)
 
     @PostMapping("/subscription/subscribe")
     fun subscribe(@CurrentUserId userId: UUID, @RequestBody req: SubscribeRequest) =
@@ -43,6 +44,10 @@ class PurchaseController(
     @PostMapping("/subscription/cancel")
     fun cancel(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.cancel(userId)))
+
+    @GetMapping("/subscription/history")
+    fun history(@CurrentUserId userId: UUID) =
+        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionHistory(userId)))
 }
 
 data class ApiResponse<T>(
