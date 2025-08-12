@@ -6,7 +6,11 @@ import java.util.UUID
 
 @Service
 class CollectionsService(
-    private val userInventoryRepository: UserInventoryRepository
+    private val userInventoryRepository: UserInventoryRepository,
+    private val backgroundRepository: BackgroundRepository,
+    private val musicTrackRepository: MusicTrackRepository,
+    private val characterRepository: TamagotchiCatalogRepository,
+    private val characterStageRepository: TamagotchiCatalogStageRepository,
 ) {
     // For now serve static catalog; persistence for ownership would be added later
     private val backgrounds = listOf(
@@ -24,13 +28,138 @@ class CollectionsService(
     )
 
     private val characters = listOf(
-        CharacterItem("c1", "Tomato", "https://picsum.photos/600/600", "rest", isPremium = false),
-        CharacterItem("c2", "Dragon", "https://picsum.photos/800/600", "tes", isPremium = true)
+        TamagotchiItem(
+            id = "char_001",
+            title = "Pippo",
+            theme = "cat",
+            isPremium = false,
+            stages = listOf(
+                Stage(
+                    name = StageName.EGG,
+                    experience = 0,
+                    maxExperience = 10,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"
+                ),
+                Stage(
+                    name = StageName.BABY,
+                    experience = 0,
+                    maxExperience = 50,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"
+                ),
+                Stage(
+                    name = StageName.CHILD,
+                    experience = 0,
+                    maxExperience = 150,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"
+                ),
+                Stage(
+                    name = StageName.TEEN,
+                    experience = 0,
+                    maxExperience = 300,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"
+                ),
+                Stage(
+                    name = StageName.ADULT,
+                    experience = 0,
+                    maxExperience = 500,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"
+                )
+            ),
+            happiness = 80,
+            hunger = 20,
+            energy = 90
+        ),
+        TamagotchiItem(
+            id = "char_002",
+            title = "Drogo",
+            theme = "dragon",
+            isPremium = true,
+            stages = listOf(
+                Stage(
+                    name = StageName.EGG,
+                    experience = 0,
+                    maxExperience = 20,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"
+                ),
+                Stage(
+                    name = StageName.BABY,
+                    experience = 0,
+                    maxExperience = 80,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"
+                ),
+                Stage(
+                    name = StageName.CHILD,
+                    experience = 0,
+                    maxExperience = 200,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"
+                ),
+                Stage(
+                    name = StageName.TEEN,
+                    experience = 0,
+                    maxExperience = 450,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"
+                ),
+                Stage(
+                    name = StageName.ADULT,
+                    experience = 0,
+                    maxExperience = 700,
+                    level = 1,
+                    url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"
+                )
+            ),
+            happiness = 95,
+            hunger = 10,
+            energy = 85
+        ),
     )
 
-    fun getBackgrounds(): List<BackgroundItem> = backgrounds
-    fun getSound(): List<MusicItem> = sound
-    fun getCharacters(): List<CharacterItem> = characters
+    private fun BackgroundEntity.toModel(): BackgroundItem =
+        BackgroundItem(id = id, title = title, theme = theme, url = url, isPremium = isPremium)
+
+    private fun MusicTrackEntity.toModel(): MusicItem =
+        MusicItem(id = id, title = title, theme = theme, url = url, isPremium = isPremium, resource = resource)
+
+    private fun TamagotchiCatalogEntity.toModel(stages: List<TamagotchiCatalogStageEntity>): TamagotchiItem =
+        TamagotchiItem(
+            id = id,
+            title = title,
+            theme = theme,
+            isPremium = isPremium,
+            stages = stages.sortedBy { it.level }.map { stage ->
+                Stage(
+                    name = stage.name,
+                    experience = stage.experience,
+                    maxExperience = stage.maxExperience,
+                    level = stage.level,
+                    url = stage.url,
+                )
+            },
+            happiness = happiness,
+            hunger = hunger,
+            energy = energy,
+        )
+
+    fun getBackgrounds(): List<BackgroundItem> =
+        (backgroundRepository.findAll().takeIf { it.isNotEmpty() }?.map { it.toModel() }) ?: backgrounds
+
+    fun getSound(): List<MusicItem> =
+        (musicTrackRepository.findAll().takeIf { it.isNotEmpty() }?.map { it.toModel() }) ?: sound
+
+    fun getCharacters(): List<TamagotchiItem> {
+        val entities = characterRepository.findAll()
+        if (entities.isEmpty()) return characters
+        val stagesByCharacter = characterStageRepository.findAll().groupBy { it.tamagotchi.id }
+        return entities.map { ch -> ch.toModel(stagesByCharacter[ch.id].orEmpty()) }
+    }
 
     fun setActiveBackground(userId: UUID, id: String): Map<String, Any?> {
         // Placeholder: return active id; a real impl would persist selection per user

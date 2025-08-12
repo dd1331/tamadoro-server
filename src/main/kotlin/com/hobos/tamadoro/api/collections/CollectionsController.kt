@@ -39,19 +39,19 @@ class CollectionsController(
     fun purchaseMusic(@CurrentUserId userId: UUID, @PathVariable id: String) =
         ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.purchaseMusic(userId, id)))
 
-    @GetMapping("/characters")
-    fun getCharacters() =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getCharacters()))
+    @GetMapping("/tamagotchis")
+    fun getTamagotchis() =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getTamagotchis()))
 
-    @PutMapping("/characters/active")
-    fun setActiveCharacter(
+    @PutMapping("/tamagotchis/active")
+    fun setActiveTamagotchi(
         @CurrentUserId userId: UUID,
         @RequestBody req: SetActiveRequest
-    ) = ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.setActiveCharacter(userId, req.id)))
+    ) = ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.setActiveTamagotchi(userId, req.id)))
 
-    @PostMapping("/characters/{id}/purchase")
-    fun purchaseCharacter(@CurrentUserId userId: UUID, @PathVariable id: String) =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.purchaseCharacter(userId, id)))
+    @PostMapping("/tamagotchis/{id}/purchase")
+    fun purchaseTamagotchi(@CurrentUserId userId: UUID, @PathVariable id: String) =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.purchaseTamagotchi(userId, id)))
 }
 
 data class SetActiveRequest(val id: String)

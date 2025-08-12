@@ -16,9 +16,9 @@ class CollectionsApplicationService(
     fun setActiveMusic(userId: UUID, id: String) = collectionsService.setActiveMusic(userId, id)
     fun purchaseMusic(userId: UUID, id: String) = collectionsService.purchaseMusic(userId, id)
 
-    fun getCharacters() = collectionsService.getCharacters()
-    fun setActiveCharacter(userId: UUID, id: String) = collectionsService.setActiveCharacter(userId, id)
-    fun purchaseCharacter(userId: UUID, id: String) = collectionsService.purchaseCharacter(userId, id)
+    fun getTamagotchis() = collectionsService.getCharacters()
+    fun setActiveTamagotchi(userId: UUID, id: String) = collectionsService.setActiveCharacter(userId, id)
+    fun purchaseTamagotchi(userId: UUID, id: String) = collectionsService.purchaseCharacter(userId, id)
 }
 
 
