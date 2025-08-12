@@ -97,7 +97,7 @@ class CollectionsDataInitializer(
             id = "char_002",
             title = "Drogo",
             theme = "dragon",
-            isPremium = true,
+            isPremium = false,
             happiness = 95,
             hunger = 10,
             energy = 85,

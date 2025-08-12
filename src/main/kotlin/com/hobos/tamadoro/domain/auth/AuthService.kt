@@ -1,119 +1,96 @@
 package com.hobos.tamadoro.domain.auth
 
-import io.jsonwebtoken.Claims
+import com.hobos.tamadoro.config.AuthProperties
+import com.hobos.tamadoro.domain.user.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.*
+import java.util.Base64
+import java.util.Date
+import java.util.UUID
 
-/**
- * Domain service for authentication-related business logic.
- */
 @Service
-class AuthService {
-    
-    private val secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256)
-    private val tokenExpirationMinutes = 60L
-    private val refreshTokenExpirationDays = 30L
-    
-    private val invalidatedTokens = mutableSetOf<String>()
-    
-    /**
-     * Generates a JWT token for a user.
-     */
-    fun generateToken(userId: UUID): String {
+class AuthService(
+    private val props: AuthProperties,
+    private val userRepository: UserRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
+) {
+    private val secretKey by lazy {
+        val raw = if (props.secret.startsWith("base64:")) {
+            Base64.getDecoder().decode(props.secret.removePrefix("base64:"))
+        } else props.secret.toByteArray()
+        Keys.hmacShaKeyFor(raw)
+    }
+
+    fun generateToken(userId: UUID, jti: String = UUID.randomUUID().toString()): String {
         val now = LocalDateTime.now()
-        val expiration = now.plusMinutes(tokenExpirationMinutes)
-        
+        val expiration = now.plusMinutes(props.accessTokenMinutes)
         return Jwts.builder()
             .setSubject(userId.toString())
+            .setId(jti)
             .setIssuedAt(Date.from(now.toInstant(ZoneOffset.UTC)))
             .setExpiration(Date.from(expiration.toInstant(ZoneOffset.UTC)))
-            .signWith(secretKey)
+            .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact()
     }
-    
-    /**
-     * Generates a refresh token for a user.
-     */
-    fun generateRefreshToken(userId: UUID): String {
+
+    fun issueRefreshToken(userId: UUID): String {
+        val user = userRepository.findById(userId).orElseThrow()
         val now = LocalDateTime.now()
-        val expiration = now.plusDays(refreshTokenExpirationDays)
-        
-        return Jwts.builder()
+        val expiration = now.plusDays(props.refreshTokenDays)
+        val jti = UUID.randomUUID().toString()
+
+        val token = Jwts.builder()
             .setSubject(userId.toString())
-            .setIssuedAt(Date.from(now.toInstant(ZoneOffset.UTC)))
-            .setExpiration(Date.from(expiration.toInstant(ZoneOffset.UTC)))
+            .setId(jti)
             .claim("type", "refresh")
-            .signWith(secretKey)
+            .setIssuedAt(Date.from(now.toInstant(ZoneOffset.UTC)))
+            .setExpiration(Date.from(expiration.toInstant(ZoneOffset.UTC)))
+            .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact()
+
+        // rotate: invalidate existing tokens for user (optional: keep last N)
+        refreshTokenRepository.deleteByUser_Id(userId)
+        refreshTokenRepository.save(
+            RefreshToken(
+                user = user,
+                token = token,
+                jti = jti,
+                expiresAt = expiration,
+                revoked = false
+            )
+        )
+        return token
     }
-    
-    /**
-     * Validates a JWT token and returns the user ID.
-     */
+
     fun validateToken(token: String): UUID {
-        if (invalidatedTokens.contains(token)) {
-            throw IllegalArgumentException("Token has been invalidated")
-        }
-        
-        val claims = Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token)
-            .payload
-        
+        val claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).payload
         return UUID.fromString(claims.subject)
     }
-    
-    /**
-     * Validates a refresh token and returns the user ID.
-     */
+
     fun validateRefreshToken(refreshToken: String): UUID {
-        val claims = Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(refreshToken)
-            .payload
-        
-        // Check if it's a refresh token
-        if (claims["type"] != "refresh") {
-            throw IllegalArgumentException("Invalid refresh token")
-        }
-        
+        val claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(refreshToken).payload
+        if (claims["type"] != "refresh") throw IllegalArgumentException("Invalid refresh token")
+        val jti = claims.id ?: throw IllegalArgumentException("Missing jti")
+        val stored = refreshTokenRepository.findByJti(jti).orElseThrow { IllegalArgumentException("Refresh not found") }
+        if (stored.revoked) throw IllegalArgumentException("Refresh revoked")
+        if (stored.token != refreshToken) throw IllegalArgumentException("Refresh mismatch")
         return UUID.fromString(claims.subject)
     }
-    
-    /**
-     * Invalidates a token.
-     */
-    fun invalidateToken(token: String) {
-        invalidatedTokens.add(token)
-        
-        // Clean up old invalidated tokens (keep only last 1000)
-        if (invalidatedTokens.size > 1000) {
-            invalidatedTokens.clear()
-        }
+
+    fun rotateRefreshToken(oldToken: String): String {
+        val claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(oldToken).payload
+        val jti = claims.id ?: throw IllegalArgumentException("Missing jti")
+        val stored = refreshTokenRepository.findByJti(jti).orElseThrow { IllegalArgumentException("Refresh not found") }
+        stored.revoked = true
+        refreshTokenRepository.save(stored)
+        return issueRefreshToken(UUID.fromString(claims.subject))
     }
-    
-    /**
-     * Extracts user ID from token without validation.
-     * Use this only when you know the token is valid.
-     */
-    fun extractUserIdFromToken(token: String): UUID? {
-        return try {
-            val claims = Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .payload
-            
-            UUID.fromString(claims.subject)
-        } catch (e: Exception) {
-            null
-        }
+
+    fun logoutAll(userId: UUID) {
+        refreshTokenRepository.deleteByUser_Id(userId)
     }
-} 
+}

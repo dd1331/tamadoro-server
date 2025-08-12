@@ -21,12 +21,12 @@ class TamagotchiController(
     /**
      * Gets all tamagotchis for a user.
      */
-    @GetMapping
-    fun getTamagotchis(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamagotchiDto>>> {
-        val tamagotchis = tamagotchiApplicationService.getTamagotchis(userId)
-        return ResponseEntity.ok(ApiResponse.success(tamagotchis))
-    }
-    
+//    @GetMapping
+//    fun getTamagotchis(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamagotchiDto>>> {
+//        val tamagotchis = tamagotchiApplicationService.getTamagotchis(userId)
+//        return ResponseEntity.ok(ApiResponse.success(tamagotchis))
+//    }
+//
     /**
      * Gets a specific tamagotchi by ID.
      */

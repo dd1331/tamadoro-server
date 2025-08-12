@@ -1,11 +1,14 @@
 package com.hobos.tamadoro.api.timer
 
+import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.timer.DailyStatisticsDto
 import com.hobos.tamadoro.application.timer.TimerApplicationService
 import com.hobos.tamadoro.application.timer.TimerSessionDto
 import com.hobos.tamadoro.application.timer.TimerSettingsDto
 import com.hobos.tamadoro.domain.timer.TimerSessionType
 import com.hobos.tamadoro.config.CurrentUserId
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -36,7 +39,7 @@ class TimerController(
     @PutMapping("/settings")
     fun updateTimerSettings(
         @CurrentUserId userId: UUID,
-        @RequestBody request: UpdateTimerSettingsRequest
+        @Valid @RequestBody request: UpdateTimerSettingsRequest
     ): ResponseEntity<ApiResponse<TimerSettingsDto>> {
         val settings = timerApplicationService.updateTimerSettings(
             userId = userId,
@@ -57,7 +60,7 @@ class TimerController(
     @PostMapping("/sessions")
     fun startTimerSession(
         @CurrentUserId userId: UUID,
-        @RequestBody request: StartTimerSessionRequest
+        @Valid @RequestBody request: StartTimerSessionRequest
     ): ResponseEntity<ApiResponse<TimerSessionDto>> {
         val sessionType = when (request.type.lowercase()) {
             "work" -> TimerSessionType.WORK
@@ -121,41 +124,11 @@ data class UpdateTimerSettingsRequest(
  * Request for starting a timer session.
  */
 data class StartTimerSessionRequest(
+    @field:NotBlank
     val type: String,
     val taskId: UUID? = null
 )
 
 data class TimerSessionUpdateRequest(
     val completed: Boolean? = null
-)
-
-/**
- * Generic API response wrapper.
- */
-data class ApiResponse<T>(
-    val success: Boolean,
-    val data: T? = null,
-    val error: ErrorResponse? = null
-) {
-    companion object {
-        fun <T> success(data: T): ApiResponse<T> {
-            return ApiResponse(success = true, data = data)
-        }
-        
-        fun <T> error(code: Int, message: String, details: Any? = null): ApiResponse<T> {
-            return ApiResponse(
-                success = false,
-                error = ErrorResponse(code, message, details)
-            )
-        }
-    }
-}
-
-/**
- * Error response.
- */
-data class ErrorResponse(
-    val code: Int,
-    val message: String,
-    val details: Any? = null
 )

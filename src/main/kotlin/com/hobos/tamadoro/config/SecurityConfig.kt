@@ -32,7 +32,7 @@ class SecurityConfig(
                         "/api/auth/**",
                         "/api/backgrounds",
                         "/api/sound/tracks",
-                        "/api/characters",
+                        "/api/tamagotchis",
                         "/h2-console/**",
                         "/"
                     ).permitAll()

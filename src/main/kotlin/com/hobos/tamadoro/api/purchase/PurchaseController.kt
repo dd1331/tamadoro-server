@@ -1,8 +1,11 @@
 package com.hobos.tamadoro.api.purchase
 
+import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.purchase.PurchaseApplicationService
 import com.hobos.tamadoro.config.CurrentUserId
 import com.hobos.tamadoro.domain.user.SubscriptionType
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -18,14 +21,14 @@ class PurchaseController(
     @GetMapping("/purchase/gems")
     fun gemPackages() = ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.gemPackages()))
 
-    data class PurchaseRequest(val packageId: String)
+    data class PurchaseRequest(@field:NotBlank val packageId: String)
 
     @PostMapping("/purchase/coins")
-    fun buyCoins(@CurrentUserId userId: UUID, @RequestBody req: PurchaseRequest) =
+    fun buyCoins(@CurrentUserId userId: UUID, @Valid @RequestBody req: PurchaseRequest) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.buyCoins(userId, req.packageId)))
 
     @PostMapping("/purchase/gems")
-    fun buyGems(@CurrentUserId userId: UUID, @RequestBody req: PurchaseRequest) =
+    fun buyGems(@CurrentUserId userId: UUID, @Valid @RequestBody req: PurchaseRequest) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.buyGems(userId, req.packageId)))
 
     @GetMapping("/subscription/plans")
@@ -49,19 +52,5 @@ class PurchaseController(
     fun history(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionHistory(userId)))
 }
-
-data class ApiResponse<T>(
-    val success: Boolean,
-    val data: T? = null,
-    val error: ErrorResponse? = null
-) {
-    companion object {
-        fun <T> success(data: T): ApiResponse<T> = ApiResponse(true, data, null)
-        fun <T> error(code: Int, message: String, details: Any? = null): ApiResponse<T> =
-            ApiResponse(false, null, ErrorResponse(code, message, details))
-    }
-}
-
-data class ErrorResponse(val code: Int, val message: String, val details: Any? = null)
 
 

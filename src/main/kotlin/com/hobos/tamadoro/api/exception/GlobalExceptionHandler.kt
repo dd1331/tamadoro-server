@@ -1,10 +1,13 @@
 package com.hobos.tamadoro.api.exception
 
-import com.hobos.tamadoro.api.timer.ApiResponse
-import com.hobos.tamadoro.api.timer.ErrorResponse
+import com.hobos.tamadoro.api.common.ApiResponse
+import com.hobos.tamadoro.api.common.ErrorResponse
+import com.hobos.tamadoro.api.common.ValidationError
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
@@ -56,6 +59,22 @@ class GlobalExceptionHandler {
             details = request.getDescription(false)
         )
         
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(
+        ex: MethodArgumentNotValidException,
+        request: WebRequest
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        val errors = ex.bindingResult.allErrors.mapNotNull { err ->
+            if (err is FieldError) ValidationError(err.field, err.defaultMessage ?: "Invalid value") else null
+        }
+        val errorResponse = ApiResponse.error<Nothing>(
+            code = 400,
+            message = "Validation failed",
+            details = errors
+        )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
     

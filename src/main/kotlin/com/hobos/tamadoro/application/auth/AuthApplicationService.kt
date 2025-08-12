@@ -61,7 +61,7 @@ class AuthApplicationService(
         
         // Generate tokens
         val token = authService.generateToken(user.id)
-        val refreshToken = authService.generateRefreshToken(user.id)
+        val refreshToken = authService.issueRefreshToken(user.id)
         
         return AuthResponse(
             user = UserDto.fromEntity(user),
@@ -79,7 +79,7 @@ class AuthApplicationService(
             .orElseThrow { NoSuchElementException("User not found") }
         
         val newToken = authService.generateToken(user.id)
-        val newRefreshToken = authService.generateRefreshToken(user.id)
+        val newRefreshToken = authService.rotateRefreshToken(refreshToken)
         
         return AuthResponse(
             user = UserDto.fromEntity(user),
@@ -92,7 +92,8 @@ class AuthApplicationService(
      * Logs out the user.
      */
     fun logout(token: String) {
-        authService.invalidateToken(token)
+        val userId = authService.validateToken(token)
+        authService.logoutAll(userId)
     }
 }
 
