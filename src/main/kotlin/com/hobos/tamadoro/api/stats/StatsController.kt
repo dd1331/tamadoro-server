@@ -97,6 +97,14 @@ class StatsController(
         return ResponseEntity.ok(ApiResponse.success(Unit))
     }
 
+    @GetMapping("/pomodoros/heatmap")
+    fun getPomodoroHeatmap(
+        @CurrentUserId userId: UUID,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
+    ): ResponseEntity<ApiResponse<Unit>> {
+        return TODO("Provide the return value")
+    }
     @PostMapping("/tasks")
     fun postTaskEvent(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
         statsApplicationService.recordTaskEvent(userId)

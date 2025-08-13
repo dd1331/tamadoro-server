@@ -1,12 +1,13 @@
-package com.hobos.tamadoro.domain.collections
+package com.hobos.tamadoro.application.collections.model
 
-// Item 클래스의 url을 nullable로 유지하여 재사용성을 높였습니다.
+import com.hobos.tamadoro.domain.collections.StageName
+
 open class Item(
     open val id: String,
     open val title: String,
     open val theme: String,
     open val isPremium: Boolean,
-    open val url: String? // url을 nullable로 선언하여 모든 하위 클래스에서 필수로 사용하지 않도록 함
+    open val url: String?
 )
 
 data class BackgroundItem(
@@ -26,8 +27,6 @@ data class MusicItem(
     val resource: String
 ) : Item(id, title, theme, isPremium, url)
 
-// CharacterItem은 Item 클래스를 상속받으면서 url을 사용하지 않으므로,
-// Item 생성자에 url = null을 명시적으로 전달합니다.
 data class TamagotchiItem(
     override val id: String,
     override val title: String,
@@ -37,7 +36,7 @@ data class TamagotchiItem(
     val happiness: Int,
     val hunger: Int,
     val energy: Int
-) : Item(id, title, theme, isPremium, url = null) // url에 null을 전달하여 Item 생성자를 호출
+) : Item(id, title, theme, isPremium, url = null)
 
 data class Stage(
     val name: StageName,
@@ -47,10 +46,4 @@ data class Stage(
     val url: String
 )
 
-enum class StageName {
-    EGG,
-    BABY,
-    CHILD,
-    TEEN,
-    ADULT
-}
+

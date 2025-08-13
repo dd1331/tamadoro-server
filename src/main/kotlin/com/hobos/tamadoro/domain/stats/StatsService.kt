@@ -152,6 +152,14 @@ class StatsService(
     fun calculateAttendanceStreak(userId: UUID, endDate: LocalDate): Int {
         return dailyStatsRepository.countConsecutiveAttendanceDays(userId, endDate).toInt()
     }
+
+    /**
+     * Returns a map of date -> completed pomodoros within the given range.
+     */
+    fun getPomodoroCountsByDateRange(userId: UUID, startDate: LocalDate, endDate: LocalDate): Map<LocalDate, Int> {
+        val list = dailyStatsRepository.findByUserIdAndDateBetweenOrderByDateAsc(userId, startDate, endDate)
+        return list.associate { it.date to it.completedPomodoros }
+    }
     
     /**
      * Rewards a user based on their attendance streak.

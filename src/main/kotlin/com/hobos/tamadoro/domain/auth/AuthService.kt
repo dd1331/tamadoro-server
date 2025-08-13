@@ -11,6 +11,8 @@ import java.time.ZoneOffset
 import java.util.Base64
 import java.util.Date
 import java.util.UUID
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 @Service
 class AuthService(
@@ -19,10 +21,16 @@ class AuthService(
     private val refreshTokenRepository: RefreshTokenRepository,
 ) {
     private val secretKey by lazy {
-        val raw = if (props.secret.startsWith("base64:")) {
+        val rawInput: ByteArray = if (props.secret.startsWith("base64:")) {
             Base64.getDecoder().decode(props.secret.removePrefix("base64:"))
-        } else props.secret.toByteArray()
-        Keys.hmacShaKeyFor(raw)
+        } else props.secret.toByteArray(StandardCharsets.UTF_8)
+
+        val keyBytes = if (rawInput.size < 32) {
+            // Derive a 256-bit key from the provided secret using SHA-256 to satisfy JJWT requirements
+            MessageDigest.getInstance("SHA-256").digest(rawInput)
+        } else rawInput
+
+        Keys.hmacShaKeyFor(keyBytes)
     }
 
     fun generateToken(userId: UUID, jti: String = UUID.randomUUID().toString()): String {

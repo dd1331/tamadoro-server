@@ -40,7 +40,11 @@ class TimerSettings(
     var soundEnabled: Boolean = true,
     
     @Column(name = "vibration_enabled", nullable = false)
-    var vibrationEnabled: Boolean = true
+    var vibrationEnabled: Boolean = true,
+
+    @Column(name = "notification_enabled", nullable = false)
+        var notificationsEnabled: Boolean = true
+
 ) {
     /**
      * Updates the timer settings.
@@ -52,7 +56,9 @@ class TimerSettings(
         autoStartBreaks: Boolean? = null,
         autoStartPomodoros: Boolean? = null,
         soundEnabled: Boolean? = null,
-        vibrationEnabled: Boolean? = null
+        vibrationEnabled: Boolean? = null,
+        notificationEnabled: Boolean? = null,
+
     ) {
         shortBreakTime?.let { this.shortBreakTime = it }
         longBreakTime?.let { this.longBreakTime = it }
@@ -61,6 +67,7 @@ class TimerSettings(
         autoStartPomodoros?.let { this.autoStartPomodoros = it }
         soundEnabled?.let { this.soundEnabled = it }
         vibrationEnabled?.let { this.vibrationEnabled = it }
+        notificationEnabled?.let { this.notificationsEnabled = it }
     }
     
     /**

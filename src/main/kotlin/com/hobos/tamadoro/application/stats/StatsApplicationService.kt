@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
+import java.util.NoSuchElementException
 
 /**
  * Application service for statistics-related use cases.
@@ -98,6 +99,9 @@ class StatsApplicationService(
 
     fun recordTaskEvent(userId: UUID) {
         statsService.updateDailyStats(userId)
+    }
+    fun getPomodoroHeatmap( userId: UUID, startDate: LocalDate, endDate: LocalDate): Map<LocalDate, Int> {
+        return statsService.getPomodoroCountsByDateRange(userId, startDate, endDate)
     }
 }
 
@@ -218,3 +222,34 @@ data class UpdateWeeklyGoalRequest(
     val focusTime: Int,
     val tasks: Int
 ) 
+
+/**
+ * Heatmap DTO for date->count.
+ */
+data class HeatmapPointDto(
+    val date: String,
+    val count: Int
+)
+
+fun LocalDate.datesUntilInclusive(end: LocalDate): Sequence<LocalDate> =
+    generateSequence(this) { current ->
+        val next = current.plusDays(1)
+        if (next.isAfter(end)) null else next
+    }
+
+fun LocalDate.rangeInclusive(end: LocalDate): List<LocalDate> =
+    listOf(this) + this.datesUntilInclusive(end).toList()
+
+/**
+ * Builds a dense heatmap list for start...end, filling missing days with 0.
+ */
+fun buildHeatmap(start: LocalDate, end: LocalDate, counts: Map<LocalDate, Int>): List<HeatmapPointDto> {
+    val days = mutableListOf<LocalDate>()
+    var d = start
+    while (!d.isAfter(end)) {
+        days.add(d)
+        d = d.plusDays(1)
+    }
+    return days.map { day -> HeatmapPointDto(date = day.toString(), count = counts[day] ?: 0) }
+}
+

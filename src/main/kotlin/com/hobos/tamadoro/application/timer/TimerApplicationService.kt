@@ -192,7 +192,8 @@ data class TimerSettingsDto(
     val autoStartBreaks: Boolean,
     val autoStartPomodoros: Boolean,
     val soundEnabled: Boolean,
-    val vibrationEnabled: Boolean
+    val vibrationEnabled: Boolean,
+    val notificationsEnabled: Boolean
 ) {
     companion object {
         fun fromEntity(entity: com.hobos.tamadoro.domain.timer.TimerSettings): TimerSettingsDto {
@@ -204,7 +205,8 @@ data class TimerSettingsDto(
                 autoStartBreaks = entity.autoStartBreaks,
                 autoStartPomodoros = entity.autoStartPomodoros,
                 soundEnabled = entity.soundEnabled,
-                vibrationEnabled = entity.vibrationEnabled
+                vibrationEnabled = entity.vibrationEnabled,
+                notificationsEnabled = entity.notificationsEnabled
             )
         }
     }
