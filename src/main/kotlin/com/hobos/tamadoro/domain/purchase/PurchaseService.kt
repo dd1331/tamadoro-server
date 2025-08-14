@@ -1,14 +1,22 @@
 package com.hobos.tamadoro.domain.purchase
 
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
+import com.hobos.tamadoro.domain.user.Subscription
 import com.hobos.tamadoro.domain.user.SubscriptionStatus
 import com.hobos.tamadoro.domain.user.SubscriptionType
+import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
+import com.hobos.tamadoro.application.purchase.SubscriptionStatusDto
+import com.hobos.tamadoro.application.purchase.SubscriptionHistoryItemDto
+import com.hobos.tamadoro.application.purchase.CoinPackageDto
+import com.hobos.tamadoro.application.purchase.GemPackageDto
+import com.hobos.tamadoro.application.purchase.PremiumSubscriptionDto
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
+import java.util.NoSuchElementException
 
 data class CoinPackage(val amount: Int, val price: Int, val bonus: Int)
 data class GemPackage(val amount: Int, val price: Int, val bonus: Int)
@@ -38,8 +46,13 @@ class PurchaseService(
         PremiumSubscription("unlimited", 99_000, listOf("No Ads", "Premium Themes", "Lifetime access"))
     )
 
-    fun coinPackages(): List<CoinPackage> = coinPackages
-    fun gemPackages(): List<GemPackage> = gemPackages
+    fun coinPackages(): List<CoinPackageDto> = coinPackages.map { 
+        CoinPackageDto(it.amount, it.price, it.bonus) 
+    }
+    
+    fun gemPackages(): List<GemPackageDto> = gemPackages.map { 
+        GemPackageDto(it.amount, it.price, it.bonus) 
+    }
 
     fun buyCoins(userId: UUID, packageId: String): Map<String, Any> {
         val pkg = coinPackages.getOrNull(packageId.toIntOrNull() ?: -1)
@@ -61,23 +74,20 @@ class PurchaseService(
         return mapOf("gems" to inv.gems)
     }
 
-    fun subscriptionPlans(): List<PremiumSubscription> = subs
+    fun subscriptionPlans(): List<PremiumSubscriptionDto> = subs.map { 
+        PremiumSubscriptionDto(it.type, it.price, it.features) 
+    }
 
-    fun subscriptionStatus(userId: UUID): Map<String, Any?> {
+    fun subscriptionStatus(userId: UUID): SubscriptionStatusDto? {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
         val today = LocalDate.now()
         val sub = user.subscriptions
             .filter { it.status == SubscriptionStatus.ACTIVE && (it.endDate == null || !it.endDate!!.toLocalDate().isBefore(today)) }
             .maxByOrNull { it.startDate }
-        return mapOf(
-            "type" to sub?.type?.name?.lowercase(),
-            "startDate" to sub?.startDate?.toString(),
-            "endDate" to sub?.endDate?.toString(),
-            "status" to sub?.status?.name?.lowercase()
-        )
+        return sub?.let { SubscriptionStatusDto.fromSubscription(it) }
     }
 
-    fun subscribe(userId: UUID, type: SubscriptionType): Map<String, Any?> {
+    fun subscribe(userId: UUID, type: SubscriptionType): SubscriptionStatusDto {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
 
         val today = LocalDate.now()
@@ -86,59 +96,36 @@ class PurchaseService(
             .maxByOrNull { it.startDate }
 
         if (active != null) {
-            // If already subscribed, extend the current active subscription
-            if (type == SubscriptionType.UNLIMITED) {
-                // Convert to unlimited by clearing endDate and updating type
-                active.type = SubscriptionType.UNLIMITED
-                active.endDate = null
-            } else {
-                val baseDate = active.endDate?.toLocalDate()?.let { if (!it.isBefore(today)) it else today } ?: today
-                val newDate = when (type) {
-                    SubscriptionType.WEEKLY -> baseDate.plusWeeks(1)
-                    SubscriptionType.MONTHLY -> baseDate.plusMonths(1)
-                    SubscriptionType.YEARLY -> baseDate.plusYears(1)
-                    SubscriptionType.UNLIMITED -> baseDate // unused
-                }
-                val newEnd = LocalDateTime.of(newDate, LocalTime.MAX)
-                active.type = type
-                active.endDate = newEnd
-            }
+            // 기존 구독을 연장
+            active.update(today, type)
             userRepository.save(user)
-            return subscriptionStatus(userId)
+            return SubscriptionStatusDto.fromSubscription(active)
+        } else {
+            // 새로운 구독 생성
+            user.activatePremium(type)
+            userRepository.save(user)
+            // activatePremium 후 가장 최근 구독을 찾음
+            val newSubscription = user.subscriptions
+                .filter { it.status == SubscriptionStatus.ACTIVE }
+                .maxByOrNull { it.startDate }
+                ?: throw IllegalStateException("Failed to create subscription")
+            return SubscriptionStatusDto.fromSubscription(newSubscription)
         }
-
-        // No active subscription: create a new one starting now
-        val startDate = today
-        val end: LocalDateTime? = when (type) {
-            SubscriptionType.WEEKLY -> LocalDateTime.of(startDate.plusWeeks(1), LocalTime.MAX)
-            SubscriptionType.MONTHLY -> LocalDateTime.of(startDate.plusMonths(1), LocalTime.MAX)
-            SubscriptionType.YEARLY -> LocalDateTime.of(startDate.plusYears(1), LocalTime.MAX)
-            SubscriptionType.UNLIMITED -> null
-        }
-        user.activatePremium(type, end)
-        userRepository.save(user)
-        return subscriptionStatus(userId)
     }
 
-    fun cancel(userId: UUID): Map<String, Any?> {
+
+    fun cancel(userId: UUID): SubscriptionStatusDto? {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
         user.cancelPremium()
         userRepository.save(user)
         return subscriptionStatus(userId)
     }
 
-    fun subscriptionHistory(userId: UUID): List<Map<String, Any?>> {
+    fun subscriptionHistory(userId: UUID): List<SubscriptionHistoryItemDto> {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
         return user.subscriptions
             .sortedByDescending { it.startDate }
-            .map { sub ->
-                mapOf(
-                    "type" to sub.type.name.lowercase(),
-                    "startDate" to sub.startDate.toString(),
-                    "endDate" to sub.endDate?.toString(),
-                    "status" to sub.status.name.lowercase()
-                )
-            }
+            .map { SubscriptionHistoryItemDto.fromSubscription(it) }
     }
 }
 

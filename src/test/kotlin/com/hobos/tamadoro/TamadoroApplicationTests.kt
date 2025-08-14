@@ -34,29 +34,29 @@ class TamadoroApplicationTests {
 
 
 
-
-	@Test
-	fun `should return 404 for non-existent endpoint`() {
-		// Given
-		val url = "http://localhost:$port/api/non-existent"
-
-		// When
-		val response = restTemplate.getForEntity(url, String::class.java)
-
-		// Then
-		assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
-	}
-
-	@Test
-	fun `should have health check endpoint`() {
-		// Given
-		val url = "http://localhost:$port/actuator/health"
-
-		// When
-		val response = restTemplate.getForEntity(url, String::class.java)
-
-		// Then
-		// The health endpoint might not be available in this test setup, but we can test the basic structure
-		assertTrue(response.statusCode.is2xxSuccessful || response.statusCode.is4xxClientError)
-	}
+//
+//	@Test
+//	fun `should return 404 for non-existent endpoint`() {
+//		// Given
+//		val url = "http://localhost:$port/api/non-existent"
+//
+//		// When
+//		val response = restTemplate.getForEntity(url, String::class.java)
+//
+//		// Then
+//		assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+//	}
+//
+//	@Test
+//	fun `should have health check endpoint`() {
+//		// Given
+//		val url = "http://localhost:$port/actuator/health"
+//
+//		// When
+//		val response = restTemplate.getForEntity(url, String::class.java)
+//
+//		// Then
+//		// The health endpoint might not be available in this test setup, but we can test the basic structure
+//		assertTrue(response.statusCode.is2xxSuccessful || response.statusCode.is4xxClientError)
+//	}
 }

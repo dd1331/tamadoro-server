@@ -1,7 +1,9 @@
 package com.hobos.tamadoro.domain.user
 
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 /**
@@ -46,7 +48,14 @@ class User(
     /**
      * Activates premium subscription
      */
-    fun activatePremium(type: SubscriptionType, endDate: LocalDateTime?) {
+    fun activatePremium(type: SubscriptionType) {
+        val startDate = LocalDate.now()
+        val endDate: LocalDateTime? = when (type) {
+            SubscriptionType.WEEKLY -> LocalDateTime.of(startDate.plusWeeks(1), LocalTime.MAX)
+            SubscriptionType.MONTHLY -> LocalDateTime.of(startDate.plusMonths(1), LocalTime.MAX)
+            SubscriptionType.YEARLY -> LocalDateTime.of(startDate.plusYears(1), LocalTime.MAX)
+            SubscriptionType.UNLIMITED -> null
+        }
         val newSubscription = Subscription(
             user = this,
             type = type,
@@ -68,6 +77,7 @@ class User(
             .filter { it.status == SubscriptionStatus.ACTIVE }
             .maxByOrNull { it.startDate }
         latestActive?.status = SubscriptionStatus.CANCELLED
+        this.isPremium = false
         this.updatedAt = LocalDateTime.now()
     }
 

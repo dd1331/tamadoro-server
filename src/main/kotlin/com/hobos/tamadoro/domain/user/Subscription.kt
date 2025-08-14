@@ -3,6 +3,7 @@ package com.hobos.tamadoro.domain.user
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 /**
@@ -43,6 +44,22 @@ class Subscription(
         val today: LocalDate = LocalDate.now()
         return !endDate!!.toLocalDate().isBefore(today)
     }
-    
+
+    fun update(
+        today: LocalDate?,
+        type: SubscriptionType,
+    ) {
+        // If already subscribed, extend the current active subscription
+        val baseDate = this.endDate?.toLocalDate()?.let { if (!it.isBefore(today)) it else today }
+        val newDate = when (type) {
+            SubscriptionType.WEEKLY -> baseDate?.plusWeeks(1)
+            SubscriptionType.MONTHLY -> baseDate?.plusMonths(1)
+            SubscriptionType.YEARLY -> baseDate?.plusYears(1)
+            SubscriptionType.UNLIMITED -> baseDate // unused
+        }
+        val newEnd = LocalDateTime.of(newDate, LocalTime.MAX)
+        this.type = type
+        this.endDate = newEnd
+    }
     // No extend method: renewals are represented as separate Subscription rows
 }
