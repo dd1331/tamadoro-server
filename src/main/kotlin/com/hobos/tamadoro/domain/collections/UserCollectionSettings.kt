@@ -21,8 +21,8 @@ class UserCollectionSettings(
     @Column(name = "active_music_id")
     var activeMusicId: String? = null,
 
-    @Column(name = "active_tamagotchi_id")
-    var activeTamagotchiId: String? = null,
+    @Column(name = "active_tama_id")
+    var activeTamaId: String? = null,
 
     @Version
     @Column(name = "version")

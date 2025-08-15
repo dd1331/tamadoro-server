@@ -1,9 +1,9 @@
-package com.hobos.tamadoro.domain.tamagotchi
+package com.hobos.tamadoro.domain.tama
 
 /**
- * Enum representing the rarity of a tamagotchi.
+ * Enum representing the rarity of a tama.
  */
-enum class TamagotchiRarity {
+enum class TamaRarity {
     COMMON,
     RARE,
     EPIC,

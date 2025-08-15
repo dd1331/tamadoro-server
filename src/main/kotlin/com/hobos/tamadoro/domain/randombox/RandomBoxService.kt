@@ -1,8 +1,8 @@
 package com.hobos.tamadoro.domain.randombox
 
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiRarity
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiService
+import com.hobos.tamadoro.domain.tama.TamaRarity
+import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -12,7 +12,7 @@ import kotlin.random.Random
 class RandomBoxService(
     private val userInventoryRepository: UserInventoryRepository,
     private val userRepository: UserRepository,
-    private val tamagotchiService: TamagotchiService
+    private val tamaService: TamaService
 ) {
     private val catalog = listOf(
         RandomBox(
@@ -25,7 +25,7 @@ class RandomBoxService(
             rewards = listOf(
                 Reward("coin", "common", "Coins", "coin", 50),
                 Reward("gem", "rare", "Gems", "gem", 1),
-                Reward("tamagotchi", "rare", "Random Pet", "egg")
+                Reward("tama", "rare", "Random Pet", "egg")
             )
         )
     )
@@ -47,16 +47,16 @@ class RandomBoxService(
 
         // Roll a reward
         val reward = rollReward(box)
-        if (reward.type == "tamagotchi") {
+        if (reward.type == "tama") {
             val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
             val rarity = when (Random.nextInt(100)) {
-                in 0..50 -> TamagotchiRarity.COMMON
-                in 51..80 -> TamagotchiRarity.RARE
-                in 81..95 -> TamagotchiRarity.EPIC
-                in 96..98 -> TamagotchiRarity.LEGENDARY
-                else -> TamagotchiRarity.MYTHIC
+                in 0..50 -> TamaRarity.COMMON
+                in 51..80 -> TamaRarity.RARE
+                in 81..95 -> TamaRarity.EPIC
+                in 96..98 -> TamaRarity.LEGENDARY
+                else -> TamaRarity.MYTHIC
             }
-            tamagotchiService.createTamagotchi(user, name = "Eggy", type = com.hobos.tamadoro.domain.tamagotchi.TamagotchiType.values().random(), rarity = rarity)
+            tamaService.createTama(user, name = "Eggy", type = com.hobos.tamadoro.domain.tama.TamaType.values().random(), rarity = rarity)
         } else if (reward.type == "coin") {
             inventory.addCoins(reward.amount ?: 0)
             userInventoryRepository.save(inventory)

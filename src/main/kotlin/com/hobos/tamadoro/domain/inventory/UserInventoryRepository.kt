@@ -21,7 +21,7 @@ interface UserInventoryRepository : JpaRepository<UserInventory, UUID> {
     fun existsByUserId(userId: UUID): Boolean
     
     /**
-     * Find all user inventories with a specific active tamagotchi.
+     * Find all user inventories with a specific active tama.
      */
-    fun findByActiveTamagotchiId(tamagotchiId: UUID): Optional<UserInventory>
+    fun findByActiveTamaId(tamaId: UUID): Optional<UserInventory>
 }

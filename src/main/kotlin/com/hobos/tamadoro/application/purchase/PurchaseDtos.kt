@@ -72,3 +72,4 @@ data class PremiumSubscriptionDto(
     val price: Int,
     val features: List<String>
 )
+

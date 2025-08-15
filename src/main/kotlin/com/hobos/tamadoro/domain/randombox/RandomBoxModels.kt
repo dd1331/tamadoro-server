@@ -11,7 +11,7 @@ data class RandomBox(
 )
 
 data class Reward(
-    val type: String, // tamagotchi | coin | gem
+    val type: String, // tama | coin | gem
     val rarity: String,
     val name: String,
     val icon: String,

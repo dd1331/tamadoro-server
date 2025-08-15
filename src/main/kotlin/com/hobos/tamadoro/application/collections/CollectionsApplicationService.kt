@@ -3,12 +3,12 @@ package com.hobos.tamadoro.application.collections
 import com.hobos.tamadoro.application.collections.model.BackgroundItem
 import com.hobos.tamadoro.application.collections.model.MusicItem
 import com.hobos.tamadoro.application.collections.model.Stage
-import com.hobos.tamadoro.application.collections.model.TamagotchiItem
+import com.hobos.tamadoro.application.collections.model.TamaItem
 import com.hobos.tamadoro.domain.collections.BackgroundRepository
 import com.hobos.tamadoro.domain.collections.CollectionsService
 import com.hobos.tamadoro.domain.collections.MusicTrackRepository
-import com.hobos.tamadoro.domain.collections.TamagotchiCatalogRepository
-import com.hobos.tamadoro.domain.collections.TamagotchiCatalogStageRepository
+import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
+import com.hobos.tamadoro.domain.collections.TamaCatalogStageRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -17,8 +17,8 @@ class CollectionsApplicationService(
     private val collectionsService: CollectionsService,
     private val backgroundRepository: BackgroundRepository,
     private val musicTrackRepository: MusicTrackRepository,
-    private val characterRepository: TamagotchiCatalogRepository,
-    private val characterStageRepository: TamagotchiCatalogStageRepository,
+    private val characterRepository: TamaCatalogRepository,
+    private val characterStageRepository: TamaCatalogStageRepository,
 ) {
     fun getBackgrounds(): List<BackgroundItem> =
         backgroundRepository.findAll().takeIf { it.isNotEmpty() }?.map {
@@ -45,10 +45,10 @@ class CollectionsApplicationService(
 	fun setActiveMusic(userId: UUID, id: String) = collectionsService.setActiveMusic(userId, id)
 	fun purchaseMusic(userId: UUID, id: String) = collectionsService.purchaseMusic(userId, id)
 
-    fun getTamagotchis(): List<TamagotchiItem> {
+    fun getTamas(): List<TamaItem> {
         val entities = characterRepository.findAll()
         if (entities.isEmpty()) return listOf(
-            TamagotchiItem(
+            TamaItem(
                 id = "char_001",
                 title = "Pippo",
                 theme = "cat",
@@ -64,7 +64,7 @@ class CollectionsApplicationService(
                 hunger = 20,
                 energy = 90
             ),
-            TamagotchiItem(
+            TamaItem(
                 id = "char_002",
                 title = "Drogo",
                 theme = "dragon",
@@ -80,7 +80,7 @@ class CollectionsApplicationService(
                 hunger = 10,
                 energy = 85
             ),
-            TamagotchiItem(
+            TamaItem(
                 id = "char_003",
                 title = "Drog4",
                 theme = "dragon4",
@@ -97,9 +97,9 @@ class CollectionsApplicationService(
                 energy = 85
             ),
         )
-        val stagesByCharacter = characterStageRepository.findAll().groupBy { it.tamagotchi.id }
+        val stagesByCharacter = characterStageRepository.findAll().groupBy { it.tama.id }
         return entities.map { ch ->
-            TamagotchiItem(
+            TamaItem(
                 id = ch.id,
                 title = ch.title,
                 theme = ch.theme,
@@ -113,8 +113,8 @@ class CollectionsApplicationService(
             )
         }
     }
-    fun setActiveTamagotchi(userId: UUID, id: String) = collectionsService.setActiveCharacter(userId, id)
-    fun purchaseTamagotchi(userId: UUID, id: String) = collectionsService.purchaseCharacter(userId, id)
+    fun setActiveTama(userId: UUID, id: String) = collectionsService.setActiveCharacter(userId, id)
+    fun purchaseTama(userId: UUID, id: String) = collectionsService.purchaseCharacter(userId, id)
 }
 
 

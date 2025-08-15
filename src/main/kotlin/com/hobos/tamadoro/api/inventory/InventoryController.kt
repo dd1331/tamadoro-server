@@ -4,7 +4,7 @@ import com.hobos.tamadoro.application.inventory.InventoryApplicationService
 import com.hobos.tamadoro.application.inventory.InventoryDto
 import com.hobos.tamadoro.application.inventory.UpdateCoinsRequest
 import com.hobos.tamadoro.application.inventory.UpdateGemsRequest
-import com.hobos.tamadoro.application.inventory.SetActiveTamagotchiRequest
+import com.hobos.tamadoro.application.inventory.SetActiveTamaRequest
 import org.springframework.http.ResponseEntity
 import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.web.bind.annotation.*
@@ -52,14 +52,14 @@ class InventoryController(
     }
     
     /**
-     * Sets the active tamagotchi.
+     * Sets the active tama.
      */
-    @PutMapping("/active-tamagotchi")
-    fun setActiveTamagotchi(
+    @PutMapping("/active-tama")
+    fun setActiveTama(
         @CurrentUserId userId: UUID,
-        @RequestBody request: SetActiveTamagotchiRequest
+        @RequestBody request: SetActiveTamaRequest
     ): ResponseEntity<ApiResponse<InventoryDto>> {
-        val inventory = inventoryApplicationService.setActiveTamagotchi(userId, request.tamagotchiId)
+        val inventory = inventoryApplicationService.setActiveTama(userId, request.tamaId)
         return ResponseEntity.ok(ApiResponse.success(inventory))
     }
 }

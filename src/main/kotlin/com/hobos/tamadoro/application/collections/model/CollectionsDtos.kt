@@ -27,7 +27,7 @@ data class MusicItem(
     val resource: String
 ) : Item(id, title, theme, isPremium, url)
 
-data class TamagotchiItem(
+data class TamaItem(
     override val id: String,
     override val title: String,
     override val theme: String,

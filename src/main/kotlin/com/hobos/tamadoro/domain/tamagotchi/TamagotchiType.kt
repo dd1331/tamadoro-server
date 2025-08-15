@@ -1,9 +1,9 @@
-package com.hobos.tamadoro.domain.tamagotchi
+package com.hobos.tamadoro.domain.tama
 
 /**
- * Enum representing the type of tamagotchi.
+ * Enum representing the type of tama.
  */
-enum class TamagotchiType {
+enum class TamaType {
     TOMATO,
     COFFEE,
     BOOK,

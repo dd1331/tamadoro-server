@@ -2,7 +2,7 @@ package com.hobos.tamadoro.application.timer
 
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
 import com.hobos.tamadoro.domain.stats.StatsService
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiService
+import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.task.TaskRepository
 import com.hobos.tamadoro.domain.timer.TimerService
 import com.hobos.tamadoro.domain.timer.TimerSessionType
@@ -20,7 +20,7 @@ import java.util.UUID
 @Service
 class TimerApplicationService(
     private val timerService: TimerService,
-    private val tamagotchiService: TamagotchiService,
+    private val tamaService: TamaService,
     private val statsService: StatsService,
     private val userRepository: UserRepository,
     private val taskRepository: TaskRepository,
@@ -51,10 +51,10 @@ class TimerApplicationService(
     fun completeTimerSession(sessionId: UUID): TimerSessionDto {
         val session = timerService.completeTimerSession(sessionId)
         
-        // If it's a work session, reward the user's active tamagotchi
+        // If it's a work session, reward the user's active tama
         if (session.type == TimerSessionType.WORK) {
             val actualDuration = session.calculateActualDuration()
-            tamagotchiService.rewardTamagotchiForPomodoro(session.user.id, actualDuration)
+            tamaService.rewardTamaForPomodoro(session.user.id, actualDuration)
             
             // Update user's inventory with coins earned (1 coin per minute)
             val userInventory = userInventoryRepository.findByUserId(session.user.id)

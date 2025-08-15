@@ -1,9 +1,9 @@
-package com.hobos.tamadoro.domain.tamagotchi
+package com.hobos.tamadoro.domain.tama
 
 /**
- * Enum representing the growth stage of a tamagotchi.
+ * Enum representing the growth stage of a tama.
  */
-enum class TamagotchiGrowthStage {
+enum class TamaGrowthStage {
     EGG,
     BABY,
     CHILD,

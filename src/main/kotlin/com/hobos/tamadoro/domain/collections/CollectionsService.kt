@@ -10,8 +10,8 @@ class CollectionsService(
     private val userInventoryRepository: UserInventoryRepository,
     private val backgroundRepository: BackgroundRepository,
     private val musicTrackRepository: MusicTrackRepository,
-    private val characterRepository: TamagotchiCatalogRepository,
-    private val characterStageRepository: TamagotchiCatalogStageRepository,
+    private val characterRepository: TamaCatalogRepository,
+    private val characterStageRepository: TamaCatalogStageRepository,
     private val ownershipRepository: UserCollectionOwnershipRepository,
     private val settingsRepository: UserCollectionSettingsRepository,
 ) {
@@ -46,15 +46,15 @@ class CollectionsService(
 
     @Transactional
     fun setActiveCharacter(userId: UUID, id: String): Map<String, Any?> {
-        val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tamagotchi not found") }
-        if (tama.isPremium && !ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.TAMAGOTCHI, id)) {
-            throw IllegalStateException("User does not own tamagotchi")
+        val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tama not found") }
+        if (tama.isPremium && !ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.TAMA, id)) {
+            throw IllegalStateException("User does not own tama")
         }
         val settings = settingsRepository.findByUser_Id(userId)
             .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
-        settings.activeTamagotchiId = id
+        settings.activeTamaId = id
         settingsRepository.save(settings)
-        return mapOf("activeTamagotchiId" to id)
+        return mapOf("activeTamaId" to id)
     }
 
     @Transactional
@@ -93,19 +93,19 @@ class CollectionsService(
 
     @Transactional
     fun purchaseCharacter(userId: UUID, id: String): Map<String, Any?> {
-        val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tamagotchi not found") }
-        if (ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.TAMAGOTCHI, id)) {
-            return mapOf("purchasedTamagotchiId" to id)
+        val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tama not found") }
+        if (ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.TAMA, id)) {
+            return mapOf("purchasedTamaId" to id)
         }
         if (tama.isPremium) deductCoins(userId, amount = 300)
         ownershipRepository.save(
             UserCollectionOwnership(
                 user = requireUser(userId),
-                category = CollectionCategory.TAMAGOTCHI,
+                category = CollectionCategory.TAMA,
                 itemId = id,
             )
         )
-        return mapOf("purchasedTamagotchiId" to id)
+        return mapOf("purchasedTamaId" to id)
     }
 
     private fun requireUser(userId: UUID): com.hobos.tamadoro.domain.user.User {

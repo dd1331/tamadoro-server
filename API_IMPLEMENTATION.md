@@ -39,8 +39,8 @@ EXPO_PUBLIC_BACKEND_URL=http://localhost:3000
 - 타이머: `GET/PUT /timer/settings`, `POST /timer/sessions`, `PUT /timer/sessions/{id}`
 - 통계: `GET /stats/daily`, `GET /stats/weekly`, `GET /stats/monthly`, `GET/PUT /stats/goals/weekly`, `POST /stats/pomodoros`, `POST /stats/tasks`
 - 태스크: `GET/POST /tasks`, `PUT/DELETE /tasks/{id}`, `POST /tasks/{id}/complete`
-- 타마고치: `GET/POST /tamagotchis`, `PUT/DELETE /tamagotchis/{id}`, `POST /tamagotchis/{id}/feed|play|experience`
-- 인벤토리: `GET /inventory`, `PUT /inventory/coins|gems|active-tamagotchi`
+- 타마고치: `GET/POST /tamas`, `PUT/DELETE /tamas/{id}`, `POST /tamas/{id}/feed|play|experience`
+- 인벤토리: `GET /inventory`, `PUT /inventory/coins|gems|active-tama`
 - 컬렉션: `GET /backgrounds | /music/tracks | /characters`, `PUT /backgrounds/active | /music/active | /characters/active`, `POST /backgrounds/{id}/purchase | /music/tracks/{id}/purchase | /characters/{id}/purchase`
 - 랜덤 박스: `GET /random-boxes`, `POST /random-boxes/{id}/purchase`
 - 결제/구독: `GET /purchase/coins|gems`, `POST /purchase/coins|gems`, `GET /subscription/plans|status`, `POST /subscription/subscribe|cancel`
@@ -144,9 +144,9 @@ class StatsController(private val service: StatsService) {
   - 현재: `useTasks` 사용 중. 서버/모킹 클라이언트에 의존. 배포 플래그에선 TASK_SYSTEM=false라 UI 노출 범위 점검 필요.
   - 조치: 실제 백엔드 연결 시 `ENV_CONFIG.USE_MOCK=false` 및 서버 가용성 확인.
 
-- 타마고치/인벤토리(TamagotchiContext)
+- 타마고치/인벤토리(TamaContext)
 
-  - 현재: 완전 로컬(AsyncStorage). 서버 `GET /inventory`, `GET /tamagotchis` 미연동.
+  - 현재: 완전 로컬(AsyncStorage). 서버 `GET /inventory`, `GET /tamas` 미연동.
   - 조치: 초기 로드 시 서버 인벤토리 동기화, 상호작용(feed/play/exp) 시 서버 엔드포인트 호출 후 로컬 반영.
 
 - 결제/구독(PaymentContext)

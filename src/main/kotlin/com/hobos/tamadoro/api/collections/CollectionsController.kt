@@ -4,7 +4,7 @@ import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.collections.CollectionsApplicationService
 import com.hobos.tamadoro.application.collections.model.BackgroundItem
 import com.hobos.tamadoro.application.collections.model.MusicItem
-import com.hobos.tamadoro.application.collections.model.TamagotchiItem
+import com.hobos.tamadoro.application.collections.model.TamaItem
 import com.hobos.tamadoro.config.CurrentUserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
@@ -47,20 +47,20 @@ class CollectionsController(
     fun purchaseMusic(@CurrentUserId userId: UUID, @PathVariable id: String): ResponseEntity<ApiResponse<Map<String, Any?>>> =
         ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseMusic(userId, id)))
 
-    @GetMapping("/tamagotchis")
-    fun getTamagotchis(): ResponseEntity<ApiResponse<List<TamagotchiItem>>> =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getTamagotchis()))
+    @GetMapping("/tamas")
+    fun getTamas(): ResponseEntity<ApiResponse<List<TamaItem>>> =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getTamas()))
 
-    @PutMapping("/tamagotchis/active")
-    fun setActiveTamagotchi(
+    @PutMapping("/tamas/active")
+    fun setActiveTama(
         @CurrentUserId userId: UUID,
         @Valid @RequestBody req: SetActiveRequest
     ): ResponseEntity<ApiResponse<Map<String, Any?>>> =
-        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveTamagotchi(userId, req.id)))
+        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveTama(userId, req.id)))
 
-    @PostMapping("/tamagotchis/{id}/purchase")
-    fun purchaseTamagotchi(@CurrentUserId userId: UUID, @PathVariable id: String): ResponseEntity<ApiResponse<Map<String, Any?>>> =
-        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseTamagotchi(userId, id)))
+    @PostMapping("/tamas/{id}/purchase")
+    fun purchaseTama(@CurrentUserId userId: UUID, @PathVariable id: String): ResponseEntity<ApiResponse<Map<String, Any?>>> =
+        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseTama(userId, id)))
 }
 
 data class SetActiveRequest(@field:NotBlank val id: String)

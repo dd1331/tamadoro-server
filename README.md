@@ -1,4 +1,4 @@
-# Tamadoro (Pomodoro + Tamagotchi) API 명세서
+# Tamadoro (Pomodoro + Tama) API 명세서
 
 ## 1. 프로젝트 개요
 
@@ -237,7 +237,7 @@ interface WeeklyProgress {
 ### 7.1 타마고치 정보
 
 ```typescript
-interface Tamagotchi {
+interface Tama {
   id: string;
   userId: string;
   name: string;
@@ -255,10 +255,10 @@ interface Tamagotchi {
   lastInteraction: string;
 }
 
-// GET /tamagotchis
-// POST /tamagotchis
-// PUT /tamagotchis/:id
-// DELETE /tamagotchis/:id
+// GET /tamas
+// POST /tamas
+// PUT /tamas/:id
+// DELETE /tamas/:id
 ```
 
 ### 7.2 사용자 인벤토리
@@ -267,22 +267,22 @@ interface Tamagotchi {
 interface UserInventory {
   coins: number;
   gems: number;
-  tamagotchis: Tamagotchi[];
-  activeTamagotchiId?: string;
+  tamas: Tama[];
+  activeTamaId?: string;
 }
 
 // GET /inventory
 // PUT /inventory/coins
 // PUT /inventory/gems
-// PUT /inventory/active-tamagotchi
+// PUT /inventory/active-tama
 ```
 
 ### 7.3 타마고치 상호작용
 
 ```typescript
-// POST /tamagotchis/:id/feed
-// POST /tamagotchis/:id/play
-// POST /tamagotchis/:id/experience
+// POST /tamas/:id/feed
+// POST /tamas/:id/play
+// POST /tamas/:id/experience
 ```
 
 ## 8. 컬렉션 시스템
@@ -360,7 +360,7 @@ interface RandomBox {
 }
 
 interface Reward {
-  type: "tamagotchi" | "coin" | "gem";
+  type: "tama" | "coin" | "gem";
   rarity: string;
   name: string;
   icon: string;
@@ -493,7 +493,7 @@ CREATE TABLE tasks (
 );
 
 -- 타마고치 테이블
-CREATE TABLE tamagotchis (
+CREATE TABLE tamas (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id),
   name VARCHAR(255) NOT NULL,
@@ -516,7 +516,7 @@ CREATE TABLE user_inventories (
   user_id UUID PRIMARY KEY REFERENCES users(id),
   coins INTEGER DEFAULT 100,
   gems INTEGER DEFAULT 10,
-  active_tamagotchi_id UUID REFERENCES tamagotchis(id),
+  active_tama_id UUID REFERENCES tamas(id),
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -573,11 +573,11 @@ CREATE TABLE daily_stats (
 
 ### 14.6 타마고치
 
-- `GET /tamagotchis` - 타마고치 목록
-- `POST /tamagotchis` - 타마고치 생성
-- `PUT /tamagotchis/:id` - 타마고치 수정
-- `POST /tamagotchis/:id/feed` - 타마고치 먹이기
-- `POST /tamagotchis/:id/play` - 타마고치 놀아주기
+- `GET /tamas` - 타마고치 목록
+- `POST /tamas` - 타마고치 생성
+- `PUT /tamas/:id` - 타마고치 수정
+- `POST /tamas/:id/feed` - 타마고치 먹이기
+- `POST /tamas/:id/play` - 타마고치 놀아주기
 
 ### 14.7 인벤토리
 
@@ -655,8 +655,8 @@ enum ErrorCode {
   PAYMENT_FAILED = 4003,
 
   // 타마고치 관련
-  TAMAGOTCHI_NOT_FOUND = 4042,
-  TAMAGOTCHI_ALREADY_OWNED = 4092,
+  TAMA_NOT_FOUND = 4042,
+  TAMA_ALREADY_OWNED = 4092,
 
   // 일반
   VALIDATION_ERROR = 400,

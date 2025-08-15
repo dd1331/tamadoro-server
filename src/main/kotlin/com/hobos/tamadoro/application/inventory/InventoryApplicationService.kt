@@ -2,7 +2,7 @@ package com.hobos.tamadoro.application.inventory
 
 import com.hobos.tamadoro.domain.inventory.UserInventory
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiRepository
+import com.hobos.tamadoro.domain.tama.TamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -15,7 +15,7 @@ import java.util.UUID
 @Service
 class InventoryApplicationService(
     private val userInventoryRepository: UserInventoryRepository,
-    private val tamagotchiRepository: TamagotchiRepository,
+    private val tamaRepository: TamaRepository,
     private val userRepository: UserRepository
 ) {
     /**
@@ -80,29 +80,29 @@ class InventoryApplicationService(
     }
     
     /**
-     * Sets the active tamagotchi.
+     * Sets the active tama.
      */
     @Transactional
-    fun setActiveTamagotchi(userId: UUID, tamagotchiId: UUID?): InventoryDto {
+    fun setActiveTama(userId: UUID, tamaId: UUID?): InventoryDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
         val inventory = userInventoryRepository.findByUserId(userId)
             .orElseGet { createDefaultInventory(user) }
         
-        val tamagotchi = tamagotchiId?.let {
-            tamagotchiRepository.findById(it)
-                .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $it") }
+        val tama = tamaId?.let {
+            tamaRepository.findById(it)
+                .orElseThrow { NoSuchElementException("Tama not found with ID: $it") }
         }
         
-        // Ensure the tamagotchi belongs to the user
-        tamagotchi?.let {
+        // Ensure the tama belongs to the user
+        tama?.let {
             if (it.user.id != userId) {
-                throw IllegalArgumentException("Tamagotchi does not belong to the user")
+                throw IllegalArgumentException("Tama does not belong to the user")
             }
         }
         
-        inventory.changeActiveTamagotchi(tamagotchi)
+        inventory.changeActiveTama(tama)
         val savedInventory = userInventoryRepository.save(inventory)
         return InventoryDto.fromEntity(savedInventory)
     }
@@ -123,7 +123,7 @@ data class InventoryDto(
     val userId: UUID,
     val coins: Int,
     val gems: Int,
-    val activeTamagotchiId: UUID?,
+    val activeTamaId: UUID?,
     val updatedAt: String
 ) {
     companion object {
@@ -132,7 +132,7 @@ data class InventoryDto(
                 userId = entity.user.id,
                 coins = entity.coins,
                 gems = entity.gems,
-                activeTamagotchiId = entity.activeTamagotchi?.id,
+                activeTamaId = entity.activeTama?.id,
                 updatedAt = entity.updatedAt.toString()
             )
         }
@@ -154,8 +154,8 @@ data class UpdateGemsRequest(
 )
 
 /**
- * Request for setting active tamagotchi.
+ * Request for setting active tama.
  */
-data class SetActiveTamagotchiRequest(
-    val tamagotchiId: UUID?
+data class SetActiveTamaRequest(
+    val tamaId: UUID?
 ) 

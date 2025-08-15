@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.tamagotchi
+package com.hobos.tamadoro.domain.tama
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -6,54 +6,54 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 /**
- * Repository interface for Tamagotchi entity.
+ * Repository interface for Tama entity.
  */
 @Repository
-interface TamagotchiRepository : JpaRepository<Tamagotchi, UUID> {
+interface TamaRepository : JpaRepository<Tama, UUID> {
     /**
-     * Find all tamagotchis for a user.
+     * Find all tamas for a user.
      */
-    fun findByUserId(userId: UUID): List<Tamagotchi>
+    fun findByUserId(userId: UUID): List<Tama>
     
     /**
-     * Find a user's active tamagotchi.
+     * Find a user's active tama.
      */
-    fun findByUserIdAndIsActiveTrue(userId: UUID): Tamagotchi?
+    fun findByUserIdAndIsActiveTrue(userId: UUID): Tama?
     
     /**
-     * Find all tamagotchis for a user with a specific type.
+     * Find all tamas for a user with a specific type.
      */
-    fun findByUserIdAndType(userId: UUID, type: TamagotchiType): List<Tamagotchi>
+    fun findByUserIdAndType(userId: UUID, type: TamaType): List<Tama>
     
     /**
-     * Find all tamagotchis for a user with a specific rarity.
+     * Find all tamas for a user with a specific rarity.
      */
-    fun findByUserIdAndRarity(userId: UUID, rarity: TamagotchiRarity): List<Tamagotchi>
+    fun findByUserIdAndRarity(userId: UUID, rarity: TamaRarity): List<Tama>
     
     /**
-     * Find all tamagotchis for a user with a specific growth stage.
+     * Find all tamas for a user with a specific growth stage.
      */
-    fun findByUserIdAndGrowthStage(userId: UUID, growthStage: TamagotchiGrowthStage): List<Tamagotchi>
+    fun findByUserIdAndGrowthStage(userId: UUID, growthStage: TamaGrowthStage): List<Tama>
     
     /**
-     * Count the number of tamagotchis a user has.
+     * Count the number of tamas a user has.
      */
     fun countByUserId(userId: UUID): Long
     
     /**
-     * Count the number of tamagotchis a user has by rarity.
+     * Count the number of tamas a user has by rarity.
      */
-    fun countByUserIdAndRarity(userId: UUID, rarity: TamagotchiRarity): Long
+    fun countByUserIdAndRarity(userId: UUID, rarity: TamaRarity): Long
     
     /**
-     * Find the highest level tamagotchi for a user.
+     * Find the highest level tama for a user.
      */
-    @Query("SELECT t FROM Tamagotchi t WHERE t.user.id = :userId ORDER BY t.level DESC, t.experience DESC")
-    fun findHighestLevelTamagotchiByUserId(userId: UUID): Tamagotchi?
+    @Query("SELECT t FROM Tama t WHERE t.user.id = :userId ORDER BY t.level DESC, t.experience DESC")
+    fun findHighestLevelTamaByUserId(userId: UUID): Tama?
     
     /**
-     * Find unhealthy tamagotchis for a user (low happiness, high hunger, or low energy).
+     * Find unhealthy tamas for a user (low happiness, high hunger, or low energy).
      */
-    @Query("SELECT t FROM Tamagotchi t WHERE t.user.id = :userId AND (t.happiness <= 30 OR t.hunger >= 80 OR t.energy <= 20)")
-    fun findUnhealthyTamagotchisByUserId(userId: UUID): List<Tamagotchi>
+    @Query("SELECT t FROM Tama t WHERE t.user.id = :userId AND (t.happiness <= 30 OR t.hunger >= 80 OR t.energy <= 20)")
+    fun findUnhealthyTamasByUserId(userId: UUID): List<Tama>
 }

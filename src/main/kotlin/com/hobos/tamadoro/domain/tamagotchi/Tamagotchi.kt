@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.tamagotchi
+package com.hobos.tamadoro.domain.tama
 
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
@@ -6,11 +6,11 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 /**
- * Entity representing a tamagotchi virtual pet.
+ * Entity representing a tama virtual pet.
  */
 @Entity
-@Table(name = "tamagotchis")
-class Tamagotchi(
+@Table(name = "tamas")
+class Tama(
     @Id
     @Column(name = "id")
     val id: UUID = UUID.randomUUID(),
@@ -24,11 +24,11 @@ class Tamagotchi(
     
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    val type: TamagotchiType,
+    val type: TamaType,
     
     @Enumerated(EnumType.STRING)
     @Column(name = "rarity", nullable = false)
-    val rarity: TamagotchiRarity,
+    val rarity: TamaRarity,
     
     @Column(name = "level", nullable = false)
     var level: Int = 1,
@@ -47,7 +47,7 @@ class Tamagotchi(
     
     @Enumerated(EnumType.STRING)
     @Column(name = "growth_stage", nullable = false)
-    var growthStage: TamagotchiGrowthStage = TamagotchiGrowthStage.EGG,
+    var growthStage: TamaGrowthStage = TamaGrowthStage.EGG,
     
     @Column(name = "happiness", nullable = false)
     var happiness: Int = 80,
@@ -62,7 +62,7 @@ class Tamagotchi(
     var lastInteraction: LocalDateTime = LocalDateTime.now()
 ) {
     /**
-     * Adds experience to the tamagotchi and levels up if necessary.
+     * Adds experience to the tama and levels up if necessary.
      */
     fun addExperience(amount: Int) {
         experience += amount
@@ -74,7 +74,7 @@ class Tamagotchi(
     }
     
     /**
-     * Levels up the tamagotchi.
+     * Levels up the tama.
      */
     private fun levelUp() {
         level++
@@ -83,16 +83,16 @@ class Tamagotchi(
         
         // Check if growth stage should change
         growthStage = when {
-            level >= 20 -> TamagotchiGrowthStage.ADULT
-            level >= 10 -> TamagotchiGrowthStage.TEEN
-            level >= 5 -> TamagotchiGrowthStage.CHILD
-            level >= 2 -> TamagotchiGrowthStage.BABY
-            else -> TamagotchiGrowthStage.EGG
+            level >= 20 -> TamaGrowthStage.ADULT
+            level >= 10 -> TamaGrowthStage.TEEN
+            level >= 5 -> TamaGrowthStage.CHILD
+            level >= 2 -> TamaGrowthStage.BABY
+            else -> TamaGrowthStage.EGG
         }
     }
     
     /**
-     * Feeds the tamagotchi to reduce hunger.
+     * Feeds the tama to reduce hunger.
      */
     fun feed(amount: Int = 20) {
         hunger = (hunger - amount).coerceIn(0, 100)
@@ -101,7 +101,7 @@ class Tamagotchi(
     }
     
     /**
-     * Plays with the tamagotchi to increase happiness.
+     * Plays with the tama to increase happiness.
      */
     fun play(amount: Int = 15) {
         happiness = (happiness + amount).coerceAtMost(100)
@@ -114,7 +114,7 @@ class Tamagotchi(
     }
     
     /**
-     * Lets the tamagotchi rest to restore energy.
+     * Lets the tama rest to restore energy.
      */
     fun rest(amount: Int = 30) {
         energy = (energy + amount).coerceAtMost(100)
@@ -122,7 +122,7 @@ class Tamagotchi(
     }
     
     /**
-     * Updates the tamagotchi's status based on time passed.
+     * Updates the tama's status based on time passed.
      */
     fun updateStatus() {
         val hoursPassed = java.time.Duration.between(lastInteraction, LocalDateTime.now()).toHours()
@@ -136,14 +136,14 @@ class Tamagotchi(
     }
     
     /**
-     * Checks if the tamagotchi is healthy.
+     * Checks if the tama is healthy.
      */
     fun isHealthy(): Boolean {
         return happiness > 30 && hunger < 80 && energy > 20
     }
     
     /**
-     * Calculates the overall well-being score of the tamagotchi.
+     * Calculates the overall well-being score of the tama.
      */
     fun calculateWellBeingScore(): Int {
         return ((happiness * 0.4) + ((100 - hunger) * 0.3) + (energy * 0.3)).toInt()

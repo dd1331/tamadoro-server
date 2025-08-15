@@ -8,8 +8,8 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "tamagotchi_catalog")
-data class TamagotchiCatalogEntity(
+@Table(name = "tama_catalog")
+data class TamaCatalogEntity(
     @Id
     @Column(name = "id", nullable = false, length = 64)
     val id: String,
@@ -32,8 +32,8 @@ data class TamagotchiCatalogEntity(
     @Column(name = "energy", nullable = false)
     val energy: Int,
 
-    @OneToMany(mappedBy = "tamagotchi", fetch = FetchType.LAZY)
-    val stages: List<TamagotchiCatalogStageEntity> = emptyList(),
+    @OneToMany(mappedBy = "tama", fetch = FetchType.LAZY)
+    val stages: List<TamaCatalogStageEntity> = emptyList(),
 )
 
 

@@ -1,10 +1,10 @@
-package com.hobos.tamadoro.application.tamagotchi
+package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.tamagotchi.Tamagotchi
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiRepository
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiService
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiType
-import com.hobos.tamadoro.domain.tamagotchi.TamagotchiRarity
+import com.hobos.tamadoro.domain.tama.Tama
+import com.hobos.tamadoro.domain.tama.TamaRepository
+import com.hobos.tamadoro.domain.tama.TamaService
+import com.hobos.tamadoro.domain.tama.TamaType
+import com.hobos.tamadoro.domain.tama.TamaRarity
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -12,184 +12,184 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 /**
- * Application service for tamagotchi-related use cases.
+ * Application service for tama-related use cases.
  */
 @Service
-class TamagotchiApplicationService(
-    private val tamagotchiService: TamagotchiService,
-    private val tamagotchiRepository: TamagotchiRepository,
+class TamaApplicationService(
+    private val tamaService: TamaService,
+    private val tamaRepository: TamaRepository,
     private val userRepository: UserRepository
 ) {
     /**
-     * Gets all tamagotchis for a user.
+     * Gets all tamas for a user.
      */
-    fun getTamagotchis(userId: UUID): List<TamagotchiDto> {
+    fun getTamas(userId: UUID): List<TamaDto> {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchis = tamagotchiRepository.findByUserId(userId)
-        return tamagotchis.map { TamagotchiDto.fromEntity(it) }
+        val tamas = tamaRepository.findByUserId(userId)
+        return tamas.map { TamaDto.fromEntity(it) }
     }
     
     /**
-     * Gets a specific tamagotchi by ID.
+     * Gets a specific tama by ID.
      */
-    fun getTamagotchi(userId: UUID, tamagotchiId: UUID): TamagotchiDto {
+    fun getTama(userId: UUID, tamaId: UUID): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
-        // Ensure the tamagotchi belongs to the user
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        // Ensure the tama belongs to the user
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        return TamagotchiDto.fromEntity(tamagotchi)
+        return TamaDto.fromEntity(tama)
     }
     
     /**
-     * Creates a new tamagotchi.
+     * Creates a new tama.
      */
     @Transactional
-    fun createTamagotchi(userId: UUID, request: CreateTamagotchiRequest): TamagotchiDto {
+    fun createTama(userId: UUID, request: CreateTamaRequest): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiService.createTamagotchi(
+        val tama = tamaService.createTama(
             user = user,
             name = request.name,
-            type = TamagotchiType.valueOf(request.type.uppercase()),
-            rarity = TamagotchiRarity.valueOf(request.rarity.uppercase())
+            type = TamaType.valueOf(request.type.uppercase()),
+            rarity = TamaRarity.valueOf(request.rarity.uppercase())
         )
         
-        return TamagotchiDto.fromEntity(tamagotchi)
+        return TamaDto.fromEntity(tama)
     }
     
     /**
-     * Updates a tamagotchi.
+     * Updates a tama.
      */
     @Transactional
-    fun updateTamagotchi(userId: UUID, tamagotchiId: UUID, request: UpdateTamagotchiRequest): TamagotchiDto {
+    fun updateTama(userId: UUID, tamaId: UUID, request: UpdateTamaRequest): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
-        // Ensure the tamagotchi belongs to the user
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        // Ensure the tama belongs to the user
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        val updatedTamagotchi = tamagotchiService.updateTamagotchi(
-            tamagotchi = tamagotchi,
+        val updatedTama = tamaService.updateTama(
+            tama = tama,
             name = request.name
         )
         
-        return TamagotchiDto.fromEntity(updatedTamagotchi)
+        return TamaDto.fromEntity(updatedTama)
     }
     
     /**
-     * Deletes a tamagotchi.
+     * Deletes a tama.
      */
     @Transactional
-    fun deleteTamagotchi(userId: UUID, tamagotchiId: UUID) {
+    fun deleteTama(userId: UUID, tamaId: UUID) {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
-        // Ensure the tamagotchi belongs to the user
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        // Ensure the tama belongs to the user
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        tamagotchiRepository.delete(tamagotchi)
+        tamaRepository.delete(tama)
     }
     
     /**
-     * Feeds a tamagotchi.
+     * Feeds a tama.
      */
     @Transactional
-    fun feedTamagotchi(userId: UUID, tamagotchiId: UUID): TamagotchiDto {
+    fun feedTama(userId: UUID, tamaId: UUID): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
-        // Ensure the tamagotchi belongs to the user
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        // Ensure the tama belongs to the user
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        val fedTamagotchi = tamagotchiService.feedTamagotchi(tamagotchiId)
-        return TamagotchiDto.fromEntity(fedTamagotchi)
+        val fedTama = tamaService.feedTama(tamaId)
+        return TamaDto.fromEntity(fedTama)
     }
     
     /**
-     * Plays with a tamagotchi.
+     * Plays with a tama.
      */
     @Transactional
-    fun playWithTamagotchi(userId: UUID, tamagotchiId: UUID): TamagotchiDto {
+    fun playWithTama(userId: UUID, tamaId: UUID): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
-        // Ensure the tamagotchi belongs to the user
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        // Ensure the tama belongs to the user
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        val playedTamagotchi = tamagotchiService.playWithTamagotchi(tamagotchiId)
-        return TamagotchiDto.fromEntity(playedTamagotchi)
+        val playedTama = tamaService.playWithTama(tamaId)
+        return TamaDto.fromEntity(playedTama)
     }
     
     /**
-     * Activates a tamagotchi.
+     * Activates a tama.
      */
     @Transactional
-    fun activateTamagotchi(userId: UUID, tamagotchiId: UUID) {
+    fun activateTama(userId: UUID, tamaId: UUID) {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
-        // Ensure the tamagotchi belongs to the user
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        // Ensure the tama belongs to the user
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        tamagotchiService.setActiveTamagotchi(userId, tamagotchiId)
+        tamaService.setActiveTama(userId, tamaId)
     }
 
     @Transactional
-    fun addExperience(userId: UUID, tamagotchiId: UUID, amount: Int): TamagotchiDto {
+    fun addExperience(userId: UUID, tamaId: UUID, amount: Int): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
-        val tamagotchi = tamagotchiRepository.findById(tamagotchiId)
-            .orElseThrow { NoSuchElementException("Tamagotchi not found with ID: $tamagotchiId") }
+        val tama = tamaRepository.findById(tamaId)
+            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
-        if (tamagotchi.user.id != userId) {
-            throw IllegalArgumentException("Tamagotchi does not belong to the user")
+        if (tama.user.id != userId) {
+            throw IllegalArgumentException("Tama does not belong to the user")
         }
 
-        val updated = tamagotchiService.addExperienceToTamagotchi(tamagotchiId, amount)
-        return TamagotchiDto.fromEntity(updated)
+        val updated = tamaService.addExperienceToTama(tamaId, amount)
+        return TamaDto.fromEntity(updated)
     }
 }
 
 /**
- * DTO for tamagotchi data.
+ * DTO for tama data.
  */
-data class TamagotchiDto(
+data class TamaDto(
     val id: UUID,
     val userId: UUID,
     val name: String,
@@ -208,8 +208,8 @@ data class TamagotchiDto(
     val wellBeingScore: Int
 ) {
     companion object {
-        fun fromEntity(entity: Tamagotchi): TamagotchiDto {
-            return TamagotchiDto(
+        fun fromEntity(entity: Tama): TamaDto {
+            return TamaDto(
                 id = entity.id,
                 userId = entity.user.id,
                 name = entity.name,
@@ -232,17 +232,17 @@ data class TamagotchiDto(
 }
 
 /**
- * Request for creating a tamagotchi.
+ * Request for creating a tama.
  */
-data class CreateTamagotchiRequest(
+data class CreateTamaRequest(
     val name: String,
     val type: String,
     val rarity: String
 )
 
 /**
- * Request for updating a tamagotchi.
+ * Request for updating a tama.
  */
-data class UpdateTamagotchiRequest(
+data class UpdateTamaRequest(
     val name: String? = null
 ) 

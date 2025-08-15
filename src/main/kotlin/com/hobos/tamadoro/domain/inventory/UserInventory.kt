@@ -1,6 +1,6 @@
 package com.hobos.tamadoro.domain.inventory
 
-import com.hobos.tamadoro.domain.tamagotchi.Tamagotchi
+import com.hobos.tamadoro.domain.tama.Tama
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -27,8 +27,8 @@ class UserInventory(
     var gems: Int = 10, // Start with 10 gems
     
     @OneToOne
-    @JoinColumn(name = "active_tamagotchi_id")
-    var activeTamagotchi: Tamagotchi? = null,
+    @JoinColumn(name = "active_tama_id")
+    var activeTama: Tama? = null,
     
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
@@ -90,17 +90,17 @@ class UserInventory(
     }
     
     /**
-     * Sets the active tamagotchi.
+     * Sets the active tama.
      */
-    fun changeActiveTamagotchi(tamagotchi: Tamagotchi?) {
-        // Deactivate the current active tamagotchi if there is one
-        activeTamagotchi?.let { it.isActive = false }
+    fun changeActiveTama(tama: Tama?) {
+        // Deactivate the current active tama if there is one
+        activeTama?.let { it.isActive = false }
         
-        // Set the new active tamagotchi
-        this.activeTamagotchi = tamagotchi
+        // Set the new active tama
+        this.activeTama = tama
         
-        // Activate the new tamagotchi if it's not null
-        tamagotchi?.let { it.isActive = true }
+        // Activate the new tama if it's not null
+        tama?.let { it.isActive = true }
         
         updatedAt = LocalDateTime.now()
     }

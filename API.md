@@ -1,4 +1,4 @@
-# Tamadoro (Pomodoro + Tamagotchi) API 명세서 — 최신
+# Tamadoro (Pomodoro + Tama) API 명세서 — 최신
 
 본 문서는 현재 프론트엔드 구현(`app/services/realApi.ts`, `app/types/api.ts`, `app/constants/config.ts`)을 기준으로 백엔드가 구현해야 할 REST API를 정의합니다.
 
@@ -9,7 +9,11 @@
 - 응답 래퍼:
 
 ```typescript
-interface ApiResponse<T> { success: boolean; data: T; message?: string }
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
 interface ApiError {
   success: false;
   error: { code: number; message: string; details?: any };
@@ -164,22 +168,34 @@ export interface WeeklyGoal {
 
 ## 7. 타마고치
 
-- GET /tamagotchis → Tamagotchi[]
-- POST /tamagotchis (생성)
-- PUT /tamagotchis/{id}
-- DELETE /tamagotchis/{id}
-- POST /tamagotchis/{id}/feed
-- POST /tamagotchis/{id}/play
-- POST /tamagotchis/{id}/experience
+- GET /tamas → Tama[]
+- POST /tamas (생성)
+- PUT /tamas/{id}
+- DELETE /tamas/{id}
+- POST /tamas/{id}/feed
+- POST /tamas/{id}/play
+- POST /tamas/{id}/experience
 
 ```typescript
-export interface Tamagotchi {
+export interface Tama {
   id: string;
   userId: string;
   name: string;
   type:
-    | "tomato" | "coffee" | "book" | "tree" | "cat" | "kitten" | "dragon"
-    | "unicorn" | "phoenix" | "owl" | "fox" | "panda" | "rabbit" | "dog";
+    | "tomato"
+    | "coffee"
+    | "book"
+    | "tree"
+    | "cat"
+    | "kitten"
+    | "dragon"
+    | "unicorn"
+    | "phoenix"
+    | "owl"
+    | "fox"
+    | "panda"
+    | "rabbit"
+    | "dog";
   rarity: "common" | "rare" | "epic" | "legendary" | "mythic";
   level: number;
   experience: number;
@@ -196,10 +212,10 @@ export interface Tamagotchi {
 
 ## 8. 인벤토리
 
-- GET /inventory → { coins, gems, tamagotchis, activeTamagotchiId? }
+- GET /inventory → { coins, gems, tamas, activeTamaId? }
 - PUT /inventory/coins (body: { amount: number })
 - PUT /inventory/gems (body: { amount: number })
-- PUT /inventory/active-tamagotchi (body: { id: string })
+- PUT /inventory/active-tama (body: { id: string })
 
 ## 9. 컬렉션
 
@@ -215,20 +231,32 @@ export interface Tamagotchi {
 
 ```typescript
 export interface BackgroundItem {
-  id: string; name: string; value: string; type: "gradient" | "image";
-  focusColor?: string; breakColor?: string;
-  theme: "light" | "dark" | "color" | "nature"; imagePath?: string;
+  id: string;
+  name: string;
+  value: string;
+  type: "gradient" | "image";
+  focusColor?: string;
+  breakColor?: string;
+  theme: "light" | "dark" | "color" | "nature";
+  imagePath?: string;
   isPremium: boolean;
 }
 
 export interface MusicItem {
-  id: string; name: string; value: string;
-  type: "ambient" | "nature" | "focus" | "none"; volume: number;
+  id: string;
+  name: string;
+  value: string;
+  type: "ambient" | "nature" | "focus" | "none";
+  volume: number;
   isPremium: boolean;
 }
 
 export interface CharacterItem {
-  id: string; name: string; type: Tamagotchi["type"]; size: number; isPremium: boolean;
+  id: string;
+  name: string;
+  type: Tama["type"];
+  size: number;
+  isPremium: boolean;
 }
 ```
 
@@ -239,12 +267,22 @@ export interface CharacterItem {
 
 ```typescript
 export interface RandomBox {
-  id: string; name: string; price: number; currency: "coins" | "gems";
-  description: string; rarity: "common" | "rare" | "epic" | "legendary";
+  id: string;
+  name: string;
+  price: number;
+  currency: "coins" | "gems";
+  description: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
   rewards: Reward[];
 }
 
-export interface Reward { type: "tamagotchi" | "coin" | "gem"; rarity: string; name: string; icon: string; amount?: number }
+export interface Reward {
+  type: "tama" | "coin" | "gem";
+  rarity: string;
+  name: string;
+  icon: string;
+  amount?: number;
+}
 ```
 
 ## 11. 결제/구독
@@ -259,9 +297,21 @@ export interface Reward { type: "tamagotchi" | "coin" | "gem"; rarity: string; n
 - POST /subscription/cancel
 
 ```typescript
-export interface CoinPackage { amount: number; price: number; bonus: number }
-export interface GemPackage { amount: number; price: number; bonus: number }
-export interface PremiumSubscription { type: "monthly" | "yearly"; price: number; features: string[] }
+export interface CoinPackage {
+  amount: number;
+  price: number;
+  bonus: number;
+}
+export interface GemPackage {
+  amount: number;
+  price: number;
+  bonus: number;
+}
+export interface PremiumSubscription {
+  type: "monthly" | "yearly";
+  price: number;
+  features: string[];
+}
 ```
 
 ## 12. 출석
@@ -272,8 +322,12 @@ export interface PremiumSubscription { type: "monthly" | "yearly"; price: number
 
 ```typescript
 export interface Attendance {
-  id: string; userId: string; date: string; checkedAt: string;
-  streakDays: number; reward: { coins: number; gems: number };
+  id: string;
+  userId: string;
+  date: string;
+  checkedAt: string;
+  streakDays: number;
+  reward: { coins: number; gems: number };
 }
 ```
 
@@ -289,8 +343,8 @@ export interface Attendance {
 - 타이머: GET/PUT /timer/settings, POST /timer/sessions, PUT /timer/sessions/{id}
 - 태스크: GET/POST /tasks, PUT/DELETE /tasks/{id}, POST /tasks/{id}/complete
 - 통계: GET /stats/daily, /stats/weekly, /stats/monthly, GET/PUT /stats/goals/weekly, POST /stats/pomodoros, POST /stats/tasks
-- 타마고치: GET/POST /tamagotchis, PUT/DELETE /tamagotchis/{id}, POST /tamagotchis/{id}/feed|play|experience
-- 인벤토리: GET /inventory, PUT /inventory/coins|gems|active-tamagotchi
+- 타마고치: GET/POST /tamas, PUT/DELETE /tamas/{id}, POST /tamas/{id}/feed|play|experience
+- 인벤토리: GET /inventory, PUT /inventory/coins|gems|active-tama
 - 컬렉션: GET /backgrounds | /music/tracks | /characters, PUT /backgrounds/active | /music/active | /characters/active, POST /backgrounds/{id}/purchase | /music/tracks/{id}/purchase | /characters/{id}/purchase
 - 랜덤 박스: GET /random-boxes, POST /random-boxes/{id}/purchase
 - 결제/구독: GET /purchase/coins|gems | /subscription/plans|status, POST /purchase/coins|gems | /subscription/subscribe|cancel

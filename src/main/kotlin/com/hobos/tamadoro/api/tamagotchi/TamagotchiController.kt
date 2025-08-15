@@ -1,9 +1,9 @@
-package com.hobos.tamadoro.api.tamagotchi
+package com.hobos.tamadoro.api.tama
 
-import com.hobos.tamadoro.application.tamagotchi.TamagotchiApplicationService
-import com.hobos.tamadoro.application.tamagotchi.TamagotchiDto
-import com.hobos.tamadoro.application.tamagotchi.CreateTamagotchiRequest
-import com.hobos.tamadoro.application.tamagotchi.UpdateTamagotchiRequest
+import com.hobos.tamadoro.application.tama.TamaApplicationService
+import com.hobos.tamadoro.application.tama.TamaDto
+import com.hobos.tamadoro.application.tama.CreateTamaRequest
+import com.hobos.tamadoro.application.tama.UpdateTamaRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import com.hobos.tamadoro.config.CurrentUserId
@@ -11,117 +11,117 @@ import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
 /**
- * REST controller for tamagotchi-related endpoints.
+ * REST controller for tama-related endpoints.
  */
 @RestController
-@RequestMapping("/api/tamagotchis")
-class TamagotchiController(
-    private val tamagotchiApplicationService: TamagotchiApplicationService
+@RequestMapping("/api/tamas")
+class TamaController(
+    private val tamaApplicationService: TamaApplicationService
 ) {
     /**
-     * Gets all tamagotchis for a user.
+     * Gets all tamas for a user.
      */
 //    @GetMapping
-//    fun getTamagotchis(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamagotchiDto>>> {
-//        val tamagotchis = tamagotchiApplicationService.getTamagotchis(userId)
-//        return ResponseEntity.ok(ApiResponse.success(tamagotchis))
+//    fun getTamas(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamaDto>>> {
+//        val tamas = tamaApplicationService.getTamas(userId)
+//        return ResponseEntity.ok(ApiResponse.success(tamas))
 //    }
 //
     /**
-     * Gets a specific tamagotchi by ID.
+     * Gets a specific tama by ID.
      */
-    @GetMapping("/{tamagotchiId}")
-    fun getTamagotchi(
+    @GetMapping("/{tamaId}")
+    fun getTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID
-    ): ResponseEntity<ApiResponse<TamagotchiDto>> {
-        val tamagotchi = tamagotchiApplicationService.getTamagotchi(userId, tamagotchiId)
-        return ResponseEntity.ok(ApiResponse.success(tamagotchi))
+        @PathVariable tamaId: UUID
+    ): ResponseEntity<ApiResponse<TamaDto>> {
+        val tama = tamaApplicationService.getTama(userId, tamaId)
+        return ResponseEntity.ok(ApiResponse.success(tama))
     }
     
     /**
-     * Creates a new tamagotchi.
+     * Creates a new tama.
      */
     @PostMapping
-    fun createTamagotchi(
+    fun createTama(
         @CurrentUserId userId: UUID,
-        @RequestBody request: CreateTamagotchiRequest
-    ): ResponseEntity<ApiResponse<TamagotchiDto>> {
-        val tamagotchi = tamagotchiApplicationService.createTamagotchi(userId, request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(tamagotchi))
+        @RequestBody request: CreateTamaRequest
+    ): ResponseEntity<ApiResponse<TamaDto>> {
+        val tama = tamaApplicationService.createTama(userId, request)
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(tama))
     }
     
     /**
-     * Updates a tamagotchi.
+     * Updates a tama.
      */
-    @PutMapping("/{tamagotchiId}")
-    fun updateTamagotchi(
+    @PutMapping("/{tamaId}")
+    fun updateTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID,
-        @RequestBody request: UpdateTamagotchiRequest
-    ): ResponseEntity<ApiResponse<TamagotchiDto>> {
-        val tamagotchi = tamagotchiApplicationService.updateTamagotchi(userId, tamagotchiId, request)
-        return ResponseEntity.ok(ApiResponse.success(tamagotchi))
+        @PathVariable tamaId: UUID,
+        @RequestBody request: UpdateTamaRequest
+    ): ResponseEntity<ApiResponse<TamaDto>> {
+        val tama = tamaApplicationService.updateTama(userId, tamaId, request)
+        return ResponseEntity.ok(ApiResponse.success(tama))
     }
     
     /**
-     * Deletes a tamagotchi.
+     * Deletes a tama.
      */
-    @DeleteMapping("/{tamagotchiId}")
-    fun deleteTamagotchi(
+    @DeleteMapping("/{tamaId}")
+    fun deleteTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID
+        @PathVariable tamaId: UUID
     ): ResponseEntity<ApiResponse<Unit>> {
-        tamagotchiApplicationService.deleteTamagotchi(userId, tamagotchiId)
+        tamaApplicationService.deleteTama(userId, tamaId)
         return ResponseEntity.ok(ApiResponse.success(Unit))
     }
     
     /**
-     * Feeds a tamagotchi.
+     * Feeds a tama.
      */
-    @PostMapping("/{tamagotchiId}/feed")
-    fun feedTamagotchi(
+    @PostMapping("/{tamaId}/feed")
+    fun feedTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID
-    ): ResponseEntity<ApiResponse<TamagotchiDto>> {
-        val tamagotchi = tamagotchiApplicationService.feedTamagotchi(userId, tamagotchiId)
-        return ResponseEntity.ok(ApiResponse.success(tamagotchi))
+        @PathVariable tamaId: UUID
+    ): ResponseEntity<ApiResponse<TamaDto>> {
+        val tama = tamaApplicationService.feedTama(userId, tamaId)
+        return ResponseEntity.ok(ApiResponse.success(tama))
     }
     
     /**
-     * Plays with a tamagotchi.
+     * Plays with a tama.
      */
-    @PostMapping("/{tamagotchiId}/play")
-    fun playWithTamagotchi(
+    @PostMapping("/{tamaId}/play")
+    fun playWithTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID
-    ): ResponseEntity<ApiResponse<TamagotchiDto>> {
-        val tamagotchi = tamagotchiApplicationService.playWithTamagotchi(userId, tamagotchiId)
-        return ResponseEntity.ok(ApiResponse.success(tamagotchi))
+        @PathVariable tamaId: UUID
+    ): ResponseEntity<ApiResponse<TamaDto>> {
+        val tama = tamaApplicationService.playWithTama(userId, tamaId)
+        return ResponseEntity.ok(ApiResponse.success(tama))
     }
     
     /**
-     * Sets a tamagotchi as active.
+     * Sets a tama as active.
      */
-    @PostMapping("/{tamagotchiId}/activate")
-    fun activateTamagotchi(
+    @PostMapping("/{tamaId}/activate")
+    fun activateTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID
+        @PathVariable tamaId: UUID
     ): ResponseEntity<ApiResponse<Unit>> {
-        tamagotchiApplicationService.activateTamagotchi(userId, tamagotchiId)
+        tamaApplicationService.activateTama(userId, tamaId)
         return ResponseEntity.ok(ApiResponse.success(Unit))
     }
 
     /**
-     * Adds experience to a tamagotchi.
+     * Adds experience to a tama.
      */
-    @PostMapping("/{tamagotchiId}/experience")
+    @PostMapping("/{tamaId}/experience")
     fun addExperience(
         @CurrentUserId userId: UUID,
-        @PathVariable tamagotchiId: UUID,
+        @PathVariable tamaId: UUID,
         @RequestBody req: ExperienceRequest
-    ): ResponseEntity<ApiResponse<TamagotchiDto>> {
-        val dto = tamagotchiApplicationService.addExperience(userId, tamagotchiId, req.amount)
+    ): ResponseEntity<ApiResponse<TamaDto>> {
+        val dto = tamaApplicationService.addExperience(userId, tamaId, req.amount)
         return ResponseEntity.ok(ApiResponse.success(dto))
     }
 

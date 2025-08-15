@@ -12,15 +12,15 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "tamagotchi_catalog_stages", indexes = [Index(name = "idx_tamagotchi_id", columnList = "tamagotchi_id")])
-data class TamagotchiCatalogStageEntity(
+@Table(name = "tama_catalog_stages", indexes = [Index(name = "idx_tama_id", columnList = "tama_id")])
+data class TamaCatalogStageEntity(
     @Id
     @Column(name = "id", nullable = false, length = 128)
     val id: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tamagotchi_id", nullable = false)
-    val tamagotchi: TamagotchiCatalogEntity,
+    @JoinColumn(name = "tama_id", nullable = false)
+    val tama: TamaCatalogEntity,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
