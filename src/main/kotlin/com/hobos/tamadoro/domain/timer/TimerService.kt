@@ -83,25 +83,29 @@ class TimerService(
     @Transactional
     fun updateTimerSettings(
         userId: UUID,
+        workTime: Int? = null,
         shortBreakTime: Int? = null,
         longBreakTime: Int? = null,
         longBreakInterval: Int? = null,
         autoStartBreaks: Boolean? = null,
         autoStartPomodoros: Boolean? = null,
         soundEnabled: Boolean? = null,
-        vibrationEnabled: Boolean? = null
+        vibrationEnabled: Boolean? = null,
+        notificationsEnabled: Boolean? = null
     ): TimerSettings {
         val settings = timerSettingsRepository.findByUserId(userId)
             .orElseThrow { NoSuchElementException("Timer settings not found for user ID: $userId") }
         
         settings.update(
+            workTime = workTime,
             shortBreakTime = shortBreakTime,
             longBreakTime = longBreakTime,
             longBreakInterval = longBreakInterval,
             autoStartBreaks = autoStartBreaks,
             autoStartPomodoros = autoStartPomodoros,
             soundEnabled = soundEnabled,
-            vibrationEnabled = vibrationEnabled
+            vibrationEnabled = vibrationEnabled,
+            notificationEnabled = notificationsEnabled,
         )
         
         return timerSettingsRepository.save(settings)

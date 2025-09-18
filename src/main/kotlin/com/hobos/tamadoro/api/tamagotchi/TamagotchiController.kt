@@ -21,11 +21,11 @@ class TamaController(
     /**
      * Gets all tamas for a user.
      */
-//    @GetMapping
-//    fun getTamas(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamaDto>>> {
-//        val tamas = tamaApplicationService.getTamas(userId)
-//        return ResponseEntity.ok(ApiResponse.success(tamas))
-//    }
+    @GetMapping
+    fun getTamas(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamaDto>>> {
+        val tamas = tamaApplicationService.getTamas(userId)
+        return ResponseEntity.ok(ApiResponse.success(tamas))
+    }
 //
     /**
      * Gets a specific tama by ID.

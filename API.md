@@ -1,359 +1,274 @@
-# Tamadoro (Pomodoro + Tama) API 명세서 — 최신
+# Tamadoro Backend API Spec (based on current app)
 
-본 문서는 현재 프론트엔드 구현(`app/services/realApi.ts`, `app/types/api.ts`, `app/constants/config.ts`)을 기준으로 백엔드가 구현해야 할 REST API를 정의합니다.
+This document lists required endpoints, payloads, and behaviors derived from the current frontend. Use it to scaffold the server and align with the mobile app.
 
-## 1. 공통
+Sections
 
-- Base URL: `API_CONFIG.BACKEND_URL` (예: http://localhost:3000)
-- 인증: JWT Bearer 토큰 (헤더 `Authorization: Bearer <token>`)
-- 응답 래퍼:
+- Auth
+- User
+- Timer
+- Stats
+- Tasks
+- Tamas (characters) + Care
+- Inventory (coins/gems, active tama)
+- Collection (backgrounds, music, characters)
+- Purchases (coins/gems/items)
+- Subscription (premium)
 
-```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
-interface ApiError {
-  success: false;
-  error: { code: number; message: string; details?: any };
-}
-```
+Notes
 
-## 2. 인증
+- All responses use a common envelope: { success: boolean, data: T, message?: string }
+- Use HTTP status codes; errors may include { success: false, error: { code, message, details? } } when applicable.
+- Authenticated endpoints require Bearer token.
+
+Auth
 
 - POST /auth/apple
-  - body: { identityToken: string; authorizationCode: string; user: any }
-  - res: { user: User; token: string; refreshToken: string }
+
+  - body: { identityToken: string, authorizationCode?: string, user: { id: string, email?: string, name?: { firstName?: string, lastName?: string } } }
+  - 200: { success, data: { user: User, token: string, refreshToken: string } }
+
 - POST /auth/refresh
+
   - body: { refreshToken: string }
-  - res: { token: string; refreshToken: string }
+  - 200: { success, data: { token: string, refreshToken: string } }
+
 - POST /auth/logout
+  - 200: { success, data: null }
 
-## 3. 사용자
+User
 
-- GET /user/profile → User
+- GET /user/profile
+
+  - 200: { success, data: User }
+
 - PUT /user/profile
   - body: Partial<User>
-  - res: User
+  - 200: { success, data: User }
 
-```typescript
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  isPremium: boolean;
-  createdAt: string;
-  updatedAt: string;
-  lastLoginAt: string;
-  subscription?: {
-    type: "monthly" | "yearly";
-    startDate: string;
-    endDate: string;
-    status: "active" | "cancelled" | "expired";
-  };
-}
-```
+Types
 
-## 4. 타이머
+- User: { id: string, email: string, name: string, isPremium: boolean, createdAt: string, updatedAt: string, lastLoginAt: string, subscription?: { type: "MONTHLY"|"YEARLY", startDate: string, endDate: string, status: "active"|"cancelled"|"expired" } }
 
-- GET /timer/settings → TimerSettings
+Timer
+
+- GET /timer/settings
+
+  - 200: { success, data: TimerSettings }
+
 - PUT /timer/settings
+
   - body: Partial<TimerSettings>
-  - res: TimerSettings
+  - 200: { success, data: TimerSettings }
+
 - POST /timer/sessions
-  - body: Omit<TimerSession, "id" | "userId">
-  - res: TimerSession
-- PUT /timer/sessions/{id}
+
+  - body: Omit<TimerSession, "id"|"userId">
+  - 201: { success, data: TimerSession }
+
+- PUT /timer/sessions/:id
   - body: Partial<TimerSession>
-  - res: TimerSession
+  - 200: { success, data: TimerSession }
 
-```typescript
-export interface TimerSettings {
-  workTime: number;
-  shortBreakTime: number;
-  longBreakTime: number;
-  longBreakInterval: number;
-  autoStartBreaks: boolean;
-  autoStartPomodoros: boolean;
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-}
+Types
 
-export interface TimerSession {
-  id: string;
-  userId: string;
-  type: "focus" | "shortBreak" | "longBreak";
-  duration: number;
-  completed: boolean;
-  startedAt: string;
-  completedAt?: string;
-  taskId?: string;
-}
-```
+- TimerSettings: { workTime: number, shortBreakTime: number, longBreakTime: number, longBreakInterval: number, autoStartBreaks: boolean, autoStartPomodoros: boolean, soundEnabled: boolean, vibrationEnabled: boolean, notificationsEnabled: boolean }
+- TimerSession: { id: string, userId: string, type: "focus"|"shortBreak"|"longBreak", duration: number, completed: boolean, startedAt: string, completedAt?: string, taskId?: string }
 
-## 5. 태스크
+Stats
 
-- GET /tasks → Task[]
+- GET /stats/daily?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+
+  - 200: { success, data: DailyStats[] }
+
+- GET /stats/weekly?week=YYYY-[W]ww
+
+  - 200: { success, data: { ... } } (shape flexible for now)
+
+- GET /stats/monthly?month=YYYY-MM
+  - 200: { success, data: { ... } }
+
+Types
+
+- DailyStats: { date: string, completedPomodoros: number, totalFocusTime: number, completedTasks: number, attendance: boolean, coinsEarned: number, gemsEarned: number }
+
+Tasks
+
+- GET /tasks
+
+  - 200: { success, data: Task[] }
+
 - POST /tasks
+
   - body: CreateTaskRequest
-  - res: Task
-- PUT /tasks/{id}
+  - 201: { success, data: Task }
+
+- PUT /tasks/:id
+
   - body: UpdateTaskRequest
-  - res: Task
-- DELETE /tasks/{id}
-- POST /tasks/{id}/complete
+  - 200: { success, data: Task }
 
-```typescript
-export interface Task {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string;
-  completed: boolean;
-  priority: "low" | "medium" | "high";
-  estimatedPomodoros: number;
-  completedPomodoros: number;
-  createdAt: string;
-  updatedAt: string;
-  completedAt?: string;
-}
+- DELETE /tasks/:id
 
-export interface CreateTaskRequest {
-  title: string;
-  description?: string;
-  priority: "low" | "medium" | "high";
-  estimatedPomodoros: number;
-}
+  - 200: { success, data: null }
 
-export interface UpdateTaskRequest {
-  title?: string;
-  description?: string;
-  priority?: "low" | "medium" | "high";
-  estimatedPomodoros?: number;
-  completed?: boolean;
-  completedPomodoros?: number;
-}
-```
+- POST /tasks/:id/complete
+  - 200: { success, data: null }
 
-## 6. 통계
+Types
 
-- GET /stats/daily?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD → DailyStats[]
-- GET /stats/weekly?week=YYYY-Www → WeeklyStats
-- GET /stats/monthly?month=YYYY-MM → MonthlyStats
-- GET /stats/goals/weekly → WeeklyGoal
-- PUT /stats/goals/weekly
-  - body: Partial<WeeklyGoal>
-  - res: WeeklyGoal
-- POST /stats/pomodoros
-- POST /stats/tasks
+- Task: { id: string, userId: string, title: string, description?: string, completed: boolean, priority: "low"|"medium"|"high", estimatedPomodoros: number, completedPomodoros: number, createdAt: string, updatedAt: string, completedAt?: string }
+- CreateTaskRequest: { title: string, description?: string, priority: "low"|"medium"|"high", estimatedPomodoros: number }
+- UpdateTaskRequest: Partial<CreateTaskRequest> & { completed?: boolean, completedPomodoros?: number }
 
-```typescript
-export interface DailyStats {
-  date: string;
-  completedPomodoros: number;
-  totalFocusTime: number;
-  completedTasks: number;
-  attendance: boolean;
-  coinsEarned: number;
-  gemsEarned: number;
-}
+Tamas (characters) + Care
 
-export interface WeeklyGoal {
-  pomodoros: number;
-  focusTime: number;
-  tasks: number;
-}
-```
+- GET /tamas
 
-## 7. 타마고치
+  - 200: { success, data: UserInventory["tamas"] }
 
-- GET /tamas → Tama[]
-- POST /tamas (생성)
-- PUT /tamas/{id}
-- DELETE /tamas/{id}
-- POST /tamas/{id}/feed
-- POST /tamas/{id}/play
-- POST /tamas/{id}/experience
+- POST /tamas
 
-```typescript
-export interface Tama {
-  id: string;
-  userId: string;
-  name: string;
-  type:
-    | "tomato"
-    | "coffee"
-    | "book"
-    | "tree"
-    | "cat"
-    | "kitten"
-    | "dragon"
-    | "unicorn"
-    | "phoenix"
-    | "owl"
-    | "fox"
-    | "panda"
-    | "rabbit"
-    | "dog";
-  rarity: "common" | "rare" | "epic" | "legendary" | "mythic";
-  level: number;
-  experience: number;
-  maxExperience: number;
-  isActive: boolean;
-  acquiredAt: string;
-  growthStage: "egg" | "baby" | "child" | "teen" | "adult";
-  happiness: number;
-  hunger: number;
-  energy: number;
-  lastInteraction: string;
-}
-```
+  - body: { id: string, name?: string }
+  - 201: { success, data: any }
 
-## 8. 인벤토리
+- PUT /tamas/:id
 
-- GET /inventory → { coins, gems, tamas, activeTamaId? }
-- PUT /inventory/coins (body: { amount: number })
-- PUT /inventory/gems (body: { amount: number })
-- PUT /inventory/active-tama (body: { id: string })
+  - body: { name?: string, stage?: "egg"|"baby"|"child"|"teen"|"adult" }
+  - 200: { success, data: any }
 
-## 9. 컬렉션
+- DELETE /tamas/:id
 
-- GET /backgrounds → BackgroundItem[]
-- PUT /backgrounds/active (body: { id })
-- POST /backgrounds/{id}/purchase
-- GET /music/tracks → MusicItem[]
-- PUT /music/active (body: { id })
-- POST /music/tracks/{id}/purchase
-- GET /characters → CharacterItem[]
-- PUT /characters/active (body: { id })
-- POST /characters/{id}/purchase
+  - 200: { success, data: null }
 
-```typescript
-export interface BackgroundItem {
-  id: string;
-  name: string;
-  value: string;
-  type: "gradient" | "image";
-  focusColor?: string;
-  breakColor?: string;
-  theme: "light" | "dark" | "color" | "nature";
-  imagePath?: string;
-  isPremium: boolean;
-}
+- POST /tamas/:id/feed
 
-export interface MusicItem {
-  id: string;
-  name: string;
-  value: string;
-  type: "ambient" | "nature" | "focus" | "none";
-  volume: number;
-  isPremium: boolean;
-}
+  - 200: { success, data: null }
 
-export interface CharacterItem {
-  id: string;
-  name: string;
-  type: Tama["type"];
-  size: number;
-  isPremium: boolean;
-}
-```
+- POST /tamas/:id/play
 
-## 10. 랜덤 박스
+  - 200: { success, data: null }
 
-- GET /random-boxes → RandomBox[]
-- POST /random-boxes/{id}/purchase → Reward[]
+- POST /tamas/:id/experience
+  - 200: { success, data: null }
 
-```typescript
-export interface RandomBox {
-  id: string;
-  name: string;
-  price: number;
-  currency: "coins" | "gems";
-  description: string;
-  rarity: "common" | "rare" | "epic" | "legendary";
-  rewards: Reward[];
-}
+Inventory
 
-export interface Reward {
-  type: "tama" | "coin" | "gem";
-  rarity: string;
-  name: string;
-  icon: string;
-  amount?: number;
-}
-```
+- GET /inventory
 
-## 11. 결제/구독
+  - 200: { success, data: UserInventory }
 
-- GET /purchase/coins → CoinPackage[]
-- GET /purchase/gems → GemPackage[]
-- POST /purchase/coins (body: { packageId: string })
-- POST /purchase/gems (body: { packageId: string })
-- GET /subscription/plans → PremiumSubscription[]
-- GET /subscription/status → { ... }
-- POST /subscription/subscribe (body: { type: "monthly" | "yearly" })
+- PUT /inventory/coins
+
+  - body: { amount: number } (absolute or delta; choose one policy)
+  - 200: { success, data: null }
+
+- PUT /inventory/gems
+
+  - body: { amount: number }
+  - 200: { success, data: null }
+
+- PUT /inventory/active-tama
+  - body: { id: string }
+  - 200: { success, data: null }
+
+Types
+
+- UserInventory: { coins: number, gems: number, tamas: Tama[], activeTamaId?: string }
+- Tama: { id: string, userId: string, name: string, type: "tomato"|"coffee"|"book"|"tree"|..., rarity: "common"|"rare"|"epic"|"legendary"|"mythic", level: number, experience: number, maxExperience: number, isActive: boolean, acquiredAt: string, growthStage: "egg"|"baby"|"child"|"teen"|"adult", happiness: number, hunger: number, energy: number, lastInteraction: string }
+
+Collection
+
+- GET /backgrounds
+
+  - 200: { success, data: BackgroundItem[] }
+
+- GET /sound/tracks
+
+  - 200: { success, data: MusicItem[] }
+
+- GET /characters
+  - 200: { success, data: CharacterItem[] }
+
+Types
+
+- BackgroundItem: { id: string, title: string, theme: string, isPremium: boolean, url: string }
+- MusicItem: { id: string, title: string, theme: string, resource: string, url: string, isPremium: boolean }
+- CharacterItem: { id: string, title: string, theme: string, isPremium: boolean, stages: { name: "egg"|"baby"|"child"|"teen"|"adult", experience: number, maxExperience: number, level: number, url: string }[], happiness: number, hunger: number, energy: number }
+
+Purchases (store)
+
+- GET /purchase/coins
+
+  - 200: { success, data: CoinPackage[] }
+
+- GET /purchase/gems
+
+  - 200: { success, data: GemPackage[] }
+
+- POST /purchase/coins
+
+  - body: { packageId: string }
+  - 200: { success, data: null }
+
+- POST /purchase/gems
+
+  - body: { packageId: string }
+  - 200: { success, data: null }
+
+- POST /backgrounds/:id/purchase
+
+  - 200: { success, data: null }
+
+- POST /sound/tracks/:id/purchase
+
+  - 200: { success, data: null }
+
+- POST /tamas/:id/purchase
+
+  - 200: { success, data: null }
+
+- POST /random-boxes/:id/purchase
+  - 200: { success, data: Reward[] }
+
+Types
+
+- CoinPackage: { amount: number, price: number, bonus: number }
+- GemPackage: { amount: number, price: number, bonus: number }
+- Reward: { type: "tama"|"coin"|"gem", rarity: string, name: string, icon: string, amount?: number }
+
+Subscription (premium)
+
+- GET /subscription/plans
+
+  - 200: { success, data: { type: "MONTHLY"|"YEARLY", price: number, features: string[] }[] }
+
+- POST /subscription
+
+  - body: { type: "MONTHLY"|"YEARLY" }
+  - 200: { success, data: null }
+
 - POST /subscription/cancel
 
-```typescript
-export interface CoinPackage {
-  amount: number;
-  price: number;
-  bonus: number;
-}
-export interface GemPackage {
-  amount: number;
-  price: number;
-  bonus: number;
-}
-export interface PremiumSubscription {
-  type: "monthly" | "yearly";
-  price: number;
-  features: string[];
-}
-```
+  - 200: { success, data: null }
 
-## 12. 출석
+- GET /subscription/status
+  - 200: { success, data: { isPremium: boolean } | { isActive: boolean } | { status: "active"|"inactive" } }
 
-- GET /attendance → Attendance[]
-- POST /attendance/check → Attendance
-- GET /attendance/streak → number
+Server behaviors and hooks
 
-```typescript
-export interface Attendance {
-  id: string;
-  userId: string;
-  date: string;
-  checkedAt: string;
-  streakDays: number;
-  reward: { coins: number; gems: number };
-}
-```
+- When purchasing items or currency, also update /inventory accordingly.
+- Feeding/playing with a tama should update hunger/happiness/energy and optionally grant small XP; also record timestamps to support decay.
+- For Apple Sign-In, validate identityToken with Apple, create user on first sign-in, and return app-issued tokens.
+- For subscription, verify App Store receipts server-side (future); for now, honor plan selection and set user.isPremium.
 
-## 13. 광고
+Open questions to finalize
 
-- POST /ads/interstitial (body: { context: "timer_complete" | "skip_timer" | "task_complete" })
-- POST /ads/banner (body: { placement: "timer" | "tasks" | "collection" })
+- Are coin/gem updates absolute set or delta? App currently calls additive flows; prefer delta: { delta: number }.
+- Should /characters include CDN absolute URLs for stage images? Frontend can accept absolute URLs.
+- Random box reward tables and probabilities to be confirmed.
 
-## 14. 엔드포인트 요약
+Appendix: minimal shapes (from frontend)
 
-- 인증: POST /auth/apple, POST /auth/refresh, POST /auth/logout
-- 사용자: GET/PUT /user/profile
-- 타이머: GET/PUT /timer/settings, POST /timer/sessions, PUT /timer/sessions/{id}
-- 태스크: GET/POST /tasks, PUT/DELETE /tasks/{id}, POST /tasks/{id}/complete
-- 통계: GET /stats/daily, /stats/weekly, /stats/monthly, GET/PUT /stats/goals/weekly, POST /stats/pomodoros, POST /stats/tasks
-- 타마고치: GET/POST /tamas, PUT/DELETE /tamas/{id}, POST /tamas/{id}/feed|play|experience
-- 인벤토리: GET /inventory, PUT /inventory/coins|gems|active-tama
-- 컬렉션: GET /backgrounds | /music/tracks | /characters, PUT /backgrounds/active | /music/active | /characters/active, POST /backgrounds/{id}/purchase | /music/tracks/{id}/purchase | /characters/{id}/purchase
-- 랜덤 박스: GET /random-boxes, POST /random-boxes/{id}/purchase
-- 결제/구독: GET /purchase/coins|gems | /subscription/plans|status, POST /purchase/coins|gems | /subscription/subscribe|cancel
-- 출석: GET /attendance, POST /attendance/check, GET /attendance/streak
-- 광고: POST /ads/interstitial, POST /ads/banner
-
-## 15. 보안/에러
-
-- 모든 보호 엔드포인트는 JWT 필요
-- 표준 에러 응답은 `ApiError` 사용, HTTP 상태코드와 동기화(401/403/404/409/422/429/500 등)
-
-본 명세는 프론트 최신 코드 기준이며, 코틀린 스프링 백엔드가 구현해야 할 최소 집합입니다.
+- Payment mock products: premium*monthly, premium_yearly, coins*_, gems\__.
+- Feature flags exist in-app; backend should tolerate absent features gracefully.

@@ -27,15 +27,21 @@ class UserApplicationService(
      * Updates a user's profile.
      */
     @Transactional
-    fun updateUserProfile(userId: UUID): UserDto {
+    fun updateUserProfile(userId: UUID, request: UpdateUserProfileRequest): UserDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-
+        // For now, we accept email/name but do not persist as entity lacks fields.
+        // This keeps API compatibility with the mobile app.
         val updatedUser = userRepository.save(user)
         return UserDto.fromEntity(updatedUser)
     }
 }
+
+data class UpdateUserProfileRequest(
+    val email: String? = null,
+    val name: String? = null
+)
 
 /**
  * DTO for user data.

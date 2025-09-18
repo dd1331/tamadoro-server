@@ -35,7 +35,8 @@ class InventoryController(
         @CurrentUserId userId: UUID,
         @RequestBody request: UpdateCoinsRequest
     ): ResponseEntity<ApiResponse<InventoryDto>> {
-        val inventory = inventoryApplicationService.updateCoins(userId, request.amount)
+        val delta = request.delta ?: request.amount ?: 0
+        val inventory = inventoryApplicationService.updateCoins(userId, delta)
         return ResponseEntity.ok(ApiResponse.success(inventory))
     }
     
@@ -47,7 +48,8 @@ class InventoryController(
         @CurrentUserId userId: UUID,
         @RequestBody request: UpdateGemsRequest
     ): ResponseEntity<ApiResponse<InventoryDto>> {
-        val inventory = inventoryApplicationService.updateGems(userId, request.amount)
+        val delta = request.delta ?: request.amount ?: 0
+        val inventory = inventoryApplicationService.updateGems(userId, delta)
         return ResponseEntity.ok(ApiResponse.success(inventory))
     }
     

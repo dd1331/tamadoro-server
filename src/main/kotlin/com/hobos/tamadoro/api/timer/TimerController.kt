@@ -43,13 +43,15 @@ class TimerController(
     ): ResponseEntity<ApiResponse<TimerSettingsDto>> {
         val settings = timerApplicationService.updateTimerSettings(
             userId = userId,
+            workTime = request.workTime,
             shortBreakTime = request.shortBreakTime,
             longBreakTime = request.longBreakTime,
             longBreakInterval = request.longBreakInterval,
             autoStartBreaks = request.autoStartBreaks,
             autoStartPomodoros = request.autoStartPomodoros,
             soundEnabled = request.soundEnabled,
-            vibrationEnabled = request.vibrationEnabled
+            vibrationEnabled = request.vibrationEnabled,
+            notificationsEnabled = request.notificationsEnabled
         )
         return ResponseEntity.ok(ApiResponse.success(settings))
     }
@@ -62,10 +64,11 @@ class TimerController(
         @CurrentUserId userId: UUID,
         @Valid @RequestBody request: StartTimerSessionRequest
     ): ResponseEntity<ApiResponse<TimerSessionDto>> {
-        val sessionType = when (request.type.lowercase()) {
-            "work" -> TimerSessionType.WORK
-            "shortbreak" -> TimerSessionType.SHORT_BREAK
-            "longbreak" -> TimerSessionType.LONG_BREAK
+        val normalized = request.type.replace("_", "").replace(" ", "").lowercase()
+        val sessionType = when (normalized) {
+            "work", "focus" -> TimerSessionType.WORK
+            "shortbreak", "short" -> TimerSessionType.SHORT_BREAK
+            "longbreak", "long" -> TimerSessionType.LONG_BREAK
             else -> throw IllegalArgumentException("Invalid timer session type: ${request.type}")
         }
         
@@ -111,13 +114,15 @@ class TimerController(
  * Request for updating timer settings.
  */
 data class UpdateTimerSettingsRequest(
+    val workTime: Int? = null,
     val shortBreakTime: Int? = null,
     val longBreakTime: Int? = null,
     val longBreakInterval: Int? = null,
     val autoStartBreaks: Boolean? = null,
     val autoStartPomodoros: Boolean? = null,
     val soundEnabled: Boolean? = null,
-    val vibrationEnabled: Boolean? = null
+    val vibrationEnabled: Boolean? = null,
+    val notificationsEnabled: Boolean? = null
 )
 
 /**

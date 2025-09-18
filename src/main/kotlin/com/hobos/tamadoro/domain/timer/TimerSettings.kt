@@ -19,7 +19,7 @@ class TimerSettings(
     val user: User,
     
     @Column(name = "work_time", nullable = false)
-    val workTime: Int = 25, // 25 minutes by default
+    var workTime: Int = 25, // 25 minutes by default
     
     @Column(name = "short_break_time", nullable = false)
     var shortBreakTime: Int = 5, // 5 minutes by default
@@ -43,13 +43,14 @@ class TimerSettings(
     var vibrationEnabled: Boolean = true,
 
     @Column(name = "notification_enabled", nullable = false)
-        var notificationsEnabled: Boolean = true
+    var notificationsEnabled: Boolean = true
 
 ) {
     /**
      * Updates the timer settings.
      */
     fun update(
+        workTime: Int? = null,
         shortBreakTime: Int? = null,
         longBreakTime: Int? = null,
         longBreakInterval: Int? = null,
@@ -60,6 +61,7 @@ class TimerSettings(
         notificationEnabled: Boolean? = null,
 
     ) {
+        workTime?.let { this.workTime = it }
         shortBreakTime?.let { this.shortBreakTime = it }
         longBreakTime?.let { this.longBreakTime = it }
         longBreakInterval?.let { this.longBreakInterval = it }

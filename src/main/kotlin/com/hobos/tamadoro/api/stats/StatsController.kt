@@ -24,12 +24,22 @@ class StatsController(
     /**
      * Gets daily statistics for a user.
      */
-    @GetMapping("/daily")
+@GetMapping("/daily")
     fun getDailyStats(
         @CurrentUserId userId: UUID,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
     ): ResponseEntity<ApiResponse<DailyStatsDto>> {
         val stats = statsApplicationService.getDailyStats(userId, date ?: LocalDate.now())
+        return ResponseEntity.ok(ApiResponse.success(stats))
+    }
+
+    @GetMapping(value = ["/daily"], params = ["startDate", "endDate"])
+    fun getDailyStatsRangeSpec(
+        @CurrentUserId userId: UUID,
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
+    ): ResponseEntity<ApiResponse<List<DailyStatsDto>>> {
+        val stats = statsApplicationService.getDailyStatsRange(userId, start, end)
         return ResponseEntity.ok(ApiResponse.success(stats))
     }
     
@@ -102,8 +112,9 @@ class StatsController(
         @CurrentUserId userId: UUID,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
-    ): ResponseEntity<ApiResponse<Unit>> {
-        return TODO("Provide the return value")
+    ): ResponseEntity<ApiResponse<Map<LocalDate, Int>>?> {
+        val pomodoroHeatmap = statsApplicationService.getPomodoroHeatmap(userId, start, end)
+        return ResponseEntity.ok(ApiResponse.success(pomodoroHeatmap))
     }
     @PostMapping("/tasks")
     fun postTaskEvent(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {

@@ -47,8 +47,9 @@ class CollectionsController(
     fun purchaseMusic(@CurrentUserId userId: UUID, @PathVariable id: String): ResponseEntity<ApiResponse<Map<String, Any?>>> =
         ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseMusic(userId, id)))
 
-    @GetMapping("/tamas")
-    fun getTamas(): ResponseEntity<ApiResponse<List<TamaItem>>> =
+    // Catalog of characters (tamas) for collection
+    @GetMapping("/characters")
+    fun getCharacters(): ResponseEntity<ApiResponse<List<TamaItem>>> =
         ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getTamas()))
 
     @PutMapping("/tamas/active")
@@ -64,4 +65,3 @@ class CollectionsController(
 }
 
 data class SetActiveRequest(@field:NotBlank val id: String)
-

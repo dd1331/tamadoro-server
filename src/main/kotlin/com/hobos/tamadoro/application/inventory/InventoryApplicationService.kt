@@ -143,14 +143,16 @@ data class InventoryDto(
  * Request for updating coins.
  */
 data class UpdateCoinsRequest(
-    val amount: Int
+    val amount: Int? = null,
+    val delta: Int? = null
 )
 
 /**
  * Request for updating gems.
  */
 data class UpdateGemsRequest(
-    val amount: Int
+    val amount: Int? = null,
+    val delta: Int? = null
 )
 
 /**

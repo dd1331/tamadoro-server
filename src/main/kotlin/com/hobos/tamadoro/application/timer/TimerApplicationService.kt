@@ -104,23 +104,27 @@ class TimerApplicationService(
     @Transactional
     fun updateTimerSettings(
         userId: UUID,
+        workTime: Int? = null,
         shortBreakTime: Int? = null,
         longBreakTime: Int? = null,
         longBreakInterval: Int? = null,
         autoStartBreaks: Boolean? = null,
         autoStartPomodoros: Boolean? = null,
         soundEnabled: Boolean? = null,
-        vibrationEnabled: Boolean? = null
+        vibrationEnabled: Boolean? = null,
+        notificationsEnabled: Boolean? = null
     ): TimerSettingsDto {
         val settings = timerService.updateTimerSettings(
             userId = userId,
+            workTime = workTime,
             shortBreakTime = shortBreakTime,
             longBreakTime = longBreakTime,
             longBreakInterval = longBreakInterval,
             autoStartBreaks = autoStartBreaks,
             autoStartPomodoros = autoStartPomodoros,
             soundEnabled = soundEnabled,
-            vibrationEnabled = vibrationEnabled
+            vibrationEnabled = vibrationEnabled,
+            notificationsEnabled = notificationsEnabled
         )
         
         return TimerSettingsDto.fromEntity(settings)
@@ -169,7 +173,11 @@ data class TimerSessionDto(
             return TimerSessionDto(
                 id = entity.id,
                 userId = entity.user.id,
-                type = entity.type.name,
+                type = when (entity.type) {
+                    com.hobos.tamadoro.domain.timer.TimerSessionType.WORK -> "focus"
+                    com.hobos.tamadoro.domain.timer.TimerSessionType.SHORT_BREAK -> "shortBreak"
+                    com.hobos.tamadoro.domain.timer.TimerSessionType.LONG_BREAK -> "longBreak"
+                },
                 duration = entity.duration,
                 completed = entity.completed,
                 startedAt = entity.startedAt.toString(),

@@ -44,6 +44,11 @@ class PurchaseController(
     fun subscribe(@CurrentUserId userId: UUID, @RequestBody req: SubscribeRequest) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.type)))
 
+    // Alias to match spec: POST /subscription
+    @PostMapping("/subscription")
+    fun subscribeAlias(@CurrentUserId userId: UUID, @RequestBody req: SubscribeRequest) =
+        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.type)))
+
     @PostMapping("/subscription/cancel")
     fun cancel(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.cancel(userId)))
@@ -52,5 +57,4 @@ class PurchaseController(
     fun history(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionHistory(userId)))
 }
-
 

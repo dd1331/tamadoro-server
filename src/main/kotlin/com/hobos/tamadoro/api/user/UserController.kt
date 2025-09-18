@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.api.user
 
 import com.hobos.tamadoro.application.user.UserApplicationService
+import com.hobos.tamadoro.application.user.UpdateUserProfileRequest
 import com.hobos.tamadoro.application.user.UserDto
 import org.springframework.http.ResponseEntity
 import com.hobos.tamadoro.config.CurrentUserId
@@ -23,7 +24,15 @@ class UserController(
         val user = userApplicationService.getUserProfile(userId)
         return ResponseEntity.ok(ApiResponse.success(user))
     }
-    
+
+    @PutMapping("/profile")
+    fun updateUserProfile(
+        @CurrentUserId userId: UUID,
+        @RequestBody request: UpdateUserProfileRequest
+    ): ResponseEntity<ApiResponse<UserDto>> {
+        val user = userApplicationService.updateUserProfile(userId, request)
+        return ResponseEntity.ok(ApiResponse.success(user))
+    }
 
 }
 
