@@ -1,18 +1,22 @@
 package com.hobos.tamadoro.api.attendance
 
+import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.attendance.AttendanceApplicationService
 import com.hobos.tamadoro.application.attendance.AttendanceDto
 import com.hobos.tamadoro.application.attendance.AttendanceStreakDto
-import org.springframework.http.ResponseEntity
 import com.hobos.tamadoro.config.CurrentUserId
-import org.springframework.web.bind.annotation.*
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 /**
  * REST controller for attendance-related endpoints.
  */
 @RestController
-@RequestMapping("/api/attendance")
+@RequestMapping("/attendance")
 class AttendanceController(
     private val attendanceApplicationService: AttendanceApplicationService
 ) {
@@ -43,34 +47,3 @@ class AttendanceController(
         return ResponseEntity.ok(ApiResponse.success(streak))
     }
 }
-
-/**
- * Generic API response wrapper.
- */
-data class ApiResponse<T>(
-    val success: Boolean,
-    val data: T? = null,
-    val error: ErrorResponse? = null
-) {
-    companion object {
-        fun <T> success(data: T): ApiResponse<T> {
-            return ApiResponse(success = true, data = data)
-        }
-        
-        fun <T> error(code: Int, message: String, details: Any? = null): ApiResponse<T> {
-            return ApiResponse(
-                success = false,
-                error = ErrorResponse(code, message, details)
-            )
-        }
-    }
-}
-
-/**
- * Error response.
- */
-data class ErrorResponse(
-    val code: Int,
-    val message: String,
-    val details: Any? = null
-) 

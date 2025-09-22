@@ -31,7 +31,7 @@ class TimerSession(
     var completed: Boolean = false,
     
     @Column(name = "started_at", nullable = false)
-    val startedAt: LocalDateTime = LocalDateTime.now(),
+    var startedAt: LocalDateTime = LocalDateTime.now(),
     
     @Column(name = "completed_at")
     var completedAt: LocalDateTime? = null,
@@ -42,10 +42,17 @@ class TimerSession(
     /**
      * Completes the timer session.
      */
-    fun complete() {
+    fun complete(at: LocalDateTime? = null) {
         if (!completed) {
             completed = true
-            completedAt = LocalDateTime.now()
+        }
+        completedAt = at ?: LocalDateTime.now()
+    }
+
+    fun markIncomplete() {
+        if (completed) {
+            completed = false
+            completedAt = null
         }
     }
     

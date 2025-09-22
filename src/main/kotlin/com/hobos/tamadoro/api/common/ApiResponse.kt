@@ -3,12 +3,21 @@ package com.hobos.tamadoro.api.common
 data class ApiResponse<T>(
     val success: Boolean,
     val data: T? = null,
+    val message: String? = null,
     val error: ErrorResponse? = null
 ) {
     companion object {
-        fun <T> success(data: T): ApiResponse<T> = ApiResponse(true, data, null)
+        fun success(message: String? = null): ApiResponse<Unit> =
+            ApiResponse(success = true, data = null, message = message, error = null)
+
+        fun <T> success(data: T, message: String? = null): ApiResponse<T> =
+            ApiResponse(success = true, data = data, message = message, error = null)
+
+        fun <T> successNullable(data: T? = null, message: String? = null): ApiResponse<T> =
+            ApiResponse(success = true, data = data, message = message, error = null)
+
         fun <T> error(code: Int, message: String, details: Any? = null): ApiResponse<T> =
-            ApiResponse(false, null, ErrorResponse(code, message, details))
+            ApiResponse(success = false, data = null, message = null, error = ErrorResponse(code, message, details))
     }
 }
 

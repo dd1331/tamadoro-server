@@ -165,8 +165,9 @@ class TamaService(
      * Updates a tama.
      */
     @Transactional
-    fun updateTama(tama: Tama, name: String?): Tama {
+    fun updateTama(tama: Tama, name: String?, stage: TamaGrowthStage?): Tama {
         name?.let { tama.name = it }
+        stage?.let { tama.growthStage = it }
         return tamaRepository.save(tama)
     }
     

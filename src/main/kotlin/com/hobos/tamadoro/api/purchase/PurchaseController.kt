@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping
 class PurchaseController(
     private val purchaseApplicationService: PurchaseApplicationService
 ) {
@@ -57,4 +57,3 @@ class PurchaseController(
     fun history(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionHistory(userId)))
 }
-

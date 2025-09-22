@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping
 class CollectionsController(
     private val collectionsApplicationService: CollectionsApplicationService
 ) {

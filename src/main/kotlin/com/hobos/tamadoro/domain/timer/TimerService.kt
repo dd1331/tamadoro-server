@@ -28,20 +28,30 @@ class TimerService(
     fun createTimerSession(
         user: User,
         type: TimerSessionType,
-        taskId: UUID? = null
+        taskId: UUID? = null,
+        durationOverride: Int? = null,
+        startedAt: LocalDateTime? = null,
+        completed: Boolean = false,
+        completedAt: LocalDateTime? = null
     ): TimerSession {
         // Get user's timer settings or create default settings
         val settings = timerSettingsRepository.findByUserId(user.id)
             .orElseGet { createDefaultTimerSettings(user) }
         
         // Create a new timer session
-        val duration = settings.getDurationForSessionType(type)
+        val duration = durationOverride ?: settings.getDurationForSessionType(type)
         val session = TimerSession(
             user = user,
             type = type,
             duration = duration,
-            taskId = taskId
+            taskId = taskId,
+            startedAt = startedAt ?: LocalDateTime.now(),
+            completed = false,
+            completedAt = null
         )
+        if (completed || completedAt != null) {
+            session.complete(completedAt)
+        }
         
         return timerSessionRepository.save(session)
     }
@@ -74,6 +84,37 @@ class TimerService(
             updateDailyStats(session)
         }
         
+        return timerSessionRepository.save(session)
+    }
+
+    @Transactional
+    fun updateTimerSession(
+        sessionId: UUID,
+        duration: Int? = null,
+        completed: Boolean? = null,
+        completedAt: LocalDateTime? = null,
+        startedAt: LocalDateTime? = null,
+        taskId: UUID? = null
+    ): TimerSession {
+        val session = timerSessionRepository.findById(sessionId)
+            .orElseThrow { NoSuchElementException("Timer session not found with ID: $sessionId") }
+
+        duration?.let { session.duration = it }
+        taskId?.let { session.taskId = it }
+        startedAt?.let { session.startedAt = it }
+
+        completed?.let {
+            if (it) {
+                session.complete(completedAt)
+            } else {
+                session.markIncomplete()
+            }
+        }
+
+        if (completedAt != null && completed == null) {
+            session.complete(completedAt)
+        }
+
         return timerSessionRepository.save(session)
     }
     
@@ -141,6 +182,10 @@ class TimerService(
         return timerSessionRepository.findByUserIdAndStartedAtBetween(userId, startOfDay, endOfDay)
             .filter { it.completed && it.type == TimerSessionType.WORK }
     }
+
+    fun findById(sessionId: UUID): TimerSession =
+        timerSessionRepository.findById(sessionId)
+            .orElseThrow { NoSuchElementException("Timer session not found with ID: $sessionId") }
     
     /**
      * Calculates the total focus time for a user on a specific date.

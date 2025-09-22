@@ -30,9 +30,10 @@ class UserApplicationService(
     fun updateUserProfile(userId: UUID, request: UpdateUserProfileRequest): UserDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
-        
-        // For now, we accept email/name but do not persist as entity lacks fields.
-        // This keeps API compatibility with the mobile app.
+
+        request.email?.let { user.email = it }
+        request.name?.let { user.displayName = it }
+
         val updatedUser = userRepository.save(user)
         return UserDto.fromEntity(updatedUser)
     }
@@ -48,6 +49,8 @@ data class UpdateUserProfileRequest(
  */
 data class UserDto(
     val id: UUID,
+    val email: String,
+    val name: String,
     val isPremium: Boolean,
     val createdAt: String,
     val updatedAt: String,
@@ -61,6 +64,8 @@ data class UserDto(
                 .firstOrNull()
             return UserDto(
                 id = entity.id,
+                email = entity.email ?: "",
+                name = entity.displayName ?: "",
                 isPremium = entity.isPremium,
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),

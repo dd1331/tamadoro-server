@@ -29,10 +29,11 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
-                        "/api/auth/**",
-                        "/api/backgrounds",
-                        "/api/sound/tracks",
-                        "/api/tamas",
+                        "/auth/apple",
+                        "/auth/refresh",
+                        "/backgrounds",
+                        "/sound/tracks",
+                        "/characters",
                         "/h2-console/**",
                         "/"
                     ).permitAll()
@@ -47,5 +48,3 @@ class SecurityConfig(
         return http.build()
     }
 }
-
-

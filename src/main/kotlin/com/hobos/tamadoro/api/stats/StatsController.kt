@@ -1,30 +1,41 @@
 package com.hobos.tamadoro.api.stats
 
-import com.hobos.tamadoro.application.stats.StatsApplicationService
+import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.stats.DailyStatsDto
-import com.hobos.tamadoro.application.stats.WeeklyStatsDto
 import com.hobos.tamadoro.application.stats.MonthlyStatsDto
-import com.hobos.tamadoro.application.stats.WeeklyGoalDto
+import com.hobos.tamadoro.application.stats.StatsApplicationService
 import com.hobos.tamadoro.application.stats.UpdateWeeklyGoalRequest
+import com.hobos.tamadoro.application.stats.WeeklyGoalDto
+import com.hobos.tamadoro.application.stats.WeeklyStatsDto
+import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
-import com.hobos.tamadoro.config.CurrentUserId
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 import java.util.UUID
 
-/**
- * REST controller for statistics-related endpoints.
- */
 @RestController
-@RequestMapping("/api/stats")
+@RequestMapping("/stats")
 class StatsController(
     private val statsApplicationService: StatsApplicationService
 ) {
-    /**
-     * Gets daily statistics for a user.
-     */
-@GetMapping("/daily")
+    @GetMapping("/daily", params = ["startDate", "endDate"])
+    fun getDailyStatsRange(
+        @CurrentUserId userId: UUID,
+        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) startDate: LocalDate,
+        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) endDate: LocalDate
+    ): ResponseEntity<ApiResponse<List<DailyStatsDto>>> {
+        val stats = statsApplicationService.getDailyStatsRange(userId, startDate, endDate)
+        return ResponseEntity.ok(ApiResponse.success(stats))
+    }
+
+    @GetMapping("/daily")
     fun getDailyStats(
         @CurrentUserId userId: UUID,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
@@ -33,32 +44,6 @@ class StatsController(
         return ResponseEntity.ok(ApiResponse.success(stats))
     }
 
-    @GetMapping(value = ["/daily"], params = ["startDate", "endDate"])
-    fun getDailyStatsRangeSpec(
-        @CurrentUserId userId: UUID,
-        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
-        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
-    ): ResponseEntity<ApiResponse<List<DailyStatsDto>>> {
-        val stats = statsApplicationService.getDailyStatsRange(userId, start, end)
-        return ResponseEntity.ok(ApiResponse.success(stats))
-    }
-    
-    /**
-     * Gets daily statistics for a user within a date range.
-     */
-    @GetMapping("/daily/range")
-    fun getDailyStatsRange(
-        @CurrentUserId userId: UUID,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
-    ): ResponseEntity<ApiResponse<List<DailyStatsDto>>> {
-        val stats = statsApplicationService.getDailyStatsRange(userId, start, end)
-        return ResponseEntity.ok(ApiResponse.success(stats))
-    }
-    
-    /**
-     * Gets weekly statistics for a user.
-     */
     @GetMapping("/weekly")
     fun getWeeklyStats(
         @CurrentUserId userId: UUID,
@@ -67,10 +52,7 @@ class StatsController(
         val stats = statsApplicationService.getWeeklyStats(userId, week ?: LocalDate.now())
         return ResponseEntity.ok(ApiResponse.success(stats))
     }
-    
-    /**
-     * Gets monthly statistics for a user.
-     */
+
     @GetMapping("/monthly")
     fun getMonthlyStats(
         @CurrentUserId userId: UUID,
@@ -79,19 +61,13 @@ class StatsController(
         val stats = statsApplicationService.getMonthlyStats(userId, month)
         return ResponseEntity.ok(ApiResponse.success(stats))
     }
-    
-    /**
-     * Gets weekly goals for a user.
-     */
+
     @GetMapping("/goals/weekly")
     fun getWeeklyGoals(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<WeeklyGoalDto>> {
         val goals = statsApplicationService.getWeeklyGoals(userId)
         return ResponseEntity.ok(ApiResponse.success(goals))
     }
-    
-    /**
-     * Updates weekly goals for a user.
-     */
+
     @PutMapping("/goals/weekly")
     fun updateWeeklyGoals(
         @CurrentUserId userId: UUID,
@@ -102,9 +78,15 @@ class StatsController(
     }
 
     @PostMapping("/pomodoros")
-    fun postPomodoro(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
+    fun recordPomodoro(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
         statsApplicationService.recordPomodoroEvent(userId)
-        return ResponseEntity.ok(ApiResponse.success(Unit))
+        return ResponseEntity.ok(ApiResponse.success())
+    }
+
+    @PostMapping("/tasks")
+    fun recordTask(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
+        statsApplicationService.recordTaskEvent(userId)
+        return ResponseEntity.ok(ApiResponse.success())
     }
 
     @GetMapping("/pomodoros/heatmap")
@@ -112,44 +94,8 @@ class StatsController(
         @CurrentUserId userId: UUID,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
-    ): ResponseEntity<ApiResponse<Map<LocalDate, Int>>?> {
-        val pomodoroHeatmap = statsApplicationService.getPomodoroHeatmap(userId, start, end)
-        return ResponseEntity.ok(ApiResponse.success(pomodoroHeatmap))
-    }
-    @PostMapping("/tasks")
-    fun postTaskEvent(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<Unit>> {
-        statsApplicationService.recordTaskEvent(userId)
-        return ResponseEntity.ok(ApiResponse.success(Unit))
+    ): ResponseEntity<ApiResponse<Map<LocalDate, Int>>> {
+        val heatmap = statsApplicationService.getPomodoroHeatmap(userId, start, end)
+        return ResponseEntity.ok(ApiResponse.success(heatmap))
     }
 }
-
-/**
- * Generic API response wrapper.
- */
-data class ApiResponse<T>(
-    val success: Boolean,
-    val data: T? = null,
-    val error: ErrorResponse? = null
-) {
-    companion object {
-        fun <T> success(data: T): ApiResponse<T> {
-            return ApiResponse(success = true, data = data)
-        }
-        
-        fun <T> error(code: Int, message: String, details: Any? = null): ApiResponse<T> {
-            return ApiResponse(
-                success = false,
-                error = ErrorResponse(code, message, details)
-            )
-        }
-    }
-}
-
-/**
- * Error response.
- */
-data class ErrorResponse(
-    val code: Int,
-    val message: String,
-    val details: Any? = null
-) 

@@ -86,11 +86,29 @@ Stats
   - 200: { success, data: { ... } } (shape flexible for now)
 
 - GET /stats/monthly?month=YYYY-MM
+
   - 200: { success, data: { ... } }
+
+- GET /stats/goals/weekly
+
+  - 200: { success, data: WeeklyGoal }
+
+- PUT /stats/goals/weekly
+
+  - body: Partial<WeeklyGoal>
+  - 200: { success, data: WeeklyGoal }
+
+- POST /stats/pomodoros
+
+  - 200: { success, data: null }
+
+- POST /stats/tasks
+  - 200: { success, data: null }
 
 Types
 
 - DailyStats: { date: string, completedPomodoros: number, totalFocusTime: number, completedTasks: number, attendance: boolean, coinsEarned: number, gemsEarned: number }
+- WeeklyGoal: { pomodoros: number, focusTime: number, tasks: number }
 
 Tasks
 
@@ -188,7 +206,22 @@ Collection
   - 200: { success, data: MusicItem[] }
 
 - GET /characters
+
   - 200: { success, data: CharacterItem[] }
+
+- PUT /backgrounds/active
+
+  - body: { id: string }
+  - 200: { success, data: null }
+
+- PUT /sound/active
+
+  - body: { id: string }
+  - 200: { success, data: null }
+
+- PUT /tamas/active
+  - body: { id: string }
+  - 200: { success, data: null }
 
 Types
 
@@ -243,9 +276,9 @@ Subscription (premium)
 
   - 200: { success, data: { type: "MONTHLY"|"YEARLY", price: number, features: string[] }[] }
 
-- POST /subscription
+- POST /subscription/subscribe
 
-  - body: { type: "MONTHLY"|"YEARLY" }
+  - body: { type: "MONTHLY"|"YEARLY"|"LIFETIME" }
   - 200: { success, data: null }
 
 - POST /subscription/cancel
@@ -253,7 +286,35 @@ Subscription (premium)
   - 200: { success, data: null }
 
 - GET /subscription/status
-  - 200: { success, data: { isPremium: boolean } | { isActive: boolean } | { status: "active"|"inactive" } }
+  - 200: { success, data: { isActive: boolean, plan: string | null, expiresAt: string | null } }
+
+Attendance
+
+- GET /attendance
+
+  - 200: { success, data: Attendance[] }
+
+- POST /attendance/check
+
+  - 200: { success, data: Attendance }
+
+- GET /attendance/streak
+  - 200: { success, data: number }
+
+Types
+
+- Attendance: { id: string, userId: string, date: string, checkedAt: string, streakDays: number, reward: { coins: number, gems: number } }
+
+Ads
+
+- POST /ads/interstitial
+
+  - body: { context: string }
+  - 200: { success, data: null }
+
+- POST /ads/banner
+  - body: { placement: string }
+  - 200: { success, data: null }
 
 Server behaviors and hooks
 
@@ -270,5 +331,5 @@ Open questions to finalize
 
 Appendix: minimal shapes (from frontend)
 
-- Payment mock products: premium*monthly, premium_yearly, coins*_, gems\__.
+- Payment mock products: premium*lifetime, coins*_, gems\__.
 - Feature flags exist in-app; backend should tolerate absent features gracefully.

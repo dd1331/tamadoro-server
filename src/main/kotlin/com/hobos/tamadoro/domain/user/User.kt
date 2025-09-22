@@ -20,6 +20,12 @@ class User(
     @Column(name = "providerId")
     var providerId: String,
 
+    @Column(name = "email")
+    var email: String? = null,
+
+    @Column(name = "display_name")
+    var displayName: String? = null,
+
     @Column(name = "is_premium")
     var isPremium: Boolean = false,
 
@@ -43,6 +49,7 @@ class User(
      */
     fun recordLogin() {
         this.lastLoginAt = LocalDateTime.now()
+        this.updatedAt = LocalDateTime.now()
     }
 
     /**

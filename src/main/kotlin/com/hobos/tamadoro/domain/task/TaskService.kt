@@ -49,7 +49,9 @@ class TaskService(
         title: String?,
         description: String?,
         priority: String?,
-        estimatedPomodoros: Int?
+        estimatedPomodoros: Int?,
+        completed: Boolean?,
+        completedPomodoros: Int?
     ): Task {
         task.update(
             title = title,
@@ -57,7 +59,13 @@ class TaskService(
             priority = priority?.let { TaskPriority.valueOf(it.uppercase()) },
             estimatedPomodoros = estimatedPomodoros
         )
-        
+        completed?.let {
+            if (it) task.complete() else task.reopen()
+        }
+        completedPomodoros?.let {
+            task.completedPomodoros = it.coerceAtLeast(0)
+        }
+
         return taskRepository.save(task)
     }
     

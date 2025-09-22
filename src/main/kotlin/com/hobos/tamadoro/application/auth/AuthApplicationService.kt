@@ -1,11 +1,11 @@
 package com.hobos.tamadoro.application.auth
 
+import com.hobos.tamadoro.application.user.UserDto
 import com.hobos.tamadoro.domain.auth.AuthService
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -13,7 +13,7 @@ import java.util.UUID
  */
 data class AppleAuthRequest(
     val identityToken: String,
-    val authorizationCode: String,
+    val authorizationCode: String? = null,
     val user: AppleUser
 )
 
@@ -22,14 +22,16 @@ data class AppleAuthRequest(
  */
 data class AppleUser(
     val id: String,
+    val email: String? = null,
+    val name: AppleUserName? = null
 )
 
 /**
  * Apple user name information.
  */
 data class AppleUserName(
-    val firstName: String?,
-    val lastName: String?
+    val firstName: String? = null,
+    val lastName: String? = null
 )
 
 /**
@@ -50,11 +52,18 @@ class AuthApplicationService(
 
         // Find or create user
         val user = userRepository.findByProviderId(appleUserId)
-            .orElseGet {
-                val newUser = User(providerId = appleUserId)
-                userRepository.save(newUser)
+            .orElseGet { userRepository.save(User(providerId = appleUserId)) }
+
+        request.user.email?.let { user.email = it }
+        request.user.name?.let { name ->
+            val composedName = listOfNotNull(name.firstName, name.lastName)
+                .joinToString(" ")
+                .ifBlank { user.displayName ?: "" }
+            if (composedName.isNotBlank()) {
+                user.displayName = composedName
             }
-        
+        }
+
         // Record login
         user.recordLogin()
         userRepository.save(user)
@@ -73,7 +82,7 @@ class AuthApplicationService(
     /**
      * Refreshes the authentication token.
      */
-    fun refreshToken(refreshToken: String): AuthResponse {
+    fun refreshToken(refreshToken: String): TokenPair {
         val userId = authService.validateRefreshToken(refreshToken)
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found") }
@@ -81,8 +90,7 @@ class AuthApplicationService(
         val newToken = authService.generateToken(user.id)
         val newRefreshToken = authService.rotateRefreshToken(refreshToken)
         
-        return AuthResponse(
-            user = UserDto.fromEntity(user),
+        return TokenPair(
             token = newToken,
             refreshToken = newRefreshToken
         )
@@ -91,8 +99,7 @@ class AuthApplicationService(
     /**
      * Logs out the user.
      */
-    fun logout(token: String) {
-        val userId = authService.validateToken(token)
+    fun logout(userId: UUID) {
         authService.logoutAll(userId)
     }
 }
@@ -106,51 +113,7 @@ data class AuthResponse(
     val refreshToken: String
 )
 
-/**
- * DTO for user data.
- */
-data class UserDto(
-    val id: UUID,
-    val isPremium: Boolean,
-    val createdAt: String,
-    val updatedAt: String,
-    val lastLoginAt: String?,
-    val subscription: SubscriptionDto?
-) {
-    companion object {
-        fun fromEntity(entity: User): UserDto {
-            val latest = entity.subscriptions
-                .sortedByDescending { it.startDate }
-                .firstOrNull()
-            return UserDto(
-                id = entity.id,
-                isPremium = entity.isPremium,
-                createdAt = entity.createdAt.toString(),
-                updatedAt = entity.updatedAt.toString(),
-                lastLoginAt = entity.lastLoginAt?.toString(),
-                subscription = latest?.let { SubscriptionDto.fromEntity(it) }
-            )
-        }
-    }
-}
-
-/**
- * DTO for subscription data.
- */
-data class SubscriptionDto(
-    val type: String,
-    val startDate: String,
-    val endDate: String?,
-    val status: String
-) {
-    companion object {
-        fun fromEntity(entity: com.hobos.tamadoro.domain.user.Subscription): SubscriptionDto {
-            return SubscriptionDto(
-                type = entity.type.name,
-                startDate = entity.startDate.toString(),
-                endDate = entity.endDate?.toString(),
-                status = entity.status.name
-            )
-        }
-    }
-} 
+data class TokenPair(
+    val token: String,
+    val refreshToken: String
+)

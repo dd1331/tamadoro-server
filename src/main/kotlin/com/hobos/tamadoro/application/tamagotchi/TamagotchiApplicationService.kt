@@ -5,6 +5,7 @@ import com.hobos.tamadoro.domain.tama.TamaRepository
 import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.tama.TamaType
 import com.hobos.tamadoro.domain.tama.TamaRarity
+import com.hobos.tamadoro.domain.tama.TamaGrowthStage
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -56,12 +57,19 @@ class TamaApplicationService(
     fun createTama(userId: UUID, request: CreateTamaRequest): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
-        
+        val type = try {
+            TamaType.valueOf(request.id.uppercase())
+        } catch (ex: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid tama type: ${request.id}")
+        }
+        val rarity = TamaRarity.COMMON
+        val name = request.name?.ifBlank { null } ?: type.name.lowercase().replaceFirstChar { it.uppercase() }
+
         val tama = tamaService.createTama(
             user = user,
-            name = request.name,
-            type = TamaType.valueOf(request.type.uppercase()),
-            rarity = TamaRarity.valueOf(request.rarity.uppercase())
+            name = name,
+            type = type,
+            rarity = rarity
         )
         
         return TamaDto.fromEntity(tama)
@@ -83,11 +91,20 @@ class TamaApplicationService(
             throw IllegalArgumentException("Tama does not belong to the user")
         }
         
+        val stage = request.stage?.let {
+            try {
+                TamaGrowthStage.valueOf(it.uppercase())
+            } catch (ex: IllegalArgumentException) {
+                throw IllegalArgumentException("Invalid tama stage: $it")
+            }
+        }
+
         val updatedTama = tamaService.updateTama(
             tama = tama,
-            name = request.name
+            name = request.name,
+            stage = stage
         )
-        
+
         return TamaDto.fromEntity(updatedTama)
     }
     
@@ -213,14 +230,14 @@ data class TamaDto(
                 id = entity.id,
                 userId = entity.user.id,
                 name = entity.name,
-                type = entity.type.name,
-                rarity = entity.rarity.name,
+                type = entity.type.name.lowercase(),
+                rarity = entity.rarity.name.lowercase(),
                 level = entity.level,
                 experience = entity.experience,
                 maxExperience = entity.maxExperience,
                 isActive = entity.isActive,
                 acquiredAt = entity.acquiredAt.toString(),
-                growthStage = entity.growthStage.name,
+                growthStage = entity.growthStage.name.lowercase(),
                 happiness = entity.happiness,
                 hunger = entity.hunger,
                 energy = entity.energy,
@@ -235,14 +252,14 @@ data class TamaDto(
  * Request for creating a tama.
  */
 data class CreateTamaRequest(
-    val name: String,
-    val type: String,
-    val rarity: String
+    val id: String,
+    val name: String? = null
 )
 
 /**
  * Request for updating a tama.
  */
 data class UpdateTamaRequest(
-    val name: String? = null
+    val name: String? = null,
+    val stage: String? = null
 ) 

@@ -84,15 +84,22 @@ class TaskApplicationService(
         if (task.user.id != userId) {
             throw IllegalArgumentException("Task does not belong to the user")
         }
-        
+        val wasCompleted = task.completed
+
         val updatedTask = taskService.updateTask(
             task = task,
             title = request.title,
             description = request.description,
             priority = request.priority,
-            estimatedPomodoros = request.estimatedPomodoros
+            estimatedPomodoros = request.estimatedPomodoros,
+            completed = request.completed,
+            completedPomodoros = request.completedPomodoros
         )
-        
+
+        if (!wasCompleted && updatedTask.completed) {
+            statsService.updateDailyStats(userId)
+        }
+
         return TaskDto.fromEntity(updatedTask)
     }
     
@@ -165,7 +172,7 @@ data class TaskDto(
                 title = entity.title,
                 description = entity.description,
                 completed = entity.completed,
-                priority = entity.priority.name,
+                priority = entity.priority.name.lowercase(),
                 estimatedPomodoros = entity.estimatedPomodoros,
                 completedPomodoros = entity.completedPomodoros,
                 createdAt = entity.createdAt.toString(),
@@ -183,7 +190,7 @@ data class TaskDto(
 data class CreateTaskRequest(
     val title: String,
     val description: String? = null,
-    val priority: String = "MEDIUM",
+    val priority: String = "medium",
     val estimatedPomodoros: Int = 1
 )
 
