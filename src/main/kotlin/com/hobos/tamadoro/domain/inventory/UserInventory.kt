@@ -33,9 +33,6 @@ class UserInventory(
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 
-    @Version
-    @Column(name = "version")
-    var version: Long? = 0,
 ) {
     /**
      * Adds coins to the user's inventory.
@@ -89,33 +86,19 @@ class UserInventory(
         }
     }
     
-    /**
-     * Sets the active tama.
-     */
+    // TODO: ownership 활용
     fun changeActiveTama(tama: Tama?) {
         // Deactivate the current active tama if there is one
-        activeTama?.let { it.isActive = false }
+//        activeTama?.let { it.isActive = false }
         
         // Set the new active tama
         this.activeTama = tama
         
         // Activate the new tama if it's not null
-        tama?.let { it.isActive = true }
+//        tama?.let { it.isActive = true }
         
         updatedAt = LocalDateTime.now()
     }
     
-    /**
-     * Checks if the user has enough coins.
-     */
-    fun hasEnoughCoins(amount: Int): Boolean {
-        return coins >= amount
-    }
-    
-    /**
-     * Checks if the user has enough gems.
-     */
-    fun hasEnoughGems(amount: Int): Boolean {
-        return gems >= amount
-    }
+
 }

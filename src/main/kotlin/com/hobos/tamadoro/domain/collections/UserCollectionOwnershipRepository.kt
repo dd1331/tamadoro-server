@@ -6,6 +6,6 @@ import java.util.UUID
 
 @Repository
 interface UserCollectionOwnershipRepository : JpaRepository<UserCollectionOwnership, UUID> {
-    fun existsByUser_IdAndCategoryAndItemId(userId: UUID, category: CollectionCategory, itemId: String): Boolean
+    fun existsByUser_IdAndCategoryAndItemId(userId: UUID, category: CollectionCategory, itemId: Long): Boolean
     fun findByUser_IdAndCategory(userId: UUID, category: CollectionCategory): List<UserCollectionOwnership>
 }

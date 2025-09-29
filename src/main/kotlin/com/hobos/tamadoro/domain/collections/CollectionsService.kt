@@ -18,7 +18,7 @@ class CollectionsService(
     // Query responsibilities have been moved to application layer
 
     @Transactional
-    fun setActiveBackground(userId: UUID, id: String): Map<String, Any?> {
+    fun setActiveBackground(userId: UUID, id: Long): Map<String, Any?> {
         // must own or be free
         val bg = backgroundRepository.findById(id).orElseThrow { NoSuchElementException("Background not found") }
         if (bg.isPremium && !ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.BACKGROUND, id)) {
@@ -32,7 +32,7 @@ class CollectionsService(
     }
 
     @Transactional
-    fun setActiveMusic(userId: UUID, id: String): Map<String, Any?> {
+    fun setActiveMusic(userId: UUID, id: Long): Map<String, Any?> {
         val track = musicTrackRepository.findById(id).orElseThrow { NoSuchElementException("Music not found") }
         if (track.isPremium && !ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.MUSIC, id)) {
             throw IllegalStateException("User does not own music track")
@@ -45,7 +45,7 @@ class CollectionsService(
     }
 
     @Transactional
-    fun setActiveCharacter(userId: UUID, id: String): Map<String, Any?> {
+    fun setActiveCharacter(userId: UUID, id: Long): Map<String, Any?> {
         val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tama not found") }
         if (tama.isPremium && !ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.TAMA, id)) {
             throw IllegalStateException("User does not own tama")
@@ -58,7 +58,7 @@ class CollectionsService(
     }
 
     @Transactional
-    fun purchaseBackground(userId: UUID, id: String): Map<String, Any?> {
+    fun purchaseBackground(userId: UUID, id: Long): Map<String, Any?> {
         val bg = backgroundRepository.findById(id).orElseThrow { NoSuchElementException("Background not found") }
         if (ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.BACKGROUND, id)) {
             return mapOf("purchasedBackgroundId" to id)
@@ -75,7 +75,7 @@ class CollectionsService(
     }
 
     @Transactional
-    fun purchaseMusic(userId: UUID, id: String): Map<String, Any?> {
+    fun purchaseMusic(userId: UUID, id: Long): Map<String, Any?> {
         val track = musicTrackRepository.findById(id).orElseThrow { NoSuchElementException("Music not found") }
         if (ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.MUSIC, id)) {
             return mapOf("purchasedMusicId" to id)
@@ -92,7 +92,7 @@ class CollectionsService(
     }
 
     @Transactional
-    fun purchaseCharacter(userId: UUID, id: String): Map<String, Any?> {
+    fun purchaseCharacter(userId: UUID, id: Long): Map<String, Any?> {
         val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tama not found") }
         if (ownershipRepository.existsByUser_IdAndCategoryAndItemId(userId, CollectionCategory.TAMA, id)) {
             return mapOf("purchasedTamaId" to id)

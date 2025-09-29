@@ -24,32 +24,32 @@ class CollectionsApplicationService(
         backgroundRepository.findAll().takeIf { it.isNotEmpty() }?.map {
             BackgroundItem(id = it.id, title = it.title, theme = it.theme, url = it.url, isPremium = it.isPremium)
         } ?: listOf(
-            BackgroundItem("bg1", "Sunrise",  url = "https://picsum.photos/600/600", theme = "light", isPremium = false),
-            BackgroundItem("bg2", "Forest", theme = "nature", url = "https://picsum.photos/800/600", isPremium = true),
-            BackgroundItem("bg3", "Sunrise2",  url = "https://picsum.photos/200", theme = "light", isPremium = false),
-            BackgroundItem("bg4", "Forest2", theme = "nature", url = "https://picsum.photos/400", isPremium = true)
+            BackgroundItem(1L, "Sunrise",  url = "https://picsum.photos/600/600", theme = "light", isPremium = false),
+            BackgroundItem(2L, "Forest", theme = "nature", url = "https://picsum.photos/800/600", isPremium = true),
+            BackgroundItem(3L, "Sunrise2",  url = "https://picsum.photos/200", theme = "light", isPremium = false),
+            BackgroundItem(4L, "Forest2", theme = "nature", url = "https://picsum.photos/400", isPremium = true)
         )
-    fun setActiveBackground(userId: UUID, id: String) = collectionsService.setActiveBackground(userId, id)
-    fun purchaseBackground(userId: UUID, id: String) = collectionsService.purchaseBackground(userId, id)
+    fun setActiveBackground(userId: UUID, id: Long) = collectionsService.setActiveBackground(userId, id)
+    fun purchaseBackground(userId: UUID, id: Long) = collectionsService.purchaseBackground(userId, id)
 
     fun getSound(): List<MusicItem> =
         musicTrackRepository.findAll().takeIf { it.isNotEmpty() }?.map {
             MusicItem(id = it.id, title = it.title, theme = it.theme, url = it.url, isPremium = it.isPremium, resource = it.resource)
         } ?: listOf(
-            MusicItem("m1", "Rain", "rain", "https://picsum.photos/600/600",  isPremium = false, resource="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"),
-            MusicItem("m2", "Focus Tones2", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3"),
-            MusicItem("m3", "Focus Tones3", "focus_tones", "https://picsum.photos/800/600", isPremium = false, resource="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"),
-            MusicItem("m4", "Focus Tones4", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3")
+            MusicItem(1L, "Rain", "rain", "https://picsum.photos/600/600",  isPremium = false, resource="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"),
+            MusicItem(2L, "Focus Tones2", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3"),
+            MusicItem(3L, "Focus Tones3", "focus_tones", "https://picsum.photos/800/600", isPremium = false, resource="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"),
+            MusicItem(4L, "Focus Tones4", "focus_tones", "https://picsum.photos/800/600", isPremium = true, resource="https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3")
         )
 
-	fun setActiveMusic(userId: UUID, id: String) = collectionsService.setActiveMusic(userId, id)
-	fun purchaseMusic(userId: UUID, id: String) = collectionsService.purchaseMusic(userId, id)
+	fun setActiveMusic(userId: UUID, id: Long) = collectionsService.setActiveMusic(userId, id)
+	fun purchaseMusic(userId: UUID, id: Long) = collectionsService.purchaseMusic(userId, id)
 
     fun getTamas(): List<TamaItem> {
         val entities = characterRepository.findAll()
         if (entities.isEmpty()) return listOf(
             TamaItem(
-                id = "char_001",
+                id = 1L,
                 title = "Pippo",
                 theme = "cat",
                 isPremium = false,
@@ -65,7 +65,7 @@ class CollectionsApplicationService(
                 energy = 90
             ),
             TamaItem(
-                id = "char_002",
+                id = 2L,
                 title = "Drogo",
                 theme = "dragon",
                 isPremium = true,
@@ -81,7 +81,7 @@ class CollectionsApplicationService(
                 energy = 85
             ),
             TamaItem(
-                id = "char_003",
+                id = 3L,
                 title = "Drog4",
                 theme = "dragon4",
                 isPremium = true,
@@ -107,14 +107,14 @@ class CollectionsApplicationService(
                 stages = stagesByCharacter[ch.id].orEmpty().sortedBy { it.level }.map { st ->
                     Stage(name = st.name, experience = st.experience, maxExperience = st.maxExperience, level = st.level, url = st.url)
                 },
-                happiness = ch.happiness,
-                hunger = ch.hunger,
-                energy = ch.energy,
+                happiness = 10,
+                hunger = 10,
+                energy = 10,
             )
         }
     }
-    fun setActiveTama(userId: UUID, id: String) = collectionsService.setActiveCharacter(userId, id)
-    fun purchaseTama(userId: UUID, id: String) = collectionsService.purchaseCharacter(userId, id)
+    fun setActiveTama(userId: UUID, id: Long) = collectionsService.setActiveCharacter(userId, id)
+    fun purchaseTama(userId: UUID, id: Long) = collectionsService.purchaseCharacter(userId, id)
 }
 
 

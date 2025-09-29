@@ -54,7 +54,6 @@ class AuthApplicationService(
         val user = userRepository.findByProviderId(appleUserId)
             .orElseGet { userRepository.save(User(providerId = appleUserId)) }
 
-        request.user.email?.let { user.email = it }
         request.user.name?.let { name ->
             val composedName = listOfNotNull(name.firstName, name.lastName)
                 .joinToString(" ")

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
@@ -13,10 +15,8 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "tama_catalog_stages", indexes = [Index(name = "idx_tama_id", columnList = "tama_id")])
-data class TamaCatalogStageEntity(
-    @Id
-    @Column(name = "id", nullable = false, length = 128)
-    val id: String,
+ class TamaCatalogStageEntity(
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tama_id", nullable = false)
@@ -37,6 +37,12 @@ data class TamaCatalogStageEntity(
 
     @Column(name = "url", nullable = false)
     val url: String,
-)
+){
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Column(name = "id")
+   var  id: Long = 0
+
+}
 
 

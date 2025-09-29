@@ -20,9 +20,6 @@ class User(
     @Column(name = "providerId")
     var providerId: String,
 
-    @Column(name = "email")
-    var email: String? = null,
-
     @Column(name = "display_name")
     var displayName: String? = null,
 

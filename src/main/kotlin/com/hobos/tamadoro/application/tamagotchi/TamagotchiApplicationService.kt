@@ -212,17 +212,6 @@ data class TamaDto(
     val name: String,
     val type: String,
     val rarity: String,
-    val level: Int,
-    val experience: Int,
-    val maxExperience: Int,
-    val isActive: Boolean,
-    val acquiredAt: String,
-    val growthStage: String,
-    val happiness: Int,
-    val hunger: Int,
-    val energy: Int,
-    val lastInteraction: String,
-    val wellBeingScore: Int
 ) {
     companion object {
         fun fromEntity(entity: Tama): TamaDto {
@@ -231,18 +220,7 @@ data class TamaDto(
                 userId = entity.user.id,
                 name = entity.name,
                 type = entity.type.name.lowercase(),
-                rarity = entity.rarity.name.lowercase(),
-                level = entity.level,
-                experience = entity.experience,
-                maxExperience = entity.maxExperience,
-                isActive = entity.isActive,
-                acquiredAt = entity.acquiredAt.toString(),
-                growthStage = entity.growthStage.name.lowercase(),
-                happiness = entity.happiness,
-                hunger = entity.hunger,
-                energy = entity.energy,
-                lastInteraction = entity.lastInteraction.toString(),
-                wellBeingScore = entity.calculateWellBeingScore()
+                rarity = entity.rarity.name.lowercase()
             )
         }
     }

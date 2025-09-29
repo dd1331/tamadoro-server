@@ -16,15 +16,12 @@ class UserCollectionSettings(
     val user: User,
 
     @Column(name = "active_background_id")
-    var activeBackgroundId: String? = null,
+    var activeBackgroundId: Long? = null,
 
     @Column(name = "active_music_id")
-    var activeMusicId: String? = null,
+    var activeMusicId: Long? = null,
 
     @Column(name = "active_tama_id")
-    var activeTamaId: String? = null,
+    var activeTamaId: Long? = null,
 
-    @Version
-    @Column(name = "version")
-    var version: Long? = 0,
 )

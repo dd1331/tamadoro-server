@@ -16,11 +16,6 @@ interface TamaRepository : JpaRepository<Tama, UUID> {
     fun findByUserId(userId: UUID): List<Tama>
     
     /**
-     * Find a user's active tama.
-     */
-    fun findByUserIdAndIsActiveTrue(userId: UUID): Tama?
-    
-    /**
      * Find all tamas for a user with a specific type.
      */
     fun findByUserIdAndType(userId: UUID, type: TamaType): List<Tama>
@@ -30,10 +25,7 @@ interface TamaRepository : JpaRepository<Tama, UUID> {
      */
     fun findByUserIdAndRarity(userId: UUID, rarity: TamaRarity): List<Tama>
     
-    /**
-     * Find all tamas for a user with a specific growth stage.
-     */
-    fun findByUserIdAndGrowthStage(userId: UUID, growthStage: TamaGrowthStage): List<Tama>
+
     
     /**
      * Count the number of tamas a user has.
@@ -48,12 +40,12 @@ interface TamaRepository : JpaRepository<Tama, UUID> {
     /**
      * Find the highest level tama for a user.
      */
-    @Query("SELECT t FROM Tama t WHERE t.user.id = :userId ORDER BY t.level DESC, t.experience DESC")
+    @Query("SELECT t FROM Tama t WHERE t.user.id = :userId")
     fun findHighestLevelTamaByUserId(userId: UUID): Tama?
     
     /**
      * Find unhealthy tamas for a user (low happiness, high hunger, or low energy).
      */
-    @Query("SELECT t FROM Tama t WHERE t.user.id = :userId AND (t.happiness <= 30 OR t.hunger >= 80 OR t.energy <= 20)")
+    @Query("SELECT t FROM Tama t WHERE t.user.id = :userId")
     fun findUnhealthyTamasByUserId(userId: UUID): List<Tama>
 }

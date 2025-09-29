@@ -56,7 +56,7 @@ Timer
 
   - 200: { success, data: TimerSettings }
 
-- PUT /timer/settings
+- PUT /t****imer/settings
 
   - body: Partial<TimerSettings>
   - 200: { success, data: TimerSettings }

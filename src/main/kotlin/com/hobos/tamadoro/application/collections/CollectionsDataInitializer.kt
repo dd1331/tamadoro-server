@@ -1,13 +1,16 @@
 package com.hobos.tamadoro.application.collections
 
+import TamaFixtures
 import com.hobos.tamadoro.domain.collections.BackgroundEntity
 import com.hobos.tamadoro.domain.collections.BackgroundRepository
 import com.hobos.tamadoro.domain.collections.MusicTrackEntity
 import com.hobos.tamadoro.domain.collections.MusicTrackRepository
+import com.hobos.tamadoro.domain.collections.StageName
 import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
 import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
 import com.hobos.tamadoro.domain.collections.TamaCatalogStageEntity
 import com.hobos.tamadoro.domain.collections.TamaCatalogStageRepository
+import com.hobos.tamadoro.test.fixtures.BackgroundFixture
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -34,10 +37,8 @@ class CollectionsDataInitializer(
 
 	private fun seedBackgrounds() {
 		val seeds = listOf(
-			BackgroundEntity("bg1", "Sunrise", "light", false, "https://picsum.photos/600/600"),
-			BackgroundEntity("bg2", "Forest", "nature", true, "https://picsum.photos/800/600"),
-			BackgroundEntity("bg3", "Sunrise2", "light", false, "https://picsum.photos/200"),
-			BackgroundEntity("bg4", "Forest2", "nature", true, "https://picsum.photos/400"),
+			BackgroundFixture.create(),
+			BackgroundFixture.create()
 		)
 		val toInsert = seeds.filter { !backgroundRepository.existsById(it.id) }
 		if (toInsert.isNotEmpty()) {
@@ -48,38 +49,11 @@ class CollectionsDataInitializer(
 
 	private fun seedMusic() {
 		val seeds = listOf(
-			MusicTrackEntity(
-				id = "m1",
-				title = "Rain",
-				theme = "rain",
-				isPremium = false,
-				url = "https://picsum.photos/600/600",
-				resource = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-			),
-			MusicTrackEntity(
-				id = "m2",
-				title = "Focus Tones2",
-				theme = "focus_tones",
-				isPremium = true,
-				url = "https://picsum.photos/800/600",
-				resource = "https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3",
-			),
-			MusicTrackEntity(
-				id = "m3",
-				title = "Focus Tones3",
-				theme = "focus_tones",
-				isPremium = false,
-				url = "https://picsum.photos/800/600",
-				resource = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-			),
-			MusicTrackEntity(
-				id = "m4",
-				title = "Focus Tones4",
-				theme = "focus_tones",
-				isPremium = true,
-				url = "https://picsum.photos/800/600",
-				resource = "https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3",
-			),
+			MusicTrackFixtures.create(),
+			MusicTrackFixtures.create(),
+			MusicTrackFixtures.create(),
+			MusicTrackFixtures.create(),
+
 		)
 		val toInsert = seeds.filter { !musicTrackRepository.existsById(it.id) }
 		if (toInsert.isNotEmpty()) {
@@ -89,64 +63,33 @@ class CollectionsDataInitializer(
 	}
 
 	private fun seedCharacters() {
-		val pippo = characterRepository.findById("char_001").orElseGet {
+		val pippo = characterRepository.findById(1L).orElseGet {
 			characterRepository.save(
-				TamaCatalogEntity(
-					id = "char_001",
-					title = "Pippo",
-					theme = "cat",
-					isPremium = false,
-					happiness = 80,
-					hunger = 20,
-					energy = 90,
-				)
+				TamaFixtures.create()
 			)
 		}
-		val drogo = characterRepository.findById("char_002").orElseGet {
+		val drogo = characterRepository.findById(2L).orElseGet {
 			characterRepository.save(
-				TamaCatalogEntity(
-					id = "char_002",
-					title = "Drogo",
-					theme = "dragon",
-					isPremium = false,
-					happiness = 95,
-					hunger = 10,
-					energy = 85,
-				)
+				TamaFixtures.create()
 			)
 		}
-		val drogo2 = characterRepository.findById("char_003").orElseGet {
+		val drogo2 = characterRepository.findById(2L).orElseGet {
 			characterRepository.save(
-				TamaCatalogEntity(
-					id = "char_0022",
-					title = "Drogo2",
-					theme = "dragon2",
-					isPremium = true,
-					happiness = 95,
-					hunger = 10,
-					energy = 85,
-				)
+				TamaFixtures.create()
 			)
 		}
 
 		val stageSeeds = listOf(
-			TamaCatalogStageEntity("${'$'}{pippo.id}_egg", pippo, com.hobos.tamadoro.domain.collections.StageName.EGG, 0, 10, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity("${'$'}{pippo.id}_baby", pippo, com.hobos.tamadoro.domain.collections.StageName.BABY, 0, 50, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity("${'$'}{pippo.id}_child", pippo, com.hobos.tamadoro.domain.collections.StageName.CHILD, 0, 150, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity("${'$'}{pippo.id}_teen", pippo, com.hobos.tamadoro.domain.collections.StageName.TEEN, 0, 300, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity("${'$'}{pippo.id}_adult", pippo, com.hobos.tamadoro.domain.collections.StageName.ADULT, 0, 500, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-
-			TamaCatalogStageEntity("${'$'}{drogo.id}_egg", drogo, com.hobos.tamadoro.domain.collections.StageName.EGG, 0, 20, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo.id}_baby", drogo, com.hobos.tamadoro.domain.collections.StageName.BABY, 0, 80, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo.id}_child", drogo, com.hobos.tamadoro.domain.collections.StageName.CHILD, 0, 200, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo.id}_teen", drogo, com.hobos.tamadoro.domain.collections.StageName.TEEN, 0, 450, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo.id}_adult", drogo, com.hobos.tamadoro.domain.collections.StageName.ADULT, 0, 700, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-
-			TamaCatalogStageEntity("${'$'}{drogo2.id}_egg", drogo2, com.hobos.tamadoro.domain.collections.StageName.EGG, 0, 20, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo2.id}_baby", drogo2, com.hobos.tamadoro.domain.collections.StageName.BABY, 0, 80, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo2.id}_child", drogo2, com.hobos.tamadoro.domain.collections.StageName.CHILD, 0, 200, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo2.id}_teen", drogo2, com.hobos.tamadoro.domain.collections.StageName.TEEN, 0, 450, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity("${'$'}{drogo2.id}_adult", drogo2, com.hobos.tamadoro.domain.collections.StageName.ADULT, 0, 700, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity( pippo, StageName.EGG, 0, 10, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity( pippo, StageName.BABY, 0, 50, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity( pippo, StageName.CHILD, 0, 150, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity( pippo, StageName.TEEN, 0, 300, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity( pippo, StageName.ADULT, 0, 500, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity( drogo, StageName.EGG, 0, 20, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity( drogo, StageName.BABY, 0, 80, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity( drogo, StageName.CHILD, 0, 200, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity( drogo, StageName.TEEN, 0, 450, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity( drogo, StageName.ADULT, 0, 700, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
 		)
 		val stageToInsert = stageSeeds.filter { !characterStageRepository.existsById(it.id) }
 		if (stageToInsert.isNotEmpty()) {

@@ -5,6 +5,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.UUID
 
+// TODO: 카테고리별로 테이블 구성
 @Entity
 @Table(
     name = "user_collection_ownerships",
@@ -24,8 +25,8 @@ class UserCollectionOwnership(
     @Column(name = "category", nullable = false)
     val category: CollectionCategory,
 
-    @Column(name = "item_id", nullable = false, length = 64)
-    val itemId: String,
+    @Column(name = "item_id", nullable = false)
+    val itemId: Long,
 
     @Column(name = "purchased_at", nullable = false)
     val purchasedAt: LocalDateTime = LocalDateTime.now(),

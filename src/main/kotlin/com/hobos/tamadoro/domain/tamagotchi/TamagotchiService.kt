@@ -6,6 +6,7 @@ import com.hobos.tamadoro.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.Optional
 import java.util.UUID
 import kotlin.random.Random
 
@@ -66,8 +67,9 @@ class TamaService(
     fun feedTama(tamaId: UUID, amount: Int = 20): Tama {
         val tama = tamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
-        tama.feed(amount)
+
+        // TODO: use ownership??
+//        tama.feed(amount)
         return tamaRepository.save(tama)
     }
     
@@ -78,8 +80,8 @@ class TamaService(
     fun playWithTama(tamaId: UUID, amount: Int = 15): Tama {
         val tama = tamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
-        tama.play(amount)
+        // TODO: use ownership??
+//        tama.play(amount)
         return tamaRepository.save(tama)
     }
     
@@ -90,8 +92,9 @@ class TamaService(
     fun restTama(tamaId: UUID, amount: Int = 30): Tama {
         val tama = tamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
-        tama.rest(amount)
+
+        // TODO: use ownership??
+//        tama.rest(amount)
         return tamaRepository.save(tama)
     }
     
@@ -102,8 +105,9 @@ class TamaService(
     fun addExperienceToTama(tamaId: UUID, amount: Int): Tama {
         val tama = tamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
-        tama.addExperience(amount)
+
+        // TODO: use ownership??
+//        tama.addExperience(amount)
         return tamaRepository.save(tama)
     }
     
@@ -135,7 +139,8 @@ class TamaService(
         val tamas = tamaRepository.findByUserId(userId)
         
         tamas.forEach { tama ->
-            tama.updateStatus()
+            // TODO: use ownership??
+//            tama.updateStatus()
             tamaRepository.save(tama)
         }
     }
@@ -150,8 +155,8 @@ class TamaService(
     /**
      * Gets a user's active tama.
      */
-    fun getActiveTamaForUser(userId: UUID): Tama? {
-        return tamaRepository.findByUserIdAndIsActiveTrue(userId)
+    fun getActiveTamaForUser(userId: UUID): Optional<Tama?> {
+        return tamaRepository.findById(userId)
     }
     
     /**
@@ -167,7 +172,8 @@ class TamaService(
     @Transactional
     fun updateTama(tama: Tama, name: String?, stage: TamaGrowthStage?): Tama {
         name?.let { tama.name = it }
-        stage?.let { tama.growthStage = it }
+        // TODO: use ownership??
+//        stage?.let { tama.growthStage = it }
         return tamaRepository.save(tama)
     }
     
@@ -176,19 +182,25 @@ class TamaService(
      */
     @Transactional
     fun rewardTamaForPomodoro(userId: UUID, completedMinutes: Int) {
-        val activeTama = getActiveTamaForUser(userId) ?: return
+        // TODO: use ownership??
+        val activeTama = getActiveTamaForUser(userId)
+
+        if (!activeTama.isPresent) return
         
         // Add experience based on completed minutes (1 exp per minute)
         val experienceToAdd = completedMinutes
-        activeTama.addExperience(experienceToAdd)
+        // TODO: use ownership??
+//        activeTama.addExperience(experienceToAdd)
         
         // Improve happiness slightly
-        activeTama.happiness = (activeTama.happiness + 5).coerceAtMost(100)
+        // TODO: use ownership??
+//        activeTama.happiness = (activeTama.happiness + 5).coerceAtMost(100)
         
         // Increase hunger slightly (focusing makes you hungry!)
-        activeTama.hunger = (activeTama.hunger + 2).coerceAtMost(100)
+        // TODO: use ownership??
+//        activeTama.hunger = (activeTama.hunger + 2).coerceAtMost(100)
         
-        tamaRepository.save(activeTama)
+//        tamaRepository.save(activeTama)
     }
     
     /**

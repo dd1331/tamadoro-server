@@ -71,20 +71,6 @@ class TimerSession(
         return !completed && Duration.between(startedAt, LocalDateTime.now()).toMinutes() < duration
     }
     
-    /**
-     * Calculates the remaining time in minutes.
-     */
-    fun remainingTime(): Int {
-        if (completed) return 0
-        
-        val elapsedMinutes = Duration.between(startedAt, LocalDateTime.now()).toMinutes().toInt()
-        return (duration - elapsedMinutes).coerceAtLeast(0)
-    }
-    
-    /**
-     * Associates the session with a task.
-     */
-    fun associateWithTask(taskId: UUID) {
-        this.taskId = taskId
-    }
+
+
 }
