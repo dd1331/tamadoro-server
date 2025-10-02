@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.application.tama
 
+import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tama.Tama
 import com.hobos.tamadoro.domain.tama.TamaRepository
 import com.hobos.tamadoro.domain.tama.TamaService
@@ -19,7 +20,8 @@ import java.util.UUID
 class TamaApplicationService(
     private val tamaService: TamaService,
     private val tamaRepository: TamaRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val tamaCatalogRepository: TamaCatalogRepository
 ) {
     /**
      * Gets all tamas for a user.
@@ -57,19 +59,16 @@ class TamaApplicationService(
     fun createTama(userId: UUID, request: CreateTamaRequest): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
-        val type = try {
-            TamaType.valueOf(request.id.uppercase())
-        } catch (ex: IllegalArgumentException) {
-            throw IllegalArgumentException("Invalid tama type: ${request.id}")
-        }
-        val rarity = TamaRarity.COMMON
-        val name = request.name?.ifBlank { null } ?: type.name.lowercase().replaceFirstChar { it.uppercase() }
+
+        val catalog = tamaCatalogRepository.findById(request.id)
+        .orElseThrow { NoSuchElementException("Tama not found with ID: $request.id") }
+        val name = request.name?.ifBlank { null } ?: catalog.title
 
         val tama = tamaService.createTama(
             user = user,
             name = name,
-            type = type,
-            rarity = rarity
+            catalog
+
         )
         
         return TamaDto.fromEntity(tama)
@@ -210,8 +209,6 @@ data class TamaDto(
     val id: UUID,
     val userId: UUID,
     val name: String,
-    val type: String,
-    val rarity: String,
 ) {
     companion object {
         fun fromEntity(entity: Tama): TamaDto {
@@ -219,8 +216,6 @@ data class TamaDto(
                 id = entity.id,
                 userId = entity.user.id,
                 name = entity.name,
-                type = entity.type.name.lowercase(),
-                rarity = entity.rarity.name.lowercase()
             )
         }
     }
@@ -230,7 +225,7 @@ data class TamaDto(
  * Request for creating a tama.
  */
 data class CreateTamaRequest(
-    val id: String,
+    val id: Long,
     val name: String? = null
 )
 

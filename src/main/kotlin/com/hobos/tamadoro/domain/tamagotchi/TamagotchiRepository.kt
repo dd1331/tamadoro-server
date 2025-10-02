@@ -15,16 +15,7 @@ interface TamaRepository : JpaRepository<Tama, UUID> {
      */
     fun findByUserId(userId: UUID): List<Tama>
     
-    /**
-     * Find all tamas for a user with a specific type.
-     */
-    fun findByUserIdAndType(userId: UUID, type: TamaType): List<Tama>
-    
-    /**
-     * Find all tamas for a user with a specific rarity.
-     */
-    fun findByUserIdAndRarity(userId: UUID, rarity: TamaRarity): List<Tama>
-    
+
 
     
     /**
@@ -32,11 +23,7 @@ interface TamaRepository : JpaRepository<Tama, UUID> {
      */
     fun countByUserId(userId: UUID): Long
     
-    /**
-     * Count the number of tamas a user has by rarity.
-     */
-    fun countByUserIdAndRarity(userId: UUID, rarity: TamaRarity): Long
-    
+
     /**
      * Find the highest level tama for a user.
      */

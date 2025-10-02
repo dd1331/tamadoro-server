@@ -18,14 +18,5 @@ import java.util.UUID
 class RandomBoxController(
     private val randomBoxApplicationService: RandomBoxApplicationService
 ) {
-    @GetMapping
-    fun list(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<RandomBox>>> =
-        ResponseEntity.ok(ApiResponse.success(randomBoxApplicationService.list(userId)))
 
-    @PostMapping("/{id}/purchase")
-    fun purchase(
-        @CurrentUserId userId: UUID,
-        @PathVariable id: String
-    ): ResponseEntity<ApiResponse<List<Reward>>> =
-        ResponseEntity.ok(ApiResponse.success(randomBoxApplicationService.purchase(userId, id)))
 }

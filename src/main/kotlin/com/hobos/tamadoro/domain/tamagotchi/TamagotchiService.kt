@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.domain.tama
 
+import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
 import com.hobos.tamadoro.domain.inventory.UserInventory
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
 import com.hobos.tamadoro.domain.user.User
@@ -25,14 +26,12 @@ class TamaService(
     fun createTama(
         user: User,
         name: String,
-        type: TamaType,
-        rarity: TamaRarity
+        tamaCatalogEntity: TamaCatalogEntity
     ): Tama {
         val tama = Tama(
             user = user,
             name = name,
-            type = type,
-            rarity = rarity
+            tamaCatalogEntity = tamaCatalogEntity
         )
         
         val savedTama = tamaRepository.save(tama)
@@ -47,18 +46,7 @@ class TamaService(
         return savedTama
     }
     
-    /**
-     * Gets a random tama based on rarity probabilities.
-     */
-    fun getRandomTama(user: User, name: String): Tama {
-        // Determine rarity based on probabilities
-        val rarity = determineRandomRarity()
-        
-        // Determine type based on available types
-        val type = TamaType.values().random()
-        
-        return createTama(user, name, type, rarity)
-    }
+
     
     /**
      * Feeds a tama to reduce hunger.

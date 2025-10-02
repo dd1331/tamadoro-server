@@ -8,8 +8,6 @@ import java.util.UUID
 class RandomBoxApplicationService(
     private val randomBoxService: RandomBoxService
 ) {
-    fun list(userId: UUID) = randomBoxService.list(userId)
-    fun purchase(userId: UUID, id: String) = randomBoxService.purchase(userId, id)
 }
 
 
