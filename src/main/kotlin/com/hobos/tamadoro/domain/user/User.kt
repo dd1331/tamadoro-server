@@ -49,6 +49,12 @@ class User(
         this.updatedAt = LocalDateTime.now()
     }
 
+
+    fun activeSubscription(): Subscription? =
+        subscriptions
+            .filter { it.isActive() }
+            .maxByOrNull { it.startDate }
+
     /**
      * Activates premium subscription
      */
@@ -59,6 +65,7 @@ class User(
             SubscriptionType.MONTHLY -> LocalDateTime.of(startDate.plusMonths(1), LocalTime.MAX)
             SubscriptionType.YEARLY -> LocalDateTime.of(startDate.plusYears(1), LocalTime.MAX)
             SubscriptionType.UNLIMITED -> null
+            SubscriptionType.TRIAL -> LocalDateTime.of(startDate.plusWeeks(1), LocalTime.MAX)
         }
         val newSubscription = Subscription(
             user = this,

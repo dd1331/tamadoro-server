@@ -9,11 +9,7 @@ import java.util.UUID
 class PurchaseApplicationService(
     private val purchaseService: PurchaseService
 ) {
-    fun coinPackages() = purchaseService.coinPackages()
-    fun gemPackages() = purchaseService.gemPackages()
-    fun buyCoins(userId: UUID, packageId: String) = purchaseService.buyCoins(userId, packageId)
-    fun buyGems(userId: UUID, packageId: String) = purchaseService.buyGems(userId, packageId)
-    fun subscriptionPlans() = purchaseService.subscriptionPlans()
+    fun subscriptionPlans() = purchaseService.getSubscriptionPlans()
     fun subscriptionStatus(userId: UUID) = purchaseService.subscriptionStatus(userId)
     fun subscribe(userId: UUID, type: SubscriptionType) = purchaseService.subscribe(userId, type)
     fun cancel(userId: UUID) = purchaseService.cancel(userId)

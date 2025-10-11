@@ -68,7 +68,7 @@ data class GemPackageDto(
  * DTO for premium subscription plan
  */
 data class PremiumSubscriptionDto(
-    val type: String,
+    val type: SubscriptionType,
     val price: Int,
     val features: List<String>
 )

@@ -15,21 +15,10 @@ import java.util.UUID
 class PurchaseController(
     private val purchaseApplicationService: PurchaseApplicationService
 ) {
-    @GetMapping("/purchase/coins")
-    fun coinPackages() = ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.coinPackages()))
 
-    @GetMapping("/purchase/gems")
-    fun gemPackages() = ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.gemPackages()))
 
     data class PurchaseRequest(@field:NotBlank val packageId: String)
 
-    @PostMapping("/purchase/coins")
-    fun buyCoins(@CurrentUserId userId: UUID, @Valid @RequestBody req: PurchaseRequest) =
-        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.buyCoins(userId, req.packageId)))
-
-    @PostMapping("/purchase/gems")
-    fun buyGems(@CurrentUserId userId: UUID, @Valid @RequestBody req: PurchaseRequest) =
-        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.buyGems(userId, req.packageId)))
 
     @GetMapping("/subscription/plans")
     fun plans() = ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionPlans()))

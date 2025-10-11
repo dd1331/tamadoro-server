@@ -26,10 +26,6 @@ class UserInventory(
     @Column(name = "gems", nullable = false)
     var gems: Int = 10, // Start with 10 gems
     
-    @OneToOne
-    @JoinColumn(name = "active_tama_id")
-    var activeTama: Tama? = null,
-    
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 
@@ -92,7 +88,7 @@ class UserInventory(
 //        activeTama?.let { it.isActive = false }
         
         // Set the new active tama
-        this.activeTama = tama
+//        this.activeTama = tama
         
         // Activate the new tama if it's not null
 //        tama?.let { it.isActive = true }

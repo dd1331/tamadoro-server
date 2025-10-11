@@ -23,5 +23,4 @@ interface UserInventoryRepository : JpaRepository<UserInventory, UUID> {
     /**
      * Find all user inventories with a specific active tama.
      */
-    fun findByActiveTamaId(tamaId: Long): Optional<UserInventory>
 }

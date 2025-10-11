@@ -37,10 +37,7 @@ class TamaService(
         
         // If this is the user's first tama, make it active
         val userInventory = userInventoryRepository.findByUserId(user.id)
-        if (userInventory.isPresent && userInventory.get().activeTama == null) {
-            userInventory.get().changeActiveTama(savedTama)
-            userInventoryRepository.save(userInventory.get())
-        }
+
         
         return savedTama
     }

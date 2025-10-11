@@ -45,21 +45,24 @@ class Subscription(
         return !endDate!!.toLocalDate().isBefore(today)
     }
 
-    fun update(
-        today: LocalDate?,
+    fun renew(
         type: SubscriptionType,
     ) {
+        val today: LocalDate = LocalDate.now()
+        // TODO: check if eligible to trial if the type is trial
         // If already subscribed, extend the current active subscription
-        val baseDate = this.endDate?.toLocalDate()?.let { if (!it.isBefore(today)) it else today }
-        val newDate = when (type) {
-            SubscriptionType.WEEKLY -> baseDate?.plusWeeks(1)
-            SubscriptionType.MONTHLY -> baseDate?.plusMonths(1)
-            SubscriptionType.YEARLY -> baseDate?.plusYears(1)
-            SubscriptionType.UNLIMITED -> baseDate // unused
-        }
-        val newEnd = LocalDateTime.of(newDate, LocalTime.MAX)
+        val baseDate = if (this.isActive()) this.endDate!!.toLocalDate() else today
+
+        val newEndDate = when (type) {
+            SubscriptionType.WEEKLY -> baseDate.plusWeeks(1)
+            SubscriptionType.MONTHLY -> baseDate.plusMonths(1)
+            SubscriptionType.YEARLY -> baseDate.plusYears(1)
+            SubscriptionType.TRIAL -> baseDate.plusWeeks(1)
+            SubscriptionType.UNLIMITED -> null
+        }?.let { LocalDateTime.of(it, LocalTime.MAX) }
+        this.endDate = newEndDate
         this.type = type
-        this.endDate = newEnd
+        this.status = SubscriptionStatus.ACTIVE
     }
     // No extend method: renewals are represented as separate Subscription rows
 }
