@@ -122,7 +122,7 @@ data class InventoryDto(
     val coins: Int,
     val gems: Int,
     val tamas: List<TamaDto>,
-    val activeTamaId: UUID?
+    val activeTamaId: Long?
 ) {
     companion object {
         fun from(entity: UserInventory, tamas: List<TamaDto>): InventoryDto = InventoryDto(

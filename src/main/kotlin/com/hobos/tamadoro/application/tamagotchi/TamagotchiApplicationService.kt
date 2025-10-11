@@ -4,10 +4,7 @@ import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tama.Tama
 import com.hobos.tamadoro.domain.tama.TamaRepository
 import com.hobos.tamadoro.domain.tama.TamaService
-import com.hobos.tamadoro.domain.tama.TamaType
-import com.hobos.tamadoro.domain.tama.TamaRarity
 import com.hobos.tamadoro.domain.tama.TamaGrowthStage
-import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -206,7 +203,7 @@ class TamaApplicationService(
  * DTO for tama data.
  */
 data class TamaDto(
-    val id: UUID,
+    val id: Long,
     val userId: UUID,
     val name: String,
 ) {
