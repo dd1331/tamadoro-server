@@ -2,6 +2,9 @@ package com.hobos.tamadoro.application.auth
 
 import com.hobos.tamadoro.application.user.UserDto
 import com.hobos.tamadoro.domain.auth.AuthService
+import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
+import com.hobos.tamadoro.domain.collections.UserTama
+import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -40,7 +43,9 @@ data class AppleUserName(
 @Service
 class AuthApplicationService(
     private val authService: AuthService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userTamaRepository: UserTamaRepository,
+    private val tamaCatalogRepository: TamaCatalogRepository
 ) {
     /**
      * Authenticates a user with Apple Sign-In.
@@ -52,16 +57,21 @@ class AuthApplicationService(
 
         // Find or create user
         val user = userRepository.findByProviderId(appleUserId)
-            .orElseGet { userRepository.save(User(providerId = appleUserId)) }
+            .orElseGet {
+               val user = userRepository.save(User(providerId = appleUserId))
 
-        request.user.name?.let { name ->
-            val composedName = listOfNotNull(name.firstName, name.lastName)
-                .joinToString(" ")
-                .ifBlank { user.displayName ?: "" }
-            if (composedName.isNotBlank()) {
-                user.displayName = composedName
+                val defaultCatalog = tamaCatalogRepository.findByIsPremium(isPremium = false)[0]
+
+                 userTamaRepository.save(UserTama(
+                    user = user,
+                    tama = defaultCatalog,
+                    isActive = true
+                ))
+                user
+
+
             }
-        }
+
 
         // Record login
         user.recordLogin()

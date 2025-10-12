@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TamaCatalogStageRepository : JpaRepository<TamaCatalogStageEntity, Long> {
-    fun findByTama_Id(tamaId: Long): List<TamaCatalogStageEntity>
 }
 
 

@@ -28,10 +28,6 @@ class CollectionsController(
     ): ResponseEntity<ApiResponse<Map<String, Any?>>> =
         ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveBackground(userId, req.id)))
 
-    @PostMapping("/backgrounds/{id}/purchase")
-    fun purchaseBackground(@CurrentUserId userId: UUID, @PathVariable id: Long): ResponseEntity<ApiResponse<Map<String, Any?>>> =
-        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseBackground(userId, id)))
-
     @GetMapping("/sound/tracks")
     fun getMusic(): ResponseEntity<ApiResponse<List<MusicItem>>> =
         ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getSound()))
@@ -42,10 +38,6 @@ class CollectionsController(
         @Valid @RequestBody req: SetActiveRequest
     ): ResponseEntity<ApiResponse<Map<String, Any?>>> =
         ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveMusic(userId, req.id)))
-
-    @PostMapping("/sound/tracks/{id}/purchase")
-    fun purchaseMusic(@CurrentUserId userId: UUID, @PathVariable id: Long): ResponseEntity<ApiResponse<Map<String, Any?>>> =
-        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseMusic(userId, id)))
 
     // Catalog of characters (tamas) for collection
     @GetMapping("/characters")

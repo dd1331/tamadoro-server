@@ -8,18 +8,18 @@ import com.hobos.tamadoro.domain.user.SubscriptionType
  * DTO for subscription status information
  */
 data class SubscriptionStatusDto(
-    val type: String,
+    val type: SubscriptionType,
     val startDate: String,
     val endDate: String?,
-    val status: String
+    val status: SubscriptionStatus
 ) {
     companion object {
         fun fromSubscription(subscription: Subscription): SubscriptionStatusDto {
             return SubscriptionStatusDto(
-                type = subscription.type.name.lowercase(),
+                type = subscription.type,
                 startDate = subscription.startDate.toString(),
                 endDate = subscription.endDate?.toString(),
-                status = subscription.status.name.lowercase()
+                status = subscription.status,
             )
         }
     }

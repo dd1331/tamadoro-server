@@ -47,8 +47,8 @@ class PurchaseServiceTest {
 
         // Then
         assertNotNull(result)
-        assertEquals("monthly", result.type)
-        assertEquals("active", result.status)
+        assertEquals(SubscriptionType.MONTHLY, result.type)
+        assertEquals(SubscriptionStatus.ACTIVE, result.status)
         assertNotNull(result.startDate)
         assertNotNull(result.endDate)
 
@@ -83,8 +83,8 @@ class PurchaseServiceTest {
 
         // Then
         assertNotNull(result)
-        assertEquals("monthly", result.type)
-        assertEquals("active", result.status)
+        assertEquals(SubscriptionType.MONTHLY, result.type)
+        assertEquals(SubscriptionStatus.ACTIVE, result.status)
 
         // DB에서 실제 데이터 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
@@ -103,8 +103,8 @@ class PurchaseServiceTest {
         val result = purchaseService.subscribe(testUser.id, subscriptionType)
 
         // Then
-        assertEquals("weekly", result.type)
-        assertEquals("active", result.status)
+        assertEquals(SubscriptionType.WEEKLY, result.type)
+        assertEquals(SubscriptionStatus.ACTIVE, result.status)
         
         // DB 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
@@ -121,8 +121,8 @@ class PurchaseServiceTest {
         val result = purchaseService.subscribe(testUser.id, subscriptionType)
 
         // Then
-        assertEquals("yearly", result.type)
-        assertEquals("active", result.status)
+        assertEquals(SubscriptionType.YEARLY, result.type)
+        assertEquals(SubscriptionStatus.ACTIVE, result.status)
         
         // DB 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
@@ -139,8 +139,8 @@ class PurchaseServiceTest {
         val result = purchaseService.subscribe(testUser.id, subscriptionType)
 
         // Then
-        assertEquals("unlimited", result.type)
-        assertEquals("active", result.status)
+        assertEquals(SubscriptionType.UNLIMITED, result.type)
+        assertEquals(SubscriptionStatus.ACTIVE, result.status)
         
         // DB 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
@@ -228,14 +228,14 @@ class PurchaseServiceTest {
         // Then
         assertNotNull(result.startDate)
         assertNotNull(result.status)
-        assertEquals("active", result.status)
-        assertEquals("monthly", result.type)
+        assertEquals(SubscriptionStatus.ACTIVE, result.status)
+        assertEquals(SubscriptionType.MONTHLY, result.type)
 
         // subscriptionStatus 메서드로도 확인
         val statusResult = purchaseService.subscriptionStatus(testUser.id)
         assertNotNull(statusResult)
-        assertEquals("monthly", statusResult!!.type)
-        assertEquals("active", statusResult.status)
+        assertEquals(SubscriptionType.MONTHLY, statusResult!!.type)
+        assertEquals(SubscriptionStatus.ACTIVE, statusResult.status)
     }
 
     @Test

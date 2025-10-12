@@ -1,10 +1,10 @@
 package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
-import com.hobos.tamadoro.domain.tama.Tama
-import com.hobos.tamadoro.domain.tama.TamaRepository
+import com.hobos.tamadoro.domain.collections.UserTama
 import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.tama.TamaGrowthStage
+import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,18 +16,17 @@ import java.util.UUID
 @Service
 class TamaApplicationService(
     private val tamaService: TamaService,
-    private val tamaRepository: TamaRepository,
+    private val userTamaRepository: UserTamaRepository,
     private val userRepository: UserRepository,
-    private val tamaCatalogRepository: TamaCatalogRepository
+    private val tamaCatalogRepository: TamaCatalogRepository,
 ) {
     /**
      * Gets all tamas for a user.
      */
     fun getTamas(userId: UUID): List<TamaDto> {
-        val user = userRepository.findById(userId)
-            .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
-        
-        val tamas = tamaRepository.findByUserId(userId)
+
+
+        val tamas = userTamaRepository.findByUserId(userId)
         return tamas.map { TamaDto.fromEntity(it) }
     }
     
@@ -38,7 +37,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -79,7 +78,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -112,7 +111,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -120,7 +119,7 @@ class TamaApplicationService(
             throw IllegalArgumentException("Tama does not belong to the user")
         }
         
-        tamaRepository.delete(tama)
+        userTamaRepository.delete(tama)
     }
     
     /**
@@ -131,7 +130,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -151,7 +150,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -171,7 +170,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -187,7 +186,7 @@ class TamaApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
         if (tama.user.id != userId) {
@@ -208,11 +207,13 @@ data class TamaDto(
     val name: String,
 ) {
     companion object {
-        fun fromEntity(entity: Tama): TamaDto {
+        fun fromEntity(entity: UserTama): TamaDto {
             return TamaDto(
-                id = entity.id,
+
                 userId = entity.user.id,
-                name = entity.name,
+
+                name = "TODO()",
+                id = entity.id,
             )
         }
     }

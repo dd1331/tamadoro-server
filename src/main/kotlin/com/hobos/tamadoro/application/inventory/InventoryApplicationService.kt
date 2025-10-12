@@ -3,7 +3,7 @@ package com.hobos.tamadoro.application.inventory
 import com.hobos.tamadoro.application.tama.TamaDto
 import com.hobos.tamadoro.domain.inventory.UserInventory
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
-import com.hobos.tamadoro.domain.tama.TamaRepository
+import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -16,7 +16,7 @@ import java.util.UUID
 @Service
 class InventoryApplicationService(
     private val userInventoryRepository: UserInventoryRepository,
-    private val tamaRepository: TamaRepository,
+    private val userTamaRepository: UserTamaRepository,
     private val userRepository: UserRepository
 ) {
     /**
@@ -89,7 +89,7 @@ class InventoryApplicationService(
         val inventory = userInventoryRepository.findByUserId(userId)
             .orElseGet { createDefaultInventory(user) }
 
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
         if (tama.user.id != userId) {
@@ -110,7 +110,7 @@ class InventoryApplicationService(
     }
 
     private fun toDto(userId: UUID, inventory: UserInventory): InventoryDto {
-        val tamas = tamaRepository.findByUserId(userId).map { TamaDto.fromEntity(it) }
+        val tamas = userTamaRepository.findByUserId(userId).map { TamaDto.fromEntity(it) }
         return InventoryDto.from(inventory, tamas)
     }
 }

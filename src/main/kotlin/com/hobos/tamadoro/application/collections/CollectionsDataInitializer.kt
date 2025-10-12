@@ -80,16 +80,16 @@ class CollectionsDataInitializer(
 		}
 
 		val stageSeeds = listOf(
-			TamaCatalogStageEntity( pippo, StageName.EGG, 0, 10, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity( pippo, StageName.BABY, 0, 50, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity( pippo, StageName.CHILD, 0, 150, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity( pippo, StageName.TEEN, 0, 300, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity( pippo, StageName.ADULT, 0, 500, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-			TamaCatalogStageEntity( drogo, StageName.EGG, 0, 20, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity( drogo, StageName.BABY, 0, 80, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity( drogo, StageName.CHILD, 0, 200, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity( drogo, StageName.TEEN, 0, 450, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-			TamaCatalogStageEntity( drogo, StageName.ADULT, 0, 700, 1, "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity(StageName.EGG, 10, 100, 150,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity(StageName.EGG, 10, 100, 10,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity(StageName.EGG, 10, 100, 50,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity(StageName.EGG, 10, 100, 300,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity(StageName.EGG, 10, 100, 500,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+			TamaCatalogStageEntity(StageName.ADULT, 20, 100, 20,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity(StageName.ADULT, 20, 100, 80,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity(StageName.ADULT, 20, 100, 200,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity(StageName.ADULT, 20, 100, 450,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+			TamaCatalogStageEntity(StageName.ADULT, 20, 100, 700,  "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
 		)
 		val stageToInsert = stageSeeds.filter { !characterStageRepository.existsById(it.id) }
 		if (stageToInsert.isNotEmpty()) {

@@ -2,6 +2,7 @@ package com.hobos.tamadoro.domain.collections
 
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
@@ -10,15 +11,15 @@ import jakarta.persistence.Table
 class TamaCatalogEntity(
 
 
-    @OneToMany(mappedBy = "tama", fetch = FetchType.LAZY)
-    val stages: List<TamaCatalogStageEntity> = emptyList(),
     theme: String,
 
     title: String,
 
-    url:String
+    url: String,
+
+    isPremium: Boolean = false,
 
 
-): ItemEntity(theme, title, url)
+): ItemEntity(theme, title, url, isPremium)
 
 

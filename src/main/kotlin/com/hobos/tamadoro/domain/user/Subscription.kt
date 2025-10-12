@@ -51,7 +51,7 @@ class Subscription(
         val today: LocalDate = LocalDate.now()
         // TODO: check if eligible to trial if the type is trial
         // If already subscribed, extend the current active subscription
-        val baseDate = if (this.isActive()) this.endDate!!.toLocalDate() else today
+        val baseDate = if (this.isActive() && this.type != SubscriptionType.UNLIMITED) this.endDate!!.toLocalDate() else today
 
         val newEndDate = when (type) {
             SubscriptionType.WEEKLY -> baseDate.plusWeeks(1)

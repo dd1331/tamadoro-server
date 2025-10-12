@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.domain.tama
 
 import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
+import com.hobos.tamadoro.domain.collections.UserTama
 import com.hobos.tamadoro.domain.user.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -11,7 +12,7 @@ import java.util.UUID
 class TamaTest {
     
     private lateinit var user: User
-    private lateinit var tama: Tama
+    private lateinit var tama: UserTama
     private lateinit var catalog: TamaCatalogEntity
     
     @BeforeEach
@@ -27,11 +28,9 @@ class TamaTest {
             url = "Test"
         )
 
-        tama = Tama(
+        tama = UserTama(
             user = user,
-            tamaCatalogEntity = catalog,
-            id = 1L,
-            name = "TODO()",
+            tama = catalog,
         )
     }
     

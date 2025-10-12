@@ -30,7 +30,6 @@ class CollectionsApplicationService(
             BackgroundItem(4L, "Forest2", theme = "nature", url = "https://picsum.photos/400", isPremium = true)
         )
     fun setActiveBackground(userId: UUID, id: Long) = collectionsService.setActiveBackground(userId, id)
-    fun purchaseBackground(userId: UUID, id: Long) = collectionsService.purchaseBackground(userId, id)
 
     fun getSound(): List<MusicItem> =
         musicTrackRepository.findAll().takeIf { it.isNotEmpty() }?.map {
@@ -43,7 +42,6 @@ class CollectionsApplicationService(
         )
 
 	fun setActiveMusic(userId: UUID, id: Long) = collectionsService.setActiveMusic(userId, id)
-	fun purchaseMusic(userId: UUID, id: Long) = collectionsService.purchaseMusic(userId, id)
 
     fun getTamas(): List<TamaItem> {
         val entities = characterRepository.findAll()
@@ -55,14 +53,7 @@ class CollectionsApplicationService(
                 isPremium = false,
                 stages = listOf(
                     Stage(name = com.hobos.tamadoro.domain.collections.StageName.EGG, experience = 0, maxExperience = 10, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.BABY, experience = 0, maxExperience = 50, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.CHILD, experience = 0, maxExperience = 150, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.TEEN, experience = 0, maxExperience = 300, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.ADULT, experience = 0, maxExperience = 500, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png")
                 ),
-                happiness = 80,
-                hunger = 20,
-                energy = 90
             ),
             TamaItem(
                 id = 2L,
@@ -71,14 +62,7 @@ class CollectionsApplicationService(
                 isPremium = true,
                 stages = listOf(
                     Stage(name = com.hobos.tamadoro.domain.collections.StageName.EGG, experience = 0, maxExperience = 20, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.BABY, experience = 0, maxExperience = 80, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.CHILD, experience = 0, maxExperience = 200, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.TEEN, experience = 0, maxExperience = 450, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.ADULT, experience = 0, maxExperience = 700, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png")
                 ),
-                happiness = 95,
-                hunger = 10,
-                energy = 85
             ),
             TamaItem(
                 id = 3L,
@@ -87,17 +71,10 @@ class CollectionsApplicationService(
                 isPremium = true,
                 stages = listOf(
                     Stage(name = com.hobos.tamadoro.domain.collections.StageName.EGG, experience = 0, maxExperience = 20, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.BABY, experience = 0, maxExperience = 80, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.CHILD, experience = 0, maxExperience = 200, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.TEEN, experience = 0, maxExperience = 450, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.ADULT, experience = 0, maxExperience = 700, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png")
                 ),
-                happiness = 95,
-                hunger = 10,
-                energy = 85
             ),
         )
-        val stagesByCharacter = characterStageRepository.findAll().groupBy { it.tama.id }
+        val stagesByCharacter = characterStageRepository.findAll().groupBy { it.id }
         return entities.map { ch ->
             TamaItem(
                 id = ch.id,
@@ -107,9 +84,6 @@ class CollectionsApplicationService(
                 stages = stagesByCharacter[ch.id].orEmpty().sortedBy { it.level }.map { st ->
                     Stage(name = st.name, experience = st.experience, maxExperience = st.maxExperience, level = st.level, url = st.url)
                 },
-                happiness = 10,
-                hunger = 10,
-                energy = 10,
             )
         }
     }

@@ -33,9 +33,6 @@ data class TamaItem(
     override val theme: String,
     override val isPremium: Boolean,
     val stages: List<Stage>,
-    val happiness: Int,
-    val hunger: Int,
-    val energy: Int
 ) : Item(id, title, theme, isPremium, url = null)
 
 data class Stage(

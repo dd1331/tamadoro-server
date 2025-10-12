@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.config
 
+import org.slf4j.LoggerFactory
 import org.springframework.core.MethodParameter
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -12,6 +13,8 @@ import java.util.UUID
 
 @Component
 class CurrentUserIdArgumentResolver : HandlerMethodArgumentResolver {
+    private val log = LoggerFactory.getLogger(CurrentUserIdArgumentResolver::class.java)
+
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(CurrentUserId::class.java) && parameter.parameterType == UUID::class.java
     }
@@ -23,9 +26,17 @@ class CurrentUserIdArgumentResolver : HandlerMethodArgumentResolver {
         binderFactory: WebDataBinderFactory?
     ): Any? {
         val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-        val principalName = authentication?.name ?: throw IllegalStateException("Unauthenticated request")
-        return UUID.fromString(principalName)
+        if (authentication == null) {
+            log.warn("CurrentUserIdArgumentResolver: missing authentication for {} {}", webRequest.nativeRequest, parameter.method?.name)
+            throw IllegalStateException("Unauthenticated request")
+        }
+
+        return try {
+            UUID.fromString(authentication.name)
+        } catch (ex: IllegalArgumentException) {
+            log.error("CurrentUserIdArgumentResolver: principal '{}' is not a valid UUID", authentication.name)
+            throw ex
+        }
     }
 }
-
 

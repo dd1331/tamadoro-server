@@ -18,10 +18,6 @@ import jakarta.persistence.Table
  class TamaCatalogStageEntity(
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tama_id", nullable = false)
-    val tama: TamaCatalogEntity,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
     val name: StageName,

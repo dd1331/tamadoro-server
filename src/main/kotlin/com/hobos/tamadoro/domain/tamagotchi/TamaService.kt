@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.domain.tama
 
 import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
+import com.hobos.tamadoro.domain.collections.UserTama
 import com.hobos.tamadoro.domain.inventory.UserInventory
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
 import com.hobos.tamadoro.domain.user.User
@@ -15,7 +16,7 @@ import kotlin.random.Random
  */
 @Service
 class TamaService(
-    private val tamaRepository: TamaRepository,
+    private val userTamaRepository: UserTamaRepository,
     private val userInventoryRepository: UserInventoryRepository
 ) {
     /**
@@ -26,14 +27,13 @@ class TamaService(
         user: User,
         name: String,
         tamaCatalogEntity: TamaCatalogEntity
-    ): Tama {
-        val tama = Tama(
+    ): UserTama {
+        val tama = UserTama(
             user = user,
-            name = name,
-            tamaCatalogEntity = tamaCatalogEntity
+            tama = tamaCatalogEntity,
         )
         
-        val savedTama = tamaRepository.save(tama)
+        val savedTama = userTamaRepository.save(tama)
         
         // If this is the user's first tama, make it active
         val userInventory = userInventoryRepository.findByUserId(user.id)
@@ -48,51 +48,51 @@ class TamaService(
      * Feeds a tama to reduce hunger.
      */
     @Transactional
-    fun feedTama(tamaId: UUID, amount: Int = 20): Tama {
-        val tama = tamaRepository.findById(tamaId)
+    fun feedTama(tamaId: UUID, amount: Int = 20): UserTama {
+        val UserTama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
         // TODO: use ownership??
 //        tama.feed(amount)
-        return tamaRepository.save(tama)
+        return userTamaRepository.save(UserTama)
     }
     
     /**
      * Plays with a tama to increase happiness.
      */
     @Transactional
-    fun playWithTama(tamaId: UUID, amount: Int = 15): Tama {
-        val tama = tamaRepository.findById(tamaId)
+    fun playWithTama(tamaId: UUID, amount: Int = 15): UserTama {
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         // TODO: use ownership??
 //        tama.play(amount)
-        return tamaRepository.save(tama)
+        return userTamaRepository.save(tama)
     }
     
     /**
      * Lets a tama rest to restore energy.
      */
     @Transactional
-    fun restTama(tamaId: UUID, amount: Int = 30): Tama {
-        val tama = tamaRepository.findById(tamaId)
+    fun restTama(tamaId: UUID, amount: Int = 30): UserTama {
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
         // TODO: use ownership??
 //        tama.rest(amount)
-        return tamaRepository.save(tama)
+        return userTamaRepository.save(tama)
     }
     
     /**
      * Adds experience to a tama.
      */
     @Transactional
-    fun addExperienceToTama(tamaId: UUID, amount: Int): Tama {
-        val tama = tamaRepository.findById(tamaId)
+    fun addExperienceToTama(tamaId: UUID, amount: Int): UserTama {
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
         // TODO: use ownership??
 //        tama.addExperience(amount)
-        return tamaRepository.save(tama)
+        return userTamaRepository.save(tama)
     }
     
     /**
@@ -103,7 +103,7 @@ class TamaService(
         val userInventory = userInventoryRepository.findByUserId(userId)
             .orElseThrow { NoSuchElementException("User inventory not found for user ID: $userId") }
         
-        val tama = tamaRepository.findById(tamaId)
+        val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         
         // Ensure the tama belongs to the user
@@ -120,45 +120,45 @@ class TamaService(
      */
     @Transactional
     fun updateTamaStatus(userId: UUID) {
-        val tamas = tamaRepository.findByUserId(userId)
+        val tamas = userTamaRepository.findByUserId(userId)
         
         tamas.forEach { tama ->
             // TODO: use ownership??
 //            tama.updateStatus()
-            tamaRepository.save(tama)
+            userTamaRepository.save(tama)
         }
     }
     
     /**
      * Gets all tamas for a user.
      */
-    fun getAllTamasForUser(userId: UUID): List<Tama> {
-        return tamaRepository.findByUserId(userId)
+    fun getAllTamasForUser(userId: UUID): List<UserTama> {
+        return userTamaRepository.findByUserId(userId)
     }
-    
+
     /**
      * Gets a user's active tama.
      */
-    fun getActiveTamaForUser(userId: UUID): Optional<Tama?> {
-        return tamaRepository.findById(userId)
+    fun getActiveTamaForUser(userId: UUID): Optional<UserTama?> {
+        return userTamaRepository.findById(userId)
     }
     
     /**
      * Gets all unhealthy tamas for a user.
      */
-    fun getUnhealthyTamasForUser(userId: UUID): List<Tama> {
-        return tamaRepository.findUnhealthyTamasByUserId(userId)
+    fun getUnhealthyTamasForUser(userId: UUID): List<UserTama> {
+        return userTamaRepository.findUnhealthyTamasByUserId(userId)
     }
     
     /**
      * Updates a tama.
      */
     @Transactional
-    fun updateTama(tama: Tama, name: String?, stage: TamaGrowthStage?): Tama {
+    fun updateTama(tama: UserTama, name: String?, stage: TamaGrowthStage?): UserTama {
         name?.let { tama.name = it }
         // TODO: use ownership??
 //        stage?.let { tama.growthStage = it }
-        return tamaRepository.save(tama)
+        return userTamaRepository.save(tama)
     }
     
     /**

@@ -46,10 +46,10 @@ class PurchaseService(
 
 
     fun subscribe(userId: UUID, type: SubscriptionType): SubscriptionStatusDto {
+        // TODO: 결제이력 추가
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
-
         val sub = createOrExtendSubscription( type, user)
-
+        userRepository.save(user)
         return SubscriptionStatusDto.fromSubscription(sub)
     }
 
@@ -62,7 +62,6 @@ class PurchaseService(
         if (active != null) {
             // 기존 구독을 연장
             active.renew(type)
-            userRepository.save(user)
             return active
         }
             // 새로운 구독 생성
@@ -73,13 +72,8 @@ class PurchaseService(
         user: User,
         type: SubscriptionType
     ): Subscription {
-        user.activatePremium(type)
-        userRepository.save(user)
-        // activatePremium 후 가장 최근 구독을 찾음
-        val newSubscription = user.subscriptions
-            .filter { it.status == SubscriptionStatus.ACTIVE }
-            .maxByOrNull { it.startDate }
-            ?: throw IllegalStateException("Failed to create subscription")
+        val newSubscription = user.activatePremium(type)
+
         return newSubscription
     }
 

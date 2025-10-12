@@ -20,9 +20,6 @@ class User(
     @Column(name = "providerId")
     var providerId: String,
 
-    @Column(name = "display_name")
-    var displayName: String? = null,
-
     @Column(name = "is_premium")
     var isPremium: Boolean = false,
 
@@ -35,6 +32,10 @@ class User(
     @Column(name = "last_login_at")
     var lastLoginAt: LocalDateTime? = null
 ) {
+
+//    companion object {
+//        fun create(providerId: String) = User(providerId = providerId)
+//    }
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     var subscriptions: MutableList<Subscription> = mutableListOf()
     /**
@@ -58,7 +59,7 @@ class User(
     /**
      * Activates premium subscription
      */
-    fun activatePremium(type: SubscriptionType) {
+    fun activatePremium(type: SubscriptionType): Subscription {
         val startDate = LocalDate.now()
         val endDate: LocalDateTime? = when (type) {
             SubscriptionType.WEEKLY -> LocalDateTime.of(startDate.plusWeeks(1), LocalTime.MAX)
@@ -77,6 +78,7 @@ class User(
         this.subscriptions.add(newSubscription)
         this.isPremium = true
         this.updatedAt = LocalDateTime.now()
+        return newSubscription
     }
 
     /**

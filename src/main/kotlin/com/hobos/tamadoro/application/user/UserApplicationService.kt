@@ -31,7 +31,6 @@ class UserApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
-        request.name?.let { user.displayName = it }
 
         val updatedUser = userRepository.save(user)
         return UserDto.fromEntity(updatedUser)
@@ -48,7 +47,6 @@ data class UpdateUserProfileRequest(
  */
 data class UserDto(
     val id: UUID,
-    val name: String,
     val isPremium: Boolean,
     val createdAt: String,
     val updatedAt: String,
@@ -62,7 +60,6 @@ data class UserDto(
                 .firstOrNull()
             return UserDto(
                 id = entity.id,
-                name = entity.displayName ?: "",
                 isPremium = entity.isPremium,
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),

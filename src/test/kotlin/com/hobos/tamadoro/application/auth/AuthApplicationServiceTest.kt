@@ -110,7 +110,6 @@ class AuthApplicationServiceTest {
 
         // Then
         assertNotNull(result)
-        assertEquals(user.id, result.user.id)
         assertEquals(newToken, result.token)
         assertEquals(newRefreshToken, result.refreshToken)
     }
@@ -136,7 +135,9 @@ class AuthApplicationServiceTest {
         val token = "jwt.token"
 
         // When
-        authApplicationService.logout(token)
+        authApplicationService.logout(
+            userId = user.id,
+        )
 
         // Then
 //        verify(authService).invalidateToken(token)

@@ -29,6 +29,7 @@ class AuthController(
     @PostMapping("/apple")
     fun authenticateWithApple(@Valid @RequestBody request: AppleAuthRequest): ResponseEntity<ApiResponse<AuthResponse>> {
         val response = authApplicationService.authenticateWithApple(request)
+        println(response)
         return ResponseEntity.ok(ApiResponse.success(response))
     }
     

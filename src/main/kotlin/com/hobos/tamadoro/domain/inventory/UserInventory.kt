@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.domain.inventory
 
+import com.hobos.tamadoro.domain.collections.UserTama
 import com.hobos.tamadoro.domain.tama.Tama
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
@@ -83,7 +84,7 @@ class UserInventory(
     }
     
     // TODO: ownership 활용
-    fun changeActiveTama(tama: Tama?) {
+    fun changeActiveTama(tama: UserTama?) {
         // Deactivate the current active tama if there is one
 //        activeTama?.let { it.isActive = false }
         
