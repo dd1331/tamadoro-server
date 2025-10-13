@@ -31,6 +31,7 @@ class SecurityConfig(
                     .requestMatchers(
                         "/auth/apple",
                         "/auth/refresh",
+                        "/guests",
                         "/backgrounds",
                         "/sound/tracks",
                         "/characters",

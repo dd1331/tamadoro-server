@@ -9,6 +9,7 @@ import com.hobos.tamadoro.config.CurrentUserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -28,8 +29,10 @@ class AuthController(
      */
     @PostMapping("/apple")
     fun authenticateWithApple(@Valid @RequestBody request: AppleAuthRequest): ResponseEntity<ApiResponse<AuthResponse>> {
-        val response = authApplicationService.authenticateWithApple(request)
-        println(response)
+        val currentAuthentication = SecurityContextHolder.getContext().authentication
+        val currentUserId = runCatching { UUID.fromString(currentAuthentication?.name) }.getOrNull()
+
+        val response = authApplicationService.authenticateWithApple(request, currentUserId)
         return ResponseEntity.ok(ApiResponse.success(response))
     }
     
