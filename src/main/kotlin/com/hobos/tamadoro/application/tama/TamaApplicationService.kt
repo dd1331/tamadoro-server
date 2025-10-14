@@ -204,17 +204,33 @@ class TamaApplicationService(
 data class TamaDto(
     val id: Long,
     val userId: UUID,
+    val tamaCatalogId: Long?,
     val url: String,
-    val name: String,
+    val name: String?,
+    val experience: Int,
+    val happiness: Int,
+    val energy: Int,
+    val hunger: Int,
+    val isActive: Boolean,
 ) {
     companion object {
         fun fromEntity(entity: UserTama): TamaDto {
+            val displayName = entity.name
+                .takeIf { it.isNotBlank() }
+                ?: entity.tama.title
+
             return TamaDto(
 
                 userId = entity.user.id,
+                tamaCatalogId = entity.tama.id,
                 url = entity.tama.url,
-                name = entity.name,
                 id = entity.id,
+                name = displayName,
+                experience = entity.experience,
+                happiness = entity.happiness,
+                energy = entity.energy,
+                hunger = entity.hunger,
+                isActive = entity.isActive,
             )
         }
     }

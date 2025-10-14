@@ -26,6 +26,7 @@ class TamasController(
     @GetMapping
     fun getTamas(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamaDto>>> {
         val tamas = tamaApplicationService.getTamas(userId)
+        println("tamas+" + tamas)
         return ResponseEntity.ok(ApiResponse.success(tamas))
     }
 
