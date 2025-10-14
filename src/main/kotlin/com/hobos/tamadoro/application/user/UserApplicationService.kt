@@ -17,10 +17,10 @@ class UserApplicationService(
     /**
      * Gets a user's profile.
      */
+    @Transactional(readOnly = true)
     fun getUserProfile(userId: UUID): UserDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
-        
         val progress = userProgressAssembler.assemble(user.id)
         return UserDto.fromEntity(user, progress = progress)
     }
@@ -60,6 +60,7 @@ data class UserDto(
 ) {
     companion object {
         fun fromEntity(entity: User, progress: UserProgressDto? = null): UserDto {
+            println("eeee"+ entity.subscriptions.toString())
             val latest = entity.subscriptions
                 .sortedByDescending { it.startDate }
                 .firstOrNull()
