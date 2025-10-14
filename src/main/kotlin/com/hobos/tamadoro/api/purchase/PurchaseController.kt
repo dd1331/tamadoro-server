@@ -3,11 +3,15 @@ package com.hobos.tamadoro.api.purchase
 import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.purchase.PurchaseApplicationService
 import com.hobos.tamadoro.config.CurrentUserId
+import com.hobos.tamadoro.domain.purchase.PurchasePlatform
+import com.hobos.tamadoro.domain.purchase.PurchaseRecord
+import com.hobos.tamadoro.domain.purchase.SubscribeCommand
 import com.hobos.tamadoro.domain.user.SubscriptionType
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.util.UUID
 
 @RestController
@@ -27,16 +31,44 @@ class PurchaseController(
     fun status(@CurrentUserId userId: UUID) =
         ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscriptionStatus(userId)))
 
-    data class SubscribeRequest(val type: SubscriptionType)
+    data class SubscribeRequest(
+        val type: SubscriptionType,
+        val platform: PurchasePlatform,
+        @field:NotBlank
+        val productId: String,
+        @field:NotBlank
+        val transactionId: String,
+        val purchaseToken: String? = null,
+        val receiptData: String? = null,
+        val purchasedAt: LocalDateTime? = null,
+        val expiresAt: LocalDateTime? = null,
+        val priceAmount: Long? = null,
+        val currencyCode: String? = null
+    ) {
+        fun toCommand(): SubscribeCommand = SubscribeCommand(
+            type = type,
+            purchase = PurchaseRecord(
+                platform = platform,
+                productId = productId,
+                transactionId = transactionId,
+                purchaseToken = purchaseToken,
+                receiptData = receiptData,
+                purchasedAt = purchasedAt,
+                expiresAt = expiresAt,
+                priceAmount = priceAmount,
+                currencyCode = currencyCode
+            )
+        )
+    }
 
     @PostMapping("/subscription/subscribe")
-    fun subscribe(@CurrentUserId userId: UUID, @RequestBody req: SubscribeRequest) =
-        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.type)))
+    fun subscribe(@CurrentUserId userId: UUID, @Valid @RequestBody req: SubscribeRequest) =
+        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.toCommand())))
 
     // Alias to match spec: POST /subscription
     @PostMapping("/subscription")
-    fun subscribeAlias(@CurrentUserId userId: UUID, @RequestBody req: SubscribeRequest) =
-        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.type)))
+    fun subscribeAlias(@CurrentUserId userId: UUID, @Valid @RequestBody req: SubscribeRequest) =
+        ResponseEntity.ok(ApiResponse.success(purchaseApplicationService.subscribe(userId, req.toCommand())))
 
     @PostMapping("/subscription/cancel")
     fun cancel(@CurrentUserId userId: UUID) =

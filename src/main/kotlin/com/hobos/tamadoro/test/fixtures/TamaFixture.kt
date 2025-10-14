@@ -10,7 +10,7 @@ object TamaFixtures {
     fun create(
         theme: String = "default-theme",
         title: String = "기본 타마",
-        url: String = "https://example.com/tama.png",
+        url: String = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10",
     ): TamaCatalogEntity {
         return TamaCatalogEntity(
             theme = theme,

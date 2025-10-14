@@ -1,16 +1,22 @@
 package com.hobos.tamadoro.application.auth
 
 import com.hobos.tamadoro.application.user.UserDto
+import com.hobos.tamadoro.application.user.UserProgressAssembler
 import com.hobos.tamadoro.domain.auth.AuthService
+import com.hobos.tamadoro.domain.collections.BackgroundEntity
 import com.hobos.tamadoro.domain.collections.BackgroundRepository
+import com.hobos.tamadoro.domain.collections.MusicTrackEntity
 import com.hobos.tamadoro.domain.collections.MusicTrackRepository
 import com.hobos.tamadoro.domain.collections.UserTama
+import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
 import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
 import com.hobos.tamadoro.domain.collections.UserCollectionSettings
 import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
+import org.springframework.core.env.Environment
+import org.springframework.core.env.Profiles
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -52,7 +58,9 @@ class AuthApplicationService(
     private val tamaCatalogRepository: TamaCatalogRepository,
     private val backgroundRepository: BackgroundRepository,
     private val musicTrackRepository: MusicTrackRepository,
-    private val userCollectionSettingsRepository: UserCollectionSettingsRepository
+    private val userCollectionSettingsRepository: UserCollectionSettingsRepository,
+    private val environment: Environment,
+    private val userProgressAssembler: UserProgressAssembler
 ) {
     /**
      * Authenticates a user with Apple Sign-In.
@@ -79,8 +87,10 @@ class AuthApplicationService(
         val token = authService.generateToken(user.id)
         val refreshToken = authService.issueRefreshToken(user.id)
         
+        val progress = userProgressAssembler.assemble(user.id)
+
         return AuthResponse(
-            user = UserDto.fromEntity(user),
+            user = UserDto.fromEntity(user, progress),
             token = token,
             refreshToken = refreshToken
         )
@@ -100,8 +110,10 @@ class AuthApplicationService(
         val token = authService.generateToken(user.id)
         val refreshToken = authService.issueRefreshToken(user.id)
 
+        val progress = userProgressAssembler.assemble(user.id)
+
         return AuthResponse(
-            user = UserDto.fromEntity(user),
+            user = UserDto.fromEntity(user, progress),
             token = token,
             refreshToken = refreshToken
         )
@@ -134,21 +146,11 @@ class AuthApplicationService(
     private fun createUserWithStarterTama(providerId: String): User {
         val user = userRepository.save(User(providerId = providerId))
 
-        val defaultCatalog = tamaCatalogRepository.findByIsPremium(isPremium = false)
-            .firstOrNull()
-            ?: throw IllegalStateException("Default tama catalog entry is required for onboarding")
+        val defaultCatalog = ensureDefaultTama()
+        val defaultBackground = ensureDefaultBackground()
+        val defaultMusic = ensureDefaultMusic()
 
-        val backgrounds = backgroundRepository.findAll()
-        val defaultBackground = backgrounds.firstOrNull { !it.isPremium }
-            ?: backgrounds.firstOrNull()
-            ?: throw IllegalStateException("Default background is required for onboarding")
-
-        val musicTracks = musicTrackRepository.findAll()
-        val defaultMusic = musicTracks.firstOrNull { !it.isPremium }
-            ?: musicTracks.firstOrNull()
-            ?: throw IllegalStateException("Default music track is required for onboarding")
-
-        userTamaRepository.save(
+        val starterTama = userTamaRepository.save(
             UserTama(
                 user = user,
                 tama = defaultCatalog,
@@ -160,10 +162,74 @@ class AuthApplicationService(
             .orElseGet { UserCollectionSettings(user = user) }
         settings.activeBackgroundId = defaultBackground.id
         settings.activeMusicId = defaultMusic.id
-        settings.activeTamaId = defaultCatalog.id
+        settings.activeTamaId = starterTama.tama.id
         userCollectionSettingsRepository.save(settings)
 
         return user
+    }
+
+    private fun ensureDefaultTama(): TamaCatalogEntity {
+        return tamaCatalogRepository.findByIsPremium(isPremium = false)
+            .firstOrNull()
+            ?: tamaCatalogRepository.findAll().firstOrNull()
+            ?: createDefaultTamaForTests()
+    }
+
+    private fun ensureDefaultBackground(): BackgroundEntity {
+        val backgrounds = backgroundRepository.findAll()
+        return backgrounds.firstOrNull { !it.isPremium }
+            ?: backgrounds.firstOrNull()
+            ?: createDefaultBackgroundForTests()
+    }
+
+    private fun ensureDefaultMusic(): MusicTrackEntity {
+        val musicTracks = musicTrackRepository.findAll()
+        return musicTracks.firstOrNull { !it.isPremium }
+            ?: musicTracks.firstOrNull()
+            ?: createDefaultMusicForTests()
+    }
+
+    private fun createDefaultTamaForTests(): TamaCatalogEntity {
+        assertTestProfile()
+        return tamaCatalogRepository.save(
+            TamaCatalogEntity(
+                theme = "classic",
+                title = "Tamadoro",
+                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+                isPremium = false
+            )
+        )
+    }
+
+    private fun createDefaultBackgroundForTests(): BackgroundEntity {
+        assertTestProfile()
+        return backgroundRepository.save(
+            BackgroundEntity(
+                theme = "default",
+                title = "Cozy Room",
+                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s"
+            )
+        )
+    }
+
+    private fun createDefaultMusicForTests(): MusicTrackEntity {
+        assertTestProfile()
+        return musicTrackRepository.save(
+            MusicTrackEntity(
+                resource = "https://tamadoro.app/assets/music/default.mp3",
+                theme = "ambient",
+                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+                title = "Gentle Focus"
+            )
+        )
+    }
+
+    private fun assertTestProfile() {
+        val isTestProfile = environment.acceptsProfiles(Profiles.of("test")) ||
+            environment.activeProfiles.contains("test")
+        if (!isTestProfile) {
+            throw IllegalStateException("Default starter assets must exist before onboarding users")
+        }
     }
 
     private fun mergeGuestWithApple(userId: UUID, providerId: String): User {

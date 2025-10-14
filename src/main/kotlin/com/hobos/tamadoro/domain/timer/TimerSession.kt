@@ -35,9 +35,6 @@ class TimerSession(
     
     @Column(name = "completed_at")
     var completedAt: LocalDateTime? = null,
-    
-    @Column(name = "task_id")
-    var taskId: UUID? = null
 ) {
     /**
      * Completes the timer session.

@@ -29,12 +29,6 @@ interface TimerSessionRepository : JpaRepository<TimerSession, UUID> {
         startDate: LocalDateTime,
         endDate: LocalDateTime
     ): List<TimerSession>
-    
-    /**
-     * Find all timer sessions for a user associated with a specific task.
-     */
-    fun findByUserIdAndTaskId(userId: UUID, taskId: UUID): List<TimerSession>
-    
     /**
      * Count the number of completed work sessions for a user within a date range.
      */

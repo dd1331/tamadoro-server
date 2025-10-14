@@ -90,8 +90,11 @@ class TamaService(
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
-        // TODO: use ownership??
-//        tama.addExperience(amount)
+        if (amount <= 0) {
+            return tama
+        }
+
+        tama.addExperience(amount)
         return userTamaRepository.save(tama)
     }
     
@@ -139,8 +142,10 @@ class TamaService(
     /**
      * Gets a user's active tama.
      */
-    fun getActiveTamaForUser(userId: UUID): Optional<UserTama?> {
-        return userTamaRepository.findById(userId)
+    fun getActiveTamaForUser(userId: UUID): Optional<UserTama> {
+        val tamas = userTamaRepository.findByUserId(userId)
+        val active = tamas.firstOrNull { it.isActive }
+        return Optional.ofNullable(active)
     }
     
     /**
@@ -166,25 +171,15 @@ class TamaService(
      */
     @Transactional
     fun rewardTamaForPomodoro(userId: UUID, completedMinutes: Int) {
-        // TODO: use ownership??
-        val activeTama = getActiveTamaForUser(userId)
+        if (completedMinutes <= 0) {
+            return
+        }
 
-        if (!activeTama.isPresent) return
-        
-        // Add experience based on completed minutes (1 exp per minute)
-        val experienceToAdd = completedMinutes
-        // TODO: use ownership??
-//        activeTama.addExperience(experienceToAdd)
-        
-        // Improve happiness slightly
-        // TODO: use ownership??
-//        activeTama.happiness = (activeTama.happiness + 5).coerceAtMost(100)
-        
-        // Increase hunger slightly (focusing makes you hungry!)
-        // TODO: use ownership??
-//        activeTama.hunger = (activeTama.hunger + 2).coerceAtMost(100)
-        
-//        tamaRepository.save(activeTama)
+        val activeTama = getActiveTamaForUser(userId).orElse(null) ?: return
+
+        val experienceToAdd = completedMinutes.coerceAtLeast(1)
+        activeTama.addExperience(experienceToAdd)
+        userTamaRepository.save(activeTama)
     }
     
     /**

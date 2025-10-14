@@ -11,7 +11,8 @@ import java.util.UUID
  */
 @Service
 class UserApplicationService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userProgressAssembler: UserProgressAssembler
 ) {
     /**
      * Gets a user's profile.
@@ -20,7 +21,8 @@ class UserApplicationService(
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
-        return UserDto.fromEntity(user)
+        val progress = userProgressAssembler.assemble(user.id)
+        return UserDto.fromEntity(user, progress = progress)
     }
     
     /**
@@ -33,7 +35,8 @@ class UserApplicationService(
 
 
         val updatedUser = userRepository.save(user)
-        return UserDto.fromEntity(updatedUser)
+        val progress = userProgressAssembler.assemble(updatedUser.id)
+        return UserDto.fromEntity(updatedUser, progress = progress)
     }
 }
 
@@ -47,28 +50,55 @@ data class UpdateUserProfileRequest(
  */
 data class UserDto(
     val id: UUID,
+    val providerId: String,
     val isPremium: Boolean,
     val createdAt: String,
     val updatedAt: String,
     val lastLoginAt: String?,
-    val subscription: SubscriptionDto?
+    val subscription: SubscriptionDto?,
+    val progress: UserProgressDto?
 ) {
     companion object {
-        fun fromEntity(entity: User): UserDto {
+        fun fromEntity(entity: User, progress: UserProgressDto? = null): UserDto {
             val latest = entity.subscriptions
                 .sortedByDescending { it.startDate }
                 .firstOrNull()
             return UserDto(
                 id = entity.id,
-                isPremium = entity.isPremium,
+                providerId = entity.providerId,
+                isPremium = entity.hasPremium(),
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),
                 lastLoginAt = entity.lastLoginAt?.toString(),
-                subscription = latest?.let { SubscriptionDto.fromEntity(it) }
+                subscription = latest?.let { SubscriptionDto.fromEntity(it) },
+                progress = progress
             )
         }
     }
 }
+
+data class UserProgressDto(
+    val tamas: List<TamaProgressDto>,
+    val activeTamaId: String?,
+    val careItems: CareItemsDto
+)
+
+data class TamaProgressDto(
+    val id: Long,
+    val tamaCatalogId: Long?,
+    val name: String?,
+    val experience: Int,
+    val happiness: Int,
+    val energy: Int,
+    val hunger: Int,
+    val isActive: Boolean
+)
+
+data class CareItemsDto(
+    val food: Int,
+    val toy: Int,
+    val snack: Int
+)
 
 /**
  * DTO for subscription data.

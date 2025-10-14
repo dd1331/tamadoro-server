@@ -1,7 +1,6 @@
 package com.hobos.tamadoro.api.timer
 
 import com.hobos.tamadoro.api.common.ApiResponse
-import com.hobos.tamadoro.application.timer.DailyStatisticsDto
 import com.hobos.tamadoro.application.timer.TimerApplicationService
 import com.hobos.tamadoro.application.timer.TimerSessionDto
 import com.hobos.tamadoro.application.timer.TimerSettingsDto
@@ -9,7 +8,6 @@ import com.hobos.tamadoro.config.CurrentUserId
 import com.hobos.tamadoro.domain.timer.TimerSessionType
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
-import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,10 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -67,7 +63,6 @@ class TimerController(
         val session = timerApplicationService.startTimerSession(
             userId = userId,
             type = sessionType,
-            taskId = request.taskId,
             duration = request.duration,
             startedAt = parseDateTime(request.startedAt),
             completed = request.completed ?: false,
@@ -86,8 +81,7 @@ class TimerController(
             duration = body.duration,
             completed = body.completed,
             completedAt = parseDateTime(body.completedAt),
-            startedAt = parseDateTime(body.startedAt),
-            taskId = body.taskId
+            startedAt = parseDateTime(body.startedAt)
         )
         return ResponseEntity.ok(ApiResponse.success(session))
     }
@@ -96,15 +90,6 @@ class TimerController(
     fun getCurrentSession(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<TimerSessionDto?>> {
         val session = timerApplicationService.getCurrentSession(userId)
         return ResponseEntity.ok(ApiResponse.successNullable(session))
-    }
-
-    @GetMapping("/stats/daily")
-    fun getDailyStatistics(
-        @CurrentUserId userId: UUID,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
-    ): ResponseEntity<ApiResponse<DailyStatisticsDto>> {
-        val stats = timerApplicationService.getDailyStatistics(userId, date ?: LocalDate.now())
-        return ResponseEntity.ok(ApiResponse.success(stats))
     }
 
     private fun String.toTimerSessionType(): TimerSessionType {
@@ -149,14 +134,12 @@ data class StartTimerSessionRequest(
     val duration: Int,
     val startedAt: String? = null,
     val completedAt: String? = null,
-    val completed: Boolean? = null,
-    val taskId: UUID? = null
+    val completed: Boolean? = null
 )
 
 data class TimerSessionUpdateRequest(
     val duration: Int? = null,
     val completed: Boolean? = null,
     val completedAt: String? = null,
-    val startedAt: String? = null,
-    val taskId: UUID? = null
+    val startedAt: String? = null
 )

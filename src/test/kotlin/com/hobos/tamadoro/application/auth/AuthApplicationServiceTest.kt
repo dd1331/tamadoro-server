@@ -1,6 +1,18 @@
 package com.hobos.tamadoro.application.auth
 
+import com.hobos.tamadoro.application.user.CareItemsDto
+import com.hobos.tamadoro.application.user.UserProgressAssembler
+import com.hobos.tamadoro.application.user.UserProgressDto
 import com.hobos.tamadoro.domain.auth.AuthService
+import com.hobos.tamadoro.domain.collections.BackgroundEntity
+import com.hobos.tamadoro.domain.collections.BackgroundRepository
+import com.hobos.tamadoro.domain.collections.MusicTrackEntity
+import com.hobos.tamadoro.domain.collections.MusicTrackRepository
+import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
+import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
+import com.hobos.tamadoro.domain.collections.UserCollectionSettings
+import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.junit.jupiter.api.Assertions.*
@@ -13,6 +25,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.core.env.Environment
 import java.util.*
 
 @ExtendWith(MockitoExtension::class)
@@ -24,6 +37,27 @@ class AuthApplicationServiceTest {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    @Mock
+    private lateinit var userTamaRepository: UserTamaRepository
+
+    @Mock
+    private lateinit var tamaCatalogRepository: TamaCatalogRepository
+
+    @Mock
+    private lateinit var backgroundRepository: BackgroundRepository
+
+    @Mock
+    private lateinit var musicTrackRepository: MusicTrackRepository
+
+    @Mock
+    private lateinit var userCollectionSettingsRepository: UserCollectionSettingsRepository
+
+    @Mock
+    private lateinit var environment: Environment
+
+    @Mock
+    private lateinit var userProgressAssembler: UserProgressAssembler
+
     @InjectMocks
     private lateinit var authApplicationService: AuthApplicationService
 
@@ -33,11 +67,49 @@ class AuthApplicationServiceTest {
     private lateinit var user: User
     private lateinit var appleAuthRequest: AppleAuthRequest
 
+    private lateinit var defaultTama: TamaCatalogEntity
+    private lateinit var defaultBackground: BackgroundEntity
+    private lateinit var defaultMusic: MusicTrackEntity
+
     @BeforeEach
     fun setUp() {
         user = User(
             id = UUID.randomUUID(),
             providerId = UUID.randomUUID().toString()
+        )
+
+        defaultTama = TamaCatalogEntity(
+            theme = "classic",
+            title = "Default Tama",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10",
+            isPremium = false
+        )
+        defaultBackground = BackgroundEntity(
+            theme = "default",
+            title = "Cozy Room",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
+        )
+        defaultMusic = MusicTrackEntity(
+            resource = "https://example.com/music.mp3",
+            theme = "ambient",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10",
+            title = "Gentle Focus"
+        )
+
+        lenient().`when`(environment.activeProfiles).thenReturn(arrayOf("test"))
+
+        lenient().`when`(tamaCatalogRepository.findByIsPremium(false)).thenReturn(listOf(defaultTama))
+        lenient().`when`(backgroundRepository.findAll()).thenReturn(listOf(defaultBackground))
+        lenient().`when`(musicTrackRepository.findAll()).thenReturn(listOf(defaultMusic))
+        lenient().`when`(userCollectionSettingsRepository.findByUser_Id(any())).thenReturn(Optional.empty())
+        lenient().`when`(userCollectionSettingsRepository.save(any())).thenAnswer { it.arguments[0] as UserCollectionSettings }
+        lenient().`when`(userTamaRepository.save(any())).thenAnswer { it.arguments[0] }
+        lenient().`when`(userProgressAssembler.assemble(any())).thenReturn(
+            UserProgressDto(
+                tamas = emptyList(),
+                activeTamaId = null,
+                careItems = CareItemsDto(food = 0, toy = 0, snack = 0)
+            )
         )
 
         appleAuthRequest = AppleAuthRequest(

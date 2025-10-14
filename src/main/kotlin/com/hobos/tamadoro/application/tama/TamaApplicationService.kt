@@ -204,6 +204,7 @@ class TamaApplicationService(
 data class TamaDto(
     val id: Long,
     val userId: UUID,
+    val url: String,
     val name: String,
 ) {
     companion object {
@@ -211,8 +212,8 @@ data class TamaDto(
             return TamaDto(
 
                 userId = entity.user.id,
-
-                name = "TODO()",
+                url = entity.tama.url,
+                name = entity.name,
                 id = entity.id,
             )
         }

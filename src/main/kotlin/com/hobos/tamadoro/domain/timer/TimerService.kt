@@ -1,9 +1,5 @@
 package com.hobos.tamadoro.domain.timer
 
-import com.hobos.tamadoro.domain.stats.DailyStats
-import com.hobos.tamadoro.domain.stats.DailyStatsRepository
-import com.hobos.tamadoro.domain.task.Task
-import com.hobos.tamadoro.domain.task.TaskRepository
 import com.hobos.tamadoro.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,9 +13,7 @@ import java.util.UUID
 @Service
 class TimerService(
     private val timerSessionRepository: TimerSessionRepository,
-    private val timerSettingsRepository: TimerSettingsRepository,
-    private val taskRepository: TaskRepository,
-    private val dailyStatsRepository: DailyStatsRepository
+    private val timerSettingsRepository: TimerSettingsRepository
 ) {
     /**
      * Creates a new timer session for a user.
@@ -28,7 +22,6 @@ class TimerService(
     fun createTimerSession(
         user: User,
         type: TimerSessionType,
-        taskId: UUID? = null,
         durationOverride: Int? = null,
         startedAt: LocalDateTime? = null,
         completed: Boolean = false,
@@ -44,7 +37,6 @@ class TimerService(
             user = user,
             type = type,
             duration = duration,
-            taskId = taskId,
             startedAt = startedAt ?: LocalDateTime.now(),
             completed = false,
             completedAt = null
@@ -70,20 +62,7 @@ class TimerService(
         
         // Complete the session
         session.complete()
-        
-        // If it's a work session, update task and daily stats
-        if (session.type == TimerSessionType.WORK) {
-            // Update task if associated with one
-            session.taskId?.let { taskId ->
-                val task = taskRepository.findById(taskId)
-                task.ifPresent { it.incrementCompletedPomodoros() }
-                taskRepository.save(task.get())
-            }
-            
-            // Update daily stats
-            updateDailyStats(session)
-        }
-        
+
         return timerSessionRepository.save(session)
     }
 
@@ -93,14 +72,12 @@ class TimerService(
         duration: Int? = null,
         completed: Boolean? = null,
         completedAt: LocalDateTime? = null,
-        startedAt: LocalDateTime? = null,
-        taskId: UUID? = null
+        startedAt: LocalDateTime? = null
     ): TimerSession {
         val session = timerSessionRepository.findById(sessionId)
             .orElseThrow { NoSuchElementException("Timer session not found with ID: $sessionId") }
 
         duration?.let { session.duration = it }
-        taskId?.let { session.taskId = it }
         startedAt?.let { session.startedAt = it }
 
         completed?.let {
@@ -203,31 +180,4 @@ class TimerService(
         return timerSettingsRepository.save(settings)
     }
     
-    /**
-     * Updates daily stats based on a completed work session.
-     */
-    private fun updateDailyStats(session: TimerSession) {
-        val today = LocalDate.now()
-        val userId = session.user.id
-        
-        // Get or create daily stats for today
-        val dailyStats = dailyStatsRepository.findByUserIdAndDate(userId, today)
-            .orElseGet {
-                DailyStats(
-                    user = session.user,
-                    date = today
-                )
-            }
-        
-        // Update stats
-        dailyStats.incrementCompletedPomodoros()
-        dailyStats.addFocusTime(session.calculateActualDuration())
-        
-        // Calculate coins earned (1 coin per minute of focus time)
-        val coinsEarned = session.calculateActualDuration()
-        dailyStats.addCoinsEarned(coinsEarned)
-        
-        // Save updated stats
-        dailyStatsRepository.save(dailyStats)
-    }
 }

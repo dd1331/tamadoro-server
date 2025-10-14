@@ -8,7 +8,7 @@ import java.util.UUID
 // TODO: 카테고리별로 테이블 구성
 @Entity
 @Table(
-    name = "user_collection_ownerships",
+    name = "tamas",
     uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "category", "item_id"])],
     indexes = [Index(name = "idx_user_category", columnList = "user_id,category")]
 )
@@ -23,7 +23,7 @@ class UserTama(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tama_id", nullable = false)
-    val tama: TamaCatalogEntity?,
+    val tama: TamaCatalogEntity,
 
 
     @Column(name = " name", nullable = true)

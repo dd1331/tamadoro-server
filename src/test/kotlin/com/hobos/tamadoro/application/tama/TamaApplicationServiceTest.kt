@@ -1,15 +1,15 @@
 package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.collections.StageName
+import com.hobos.tamadoro.application.auth.AuthApplicationService
 import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
 import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
-import com.hobos.tamadoro.domain.collections.TamaCatalogStageEntity
 import com.hobos.tamadoro.domain.collections.UserTama
 import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,56 +30,62 @@ class TamaApplicationServiceTest {
     @Autowired
     private lateinit var tamaService: TamaService
 
+    @Autowired
+    private lateinit var authApplicationService: AuthApplicationService
+
     private lateinit var user: User
 
     private lateinit var tamaCatalogEntity: TamaCatalogEntity
 
     @BeforeEach
     fun setUp() {
-
-        user = userRepository.save(User(
-            providerId = "TODO()",
-        ))
-
+        user = userRepository.save(
+            User(
+                providerId = "test-provider"
+            )
+        )
 
         tamaCatalogEntity = tamaCatalogRepository.save(
             TamaCatalogEntity(
                 isPremium = true,
-                theme = "TODO()",
-                title = "TODO()",
-                url = "TODO()"
+                theme = "premium-theme",
+                title = "Premium Tama",
+                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
             )
         )
         tamaCatalogRepository.save(
             TamaCatalogEntity(
                 isPremium = false,
-                theme = "TODO()",
-                title = "TODO()",
-                url = "TODO()"
+                theme = "free-theme",
+                title = "Free Tama",
+                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
             )
         )
-
-    }
-    @Test
-    fun `get user tamas`(){
-
-        println("@@@+" + user)
-        userTamaRepository.save(UserTama(
-            user = user,
-            tama = tamaCatalogEntity,
-        ))
-        val tamas = tamaService.getAllTamasForUser(user.id)
-
-        println(tamas[0])
-        assertEquals(tamas.size, 1)
     }
 
     @Test
-    fun `get default tama if there is no`(){
-        // TODO: 가입시 기본타마 주는거 테스트
+    fun `get user tamas`() {
+        userTamaRepository.save(
+            UserTama(
+                user = user,
+                tama = tamaCatalogEntity,
+            )
+        )
         val tamas = tamaService.getAllTamasForUser(user.id)
 
-        assertEquals(tamas.size, 0)
+        assertEquals(1, tamas.size)
     }
 
+    @Test
+    fun `should assign default tama on guest signup`() {
+        val guestSignup = authApplicationService.loginAsGuest()
+
+        val tamas = tamaService.getAllTamasForUser(guestSignup.user.id)
+
+        assertEquals(1, tamas.size)
+        val savedTama = tamas.first()
+        assertEquals(guestSignup.user.id, savedTama.user?.id)
+        assertTrue(savedTama.isActive)
+    }
 }
+

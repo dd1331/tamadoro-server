@@ -1,8 +1,16 @@
 package com.hobos.tamadoro.domain.purchase
 
-import com.hobos.tamadoro.domain.user.*
-import com.hobos.tamadoro.application.purchase.SubscriptionStatusDto
-import org.junit.jupiter.api.Assertions.*
+import com.hobos.tamadoro.domain.user.Subscription
+import com.hobos.tamadoro.domain.user.SubscriptionStatus
+import com.hobos.tamadoro.domain.user.SubscriptionType
+import com.hobos.tamadoro.domain.user.User
+import com.hobos.tamadoro.domain.user.UserRepository
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
+import java.util.NoSuchElementException
+import java.util.UUID
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -29,34 +38,28 @@ class PurchaseServiceTest {
 
     @BeforeEach
     fun setUp() {
-        // 테스트용 사용자 생성
         testUser = User(
-            providerId = "test-provider-${UUID.randomUUID()}",
-            isPremium = false
+            providerId = "test-provider-${UUID.randomUUID()}"
         )
         userRepository.save(testUser)
     }
 
     @Test
     fun `subscribe should create new subscription when user has no active subscription`() {
-        // Given
         val subscriptionType = SubscriptionType.MONTHLY
 
-        // When
-        val result = purchaseService.subscribe(testUser.id, subscriptionType)
+        val result = subscribe(subscriptionType)
 
-        // Then
         assertNotNull(result)
         assertEquals(SubscriptionType.MONTHLY, result.type)
         assertEquals(SubscriptionStatus.ACTIVE, result.status)
         assertNotNull(result.startDate)
         assertNotNull(result.endDate)
 
-        // DB에서 실제 데이터 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
-        assertTrue(savedUser.isPremium)
+        assertTrue(savedUser.hasPremium())
         assertEquals(1, savedUser.subscriptions.size)
-        
+
         val subscription = savedUser.subscriptions.first()
         assertEquals(SubscriptionType.MONTHLY, subscription.type)
         assertEquals(SubscriptionStatus.ACTIVE, subscription.status)
@@ -64,11 +67,9 @@ class PurchaseServiceTest {
 
     @Test
     fun `subscribe should extend existing active subscription when user already has one`() {
-        // Given - 기존 구독 생성
-        val existingType = SubscriptionType.WEEKLY
         val existingSubscription = Subscription(
             user = testUser,
-            type = existingType,
+            type = SubscriptionType.WEEKLY,
             startDate = LocalDateTime.now().minusDays(3),
             endDate = LocalDateTime.now().plusDays(4),
             status = SubscriptionStatus.ACTIVE
@@ -76,17 +77,12 @@ class PurchaseServiceTest {
         testUser.subscriptions.add(existingSubscription)
         userRepository.save(testUser)
 
-        val newSubscriptionType = SubscriptionType.MONTHLY
+        val result = subscribe(SubscriptionType.MONTHLY)
 
-        // When
-        val result = purchaseService.subscribe(testUser.id, newSubscriptionType)
-
-        // Then
         assertNotNull(result)
         assertEquals(SubscriptionType.MONTHLY, result.type)
         assertEquals(SubscriptionStatus.ACTIVE, result.status)
 
-        // DB에서 실제 데이터 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
         val updatedSubscription = savedUser.subscriptions.first()
         assertEquals(SubscriptionType.MONTHLY, updatedSubscription.type)
@@ -96,17 +92,11 @@ class PurchaseServiceTest {
 
     @Test
     fun `subscribe should handle weekly subscription type correctly`() {
-        // Given
-        val subscriptionType = SubscriptionType.WEEKLY
+        val result = subscribe(SubscriptionType.WEEKLY)
 
-        // When
-        val result = purchaseService.subscribe(testUser.id, subscriptionType)
-
-        // Then
         assertEquals(SubscriptionType.WEEKLY, result.type)
         assertEquals(SubscriptionStatus.ACTIVE, result.status)
-        
-        // DB 확인
+
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
         val subscription = savedUser.subscriptions.first()
         assertEquals(SubscriptionType.WEEKLY, subscription.type)
@@ -114,17 +104,11 @@ class PurchaseServiceTest {
 
     @Test
     fun `subscribe should handle yearly subscription type correctly`() {
-        // Given
-        val subscriptionType = SubscriptionType.YEARLY
+        val result = subscribe(SubscriptionType.YEARLY)
 
-        // When
-        val result = purchaseService.subscribe(testUser.id, subscriptionType)
-
-        // Then
         assertEquals(SubscriptionType.YEARLY, result.type)
         assertEquals(SubscriptionStatus.ACTIVE, result.status)
-        
-        // DB 확인
+
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
         val subscription = savedUser.subscriptions.first()
         assertEquals(SubscriptionType.YEARLY, subscription.type)
@@ -132,26 +116,19 @@ class PurchaseServiceTest {
 
     @Test
     fun `subscribe should handle unlimited subscription type correctly`() {
-        // Given
-        val subscriptionType = SubscriptionType.UNLIMITED
+        val result = subscribe(SubscriptionType.UNLIMITED)
 
-        // When
-        val result = purchaseService.subscribe(testUser.id, subscriptionType)
-
-        // Then
         assertEquals(SubscriptionType.UNLIMITED, result.type)
         assertEquals(SubscriptionStatus.ACTIVE, result.status)
-        
-        // DB 확인
+
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
         val subscription = savedUser.subscriptions.first()
         assertEquals(SubscriptionType.UNLIMITED, subscription.type)
-        assertNull(subscription.endDate) // 무제한은 endDate가 null
+        assertNull(subscription.endDate)
     }
 
     @Test
     fun `subscribe should extend from existing endDate when subscription is still active`() {
-        // Given
         val today = LocalDate.now()
         val existingEnd = LocalDateTime.of(today.plusDays(5), LocalTime.MAX)
         val existingSubscription = Subscription(
@@ -164,22 +141,19 @@ class PurchaseServiceTest {
         testUser.subscriptions.add(existingSubscription)
         userRepository.save(testUser)
 
-        // When: extend by MONTHLY
-        purchaseService.subscribe(testUser.id, SubscriptionType.MONTHLY)
+        subscribe(SubscriptionType.MONTHLY)
 
-        // Then
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
         val sub = savedUser.subscriptions
             .filter { it.status == SubscriptionStatus.ACTIVE && (it.endDate == null || !it.endDate!!.toLocalDate().isBefore(today)) }
             .maxByOrNull { it.startDate }!!
         val expectedEndDateDate = existingEnd.toLocalDate().plusMonths(1)
         assertNotNull(sub.endDate)
-        assertEquals(expectedEndDateDate, sub.endDate!!.toLocalDate(), "Active subscription should extend from its end date by +1 month")
+        assertEquals(expectedEndDateDate, sub.endDate!!.toLocalDate())
     }
 
     @Test
     fun `subscribe should extend from today when existing subscription is expired`() {
-        // Given
         val today = LocalDate.now()
         val expiredEnd = LocalDateTime.of(today.minusDays(1), LocalTime.MAX)
         val expiredSubscription = Subscription(
@@ -187,51 +161,44 @@ class PurchaseServiceTest {
             type = SubscriptionType.MONTHLY,
             startDate = LocalDateTime.now().minusMonths(1),
             endDate = expiredEnd,
-            status = SubscriptionStatus.ACTIVE // logically active but past endDate -> treated as expired by service logic
+            status = SubscriptionStatus.ACTIVE
         )
         testUser.subscriptions.add(expiredSubscription)
         userRepository.save(testUser)
 
-        // When: extend by WEEKLY
-        purchaseService.subscribe(testUser.id, SubscriptionType.WEEKLY)
+        subscribe(SubscriptionType.WEEKLY)
 
-        // Then
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
         val sub = savedUser.subscriptions
             .filter { it.status == SubscriptionStatus.ACTIVE && (it.endDate == null || !it.endDate!!.toLocalDate().isBefore(today)) }
             .maxBy { it.startDate }
         val expectedEndDateDate = today.plusWeeks(1)
         assertNotNull(sub.endDate)
-        assertEquals(expectedEndDateDate, sub.endDate!!.toLocalDate(), "Expired subscription should extend from today by +1 week")
+        assertEquals(expectedEndDateDate, sub.endDate!!.toLocalDate())
     }
 
     @Test
     fun `subscribe should throw exception when user not found`() {
-        // Given
         val nonExistentUserId = UUID.randomUUID()
-        val subscriptionType = SubscriptionType.MONTHLY
+        val command = SubscribeCommand(
+            type = SubscriptionType.MONTHLY,
+            purchase = basicPurchaseRecord()
+        )
 
-        // When & Then
         assertThrows(NoSuchElementException::class.java) {
-            purchaseService.subscribe(nonExistentUserId, subscriptionType)
+            purchaseService.subscribe(nonExistentUserId, command)
         }
     }
 
     @Test
     fun `subscriptionStatus should return correct status after subscription`() {
-        // Given
-        val subscriptionType = SubscriptionType.MONTHLY
+        val result = subscribe(SubscriptionType.MONTHLY)
 
-        // When
-        val result = purchaseService.subscribe(testUser.id, subscriptionType)
-
-        // Then
         assertNotNull(result.startDate)
         assertNotNull(result.status)
         assertEquals(SubscriptionStatus.ACTIVE, result.status)
         assertEquals(SubscriptionType.MONTHLY, result.type)
 
-        // subscriptionStatus 메서드로도 확인
         val statusResult = purchaseService.subscriptionStatus(testUser.id)
         assertNotNull(statusResult)
         assertEquals(SubscriptionType.MONTHLY, statusResult!!.type)
@@ -240,7 +207,6 @@ class PurchaseServiceTest {
 
     @Test
     fun `subscriptionHistory should return correct history`() {
-        // Given - 여러 구독 생성
         val weeklySubscription = Subscription(
             user = testUser,
             type = SubscriptionType.WEEKLY,
@@ -258,32 +224,55 @@ class PurchaseServiceTest {
         testUser.subscriptions.addAll(listOf(weeklySubscription, monthlySubscription))
         userRepository.save(testUser)
 
-        // When
         val history = purchaseService.subscriptionHistory(testUser.id)
 
-        // Then
         assertEquals(2, history.size)
-        assertEquals("monthly", history[0].type) // 최신 구독이 먼저
+        assertEquals("monthly", history[0].type)
         assertEquals("weekly", history[1].type)
     }
 
     @Test
     fun `cancel should cancel active subscription`() {
-        // Given - 활성 구독 생성
-        val subscriptionType = SubscriptionType.MONTHLY
-        purchaseService.subscribe(testUser.id, subscriptionType)
+        subscribe(SubscriptionType.MONTHLY)
 
-        // When
         val result = purchaseService.cancel(testUser.id)
 
-        // Then
-        // cancel 후에는 ACTIVE 구독이 없으므로 null 반환
         assertNull(result)
 
-        // DB 확인
         val savedUser = userRepository.findById(testUser.id).orElseThrow()
-        assertFalse(savedUser.isPremium)
+        assertFalse(savedUser.hasPremium())
         val cancelledSubscription = savedUser.subscriptions.first()
         assertEquals(SubscriptionStatus.CANCELLED, cancelledSubscription.status)
     }
+
+    private fun subscribe(
+        type: SubscriptionType,
+        purchasedAt: LocalDateTime = LocalDateTime.now()
+    ) = purchaseService.subscribe(
+        testUser.id,
+        SubscribeCommand(
+            type = type,
+            purchase = basicPurchaseRecord(
+                transactionId = "txn-${type.name.lowercase()}-${UUID.randomUUID()}",
+                productId = "product-${type.name.lowercase()}",
+                purchasedAt = purchasedAt
+            )
+        )
+    )
+
+    private fun basicPurchaseRecord(
+        transactionId: String = "txn-${UUID.randomUUID()}",
+        productId: String = "product-${UUID.randomUUID()}",
+        purchasedAt: LocalDateTime = LocalDateTime.now()
+    ) = PurchaseRecord(
+        platform = PurchasePlatform.APPLE,
+        productId = productId,
+        transactionId = transactionId,
+        purchaseToken = null,
+        receiptData = null,
+        purchasedAt = purchasedAt,
+        expiresAt = null,
+        priceAmount = null,
+        currencyCode = null
+    )
 }

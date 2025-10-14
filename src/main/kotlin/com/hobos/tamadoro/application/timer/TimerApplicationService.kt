@@ -1,11 +1,8 @@
 package com.hobos.tamadoro.application.timer
 
-import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
-import com.hobos.tamadoro.domain.stats.StatsService
 import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.timer.TimerService
 import com.hobos.tamadoro.domain.timer.TimerSessionType
-import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,9 +18,7 @@ import java.util.UUID
 class TimerApplicationService(
     private val timerService: TimerService,
     private val tamaService: TamaService,
-    private val statsService: StatsService,
-    private val userRepository: UserRepository,
-    private val userInventoryRepository: UserInventoryRepository
+    private val userRepository: UserRepository
 ) {
     /**
      * Starts a new timer session for a user.
@@ -32,7 +27,6 @@ class TimerApplicationService(
     fun startTimerSession(
         userId: UUID,
         type: TimerSessionType,
-        taskId: UUID? = null,
         duration: Int? = null,
         startedAt: LocalDateTime? = null,
         completed: Boolean = false,
@@ -44,17 +38,11 @@ class TimerApplicationService(
         val session = timerService.createTimerSession(
             user = user,
             type = type,
-            taskId = taskId,
             durationOverride = duration,
             startedAt = startedAt,
             completed = completed,
             completedAt = completedAt
         )
-
-        // Mark attendance for the day if this is the first session
-        if (!statsService.getDailyStats(userId, LocalDate.now()).attendance) {
-            statsService.recordAttendance(userId)
-        }
 
         if (session.completed) {
             handleWorkSessionCompletion(session)
@@ -79,8 +67,7 @@ class TimerApplicationService(
         duration: Int? = null,
         completed: Boolean? = null,
         completedAt: LocalDateTime? = null,
-        startedAt: LocalDateTime? = null,
-        taskId: UUID? = null
+        startedAt: LocalDateTime? = null
     ): TimerSessionDto {
         val existing = timerService.findById(sessionId)
         val wasCompleted = existing.completed
@@ -90,8 +77,7 @@ class TimerApplicationService(
             duration = duration,
             completed = completed,
             completedAt = completedAt,
-            startedAt = startedAt,
-            taskId = taskId
+            startedAt = startedAt
         )
 
         if (!wasCompleted && session.completed) {
@@ -161,42 +147,11 @@ class TimerApplicationService(
         return TimerSettingsDto.fromEntity(settings)
     }
     
-    /**
-     * Gets daily statistics for a user.
-     */
-    fun getDailyStatistics(userId: UUID, date: LocalDate = LocalDate.now()): DailyStatisticsDto {
-        val user = userRepository.findById(userId)
-            .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
-        
-        val dailyStats = statsService.getDailyStats(userId, date)
-        val completedSessions = timerService.getCompletedWorkSessionsByDate(userId, date)
-        val focusTime = timerService.calculateTotalFocusTimeForDate(userId, date)
-        
-        return DailyStatisticsDto(
-            date = date.toString(),
-            completedPomodoros = dailyStats.completedPomodoros,
-            totalFocusTime = focusTime,
-            completedTasks = dailyStats.completedTasks,
-            attendance = dailyStats.attendance,
-            coinsEarned = dailyStats.coinsEarned,
-            gemsEarned = dailyStats.gemsEarned,
-            productivityScore = dailyStats.calculateProductivityScore()
-        )
-    }
-
     private fun handleWorkSessionCompletion(session: com.hobos.tamadoro.domain.timer.TimerSession) {
         if (session.type != TimerSessionType.WORK) return
 
         val actualDuration = session.calculateActualDuration()
         tamaService.rewardTamaForPomodoro(session.user.id, actualDuration)
-
-        val userInventory = userInventoryRepository.findByUserId(session.user.id)
-        userInventory.ifPresent {
-            it.addCoins(actualDuration)
-            userInventoryRepository.save(it)
-        }
-
-        statsService.updateDailyStats(session.user.id)
     }
 }
 
@@ -210,8 +165,7 @@ data class TimerSessionDto(
     val duration: Int,
     val completed: Boolean,
     val startedAt: String,
-    val completedAt: String?,
-    val taskId: UUID?
+    val completedAt: String?
 ) {
     companion object {
         fun fromEntity(entity: com.hobos.tamadoro.domain.timer.TimerSession): TimerSessionDto {
@@ -226,8 +180,7 @@ data class TimerSessionDto(
                 duration = entity.duration,
                 completed = entity.completed,
                 startedAt = entity.startedAt.toString(),
-                completedAt = entity.completedAt?.toString(),
-                taskId = entity.taskId
+                completedAt = entity.completedAt?.toString()
             )
         }
     }
@@ -267,13 +220,3 @@ data class TimerSettingsDto(
 /**
  * DTO for daily statistics data.
  */
-data class DailyStatisticsDto(
-    val date: String,
-    val completedPomodoros: Int,
-    val totalFocusTime: Int,
-    val completedTasks: Int,
-    val attendance: Boolean,
-    val coinsEarned: Int,
-    val gemsEarned: Int,
-    val productivityScore: Int
-)

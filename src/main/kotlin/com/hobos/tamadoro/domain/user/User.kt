@@ -20,9 +20,6 @@ class User(
     @Column(name = "providerId")
     var providerId: String,
 
-    @Column(name = "is_premium")
-    var isPremium: Boolean = false,
-
     @Column(name = "created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
@@ -57,10 +54,10 @@ class User(
             .maxByOrNull { it.startDate }
 
     /**
-     * Activates premium subscription
+     * Starts a subscription and tracks its lifecycle entry.
      */
-    fun activatePremium(type: SubscriptionType): Subscription {
-        val startDate = LocalDate.now()
+    fun startSubscription(type: SubscriptionType, startDateTime: LocalDateTime = LocalDateTime.now()): Subscription {
+        val startDate = startDateTime.toLocalDate()
         val endDate: LocalDateTime? = when (type) {
             SubscriptionType.WEEKLY -> LocalDateTime.of(startDate.plusWeeks(1), LocalTime.MAX)
             SubscriptionType.MONTHLY -> LocalDateTime.of(startDate.plusMonths(1), LocalTime.MAX)
@@ -71,12 +68,11 @@ class User(
         val newSubscription = Subscription(
             user = this,
             type = type,
-            startDate = LocalDateTime.now(),
+            startDate = startDateTime,
             endDate = endDate,
             status = SubscriptionStatus.ACTIVE
         )
         this.subscriptions.add(newSubscription)
-        this.isPremium = true
         this.updatedAt = LocalDateTime.now()
         return newSubscription
     }
@@ -90,7 +86,6 @@ class User(
             .filter { it.status == SubscriptionStatus.ACTIVE }
             .maxByOrNull { it.startDate }
         latestActive?.status = SubscriptionStatus.CANCELLED
-        this.isPremium = false
         this.updatedAt = LocalDateTime.now()
     }
 
@@ -100,18 +95,14 @@ class User(
     fun checkSubscriptionStatus() {
         // Day-based: expire if endDate's date is before today (unlimited has null)
         val today = java.time.LocalDate.now()
-        var anyActive = false
         this.subscriptions.forEach { sub ->
             if (sub.status == SubscriptionStatus.ACTIVE) {
                 val endDate = sub.endDate?.toLocalDate()
                 if (endDate != null && endDate.isBefore(today)) {
                     sub.status = SubscriptionStatus.EXPIRED
-                } else {
-                    anyActive = true
                 }
             }
         }
-        this.isPremium = anyActive
         this.updatedAt = LocalDateTime.now()
     }
 

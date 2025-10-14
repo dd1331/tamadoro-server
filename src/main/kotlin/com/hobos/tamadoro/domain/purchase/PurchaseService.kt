@@ -10,15 +10,34 @@ import com.hobos.tamadoro.domain.user.Subscription
 import com.hobos.tamadoro.domain.user.SubscriptionRepository
 import com.hobos.tamadoro.domain.user.User
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.UUID
 import java.util.NoSuchElementException
 
 data class PremiumSubscription(val type: SubscriptionType, val price: Int, val features: List<String>)
 
+data class SubscribeCommand(
+    val type: SubscriptionType,
+    val purchase: PurchaseRecord
+)
+
+data class PurchaseRecord(
+    val platform: PurchasePlatform,
+    val productId: String,
+    val transactionId: String,
+    val purchaseToken: String?,
+    val receiptData: String?,
+    val purchasedAt: LocalDateTime?,
+    val expiresAt: LocalDateTime?,
+    val priceAmount: Long?,
+    val currencyCode: String?
+)
+
 @Service
 class PurchaseService(
     private val subscriptionRepository: SubscriptionRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val inAppPurchaseRepository: InAppPurchaseRepository
 ) {
 
 
@@ -45,17 +64,36 @@ class PurchaseService(
     }
 
 
-    fun subscribe(userId: UUID, type: SubscriptionType): SubscriptionStatusDto {
-        // TODO: 결제이력 추가
+    fun subscribe(userId: UUID, command: SubscribeCommand): SubscriptionStatusDto {
         val user = userRepository.findById(userId).orElseThrow { NoSuchElementException("User not found") }
-        val sub = createOrExtendSubscription( type, user)
+        val purchaseDetails = command.purchase
+
+        if (inAppPurchaseRepository.existsByTransactionId(purchaseDetails.transactionId)) {
+            throw IllegalArgumentException("Purchase already processed")
+        }
+        val purchaseEntity = InAppPurchase(
+            user = user,
+            platform = purchaseDetails.platform,
+            productId = purchaseDetails.productId,
+            transactionId = purchaseDetails.transactionId,
+            purchaseToken = purchaseDetails.purchaseToken,
+            receiptData = purchaseDetails.receiptData,
+            purchasedAt = purchaseDetails.purchasedAt ?: LocalDateTime.now(),
+            expiresAt = purchaseDetails.expiresAt,
+            priceAmount = purchaseDetails.priceAmount,
+            currencyCode = purchaseDetails.currencyCode
+        )
+        inAppPurchaseRepository.save(purchaseEntity)
+
+        val sub = createOrExtendSubscription(command.type, user, purchaseDetails.purchasedAt)
         userRepository.save(user)
         return SubscriptionStatusDto.fromSubscription(sub)
     }
 
     private fun createOrExtendSubscription(
         type: SubscriptionType,
-        user: User
+        user: User,
+        purchasedAt: LocalDateTime?
     ): Subscription {
         val active = user.activeSubscription()
 
@@ -65,14 +103,15 @@ class PurchaseService(
             return active
         }
             // 새로운 구독 생성
-        return createSubscription(user, type)
+        return createSubscription(user, type, purchasedAt)
     }
 
     private fun createSubscription(
         user: User,
-        type: SubscriptionType
+        type: SubscriptionType,
+        purchasedAt: LocalDateTime?
     ): Subscription {
-        val newSubscription = user.activatePremium(type)
+        val newSubscription = user.startSubscription(type, purchasedAt ?: LocalDateTime.now())
 
         return newSubscription
     }
@@ -92,5 +131,3 @@ class PurchaseService(
             .map { SubscriptionHistoryItemDto.fromSubscription(it) }
     }
 }
-
-
