@@ -77,7 +77,7 @@ class TimerSettings(
      */
     fun getDurationForSessionType(type: TimerSessionType): Int {
         return when (type) {
-            TimerSessionType.WORK -> workTime
+            TimerSessionType.FOCUS -> workTime
             TimerSessionType.SHORT_BREAK -> shortBreakTime
             TimerSessionType.LONG_BREAK -> longBreakTime
         }

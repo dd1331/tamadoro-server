@@ -18,6 +18,9 @@ interface UserTamaRepository : JpaRepository<UserTama, UUID> {
 
     fun existsByUser_IdAndId(userId: UUID, itemId: Long): Boolean
 
+    fun findByUserIdAndIsActiveTrue(userId: UUID): List<UserTama>
+    fun findOneByUserIdAndIsActiveTrue(userId: UUID): UserTama?
+
     
     /**
      * Count the number of tamas a user has.

@@ -9,8 +9,7 @@ import java.util.UUID
 @Entity
 @Table(
     name = "tamas",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "category", "item_id"])],
-    indexes = [Index(name = "idx_user_category", columnList = "user_id,category")]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id",  "item_id"])],
 )
 class UserTama(
     @Id
@@ -34,21 +33,21 @@ class UserTama(
 ) {
 
     @Column(name = "happiness")
-    final var happiness: Int = 100
-        private set
+    var happiness: Int = 100
+        protected set
 
     @Column(name = "energy")
-    final var energy: Int = 100
-        private set
+    var energy: Int = 100
+        protected set
 
 
     @Column(name = "experience")
-    final var experience: Int = 0
-        private set
+    var experience: Int = 0
+        protected set
 
     @Column(name = "hunger")
-    final var hunger: Int = 100
-        private set
+    var hunger: Int = 100
+        protected set
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()

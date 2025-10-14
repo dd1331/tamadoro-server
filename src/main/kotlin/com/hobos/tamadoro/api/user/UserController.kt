@@ -27,6 +27,7 @@ class UserController(
     @GetMapping("/profile")
     fun getUserProfile(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<UserDto>> {
         val user = userApplicationService.getUserProfile(userId)
+        println("@@@@@@@"+ user)
         return ResponseEntity.ok(ApiResponse.success(user))
     }
 

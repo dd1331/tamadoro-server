@@ -18,35 +18,7 @@ class TimerService(
     /**
      * Creates a new timer session for a user.
      */
-    @Transactional
-    fun createTimerSession(
-        user: User,
-        type: TimerSessionType,
-        durationOverride: Int? = null,
-        startedAt: LocalDateTime? = null,
-        completed: Boolean = false,
-        completedAt: LocalDateTime? = null
-    ): TimerSession {
-        // Get user's timer settings or create default settings
-        val settings = timerSettingsRepository.findByUserId(user.id)
-            .orElseGet { createDefaultTimerSettings(user) }
-        
-        // Create a new timer session
-        val duration = durationOverride ?: settings.getDurationForSessionType(type)
-        val session = TimerSession(
-            user = user,
-            type = type,
-            duration = duration,
-            startedAt = startedAt ?: LocalDateTime.now(),
-            completed = false,
-            completedAt = null
-        )
-        if (completed || completedAt != null) {
-            session.complete(completedAt)
-        }
-        
-        return timerSessionRepository.save(session)
-    }
+
     
     /**
      * Completes a timer session and updates related entities.
@@ -66,35 +38,6 @@ class TimerService(
         return timerSessionRepository.save(session)
     }
 
-    @Transactional
-    fun updateTimerSession(
-        sessionId: UUID,
-        duration: Int? = null,
-        completed: Boolean? = null,
-        completedAt: LocalDateTime? = null,
-        startedAt: LocalDateTime? = null
-    ): TimerSession {
-        val session = timerSessionRepository.findById(sessionId)
-            .orElseThrow { NoSuchElementException("Timer session not found with ID: $sessionId") }
-
-        duration?.let { session.duration = it }
-        startedAt?.let { session.startedAt = it }
-
-        completed?.let {
-            if (it) {
-                session.complete(completedAt)
-            } else {
-                session.markIncomplete()
-            }
-        }
-
-        if (completedAt != null && completed == null) {
-            session.complete(completedAt)
-        }
-
-        return timerSessionRepository.save(session)
-    }
-    
     /**
      * Updates a user's timer settings.
      */
@@ -157,7 +100,7 @@ class TimerService(
         val endOfDay = date.plusDays(1).atStartOfDay().minusNanos(1)
         
         return timerSessionRepository.findByUserIdAndStartedAtBetween(userId, startOfDay, endOfDay)
-            .filter { it.completed && it.type == TimerSessionType.WORK }
+            .filter { it.completed && it.type == TimerSessionType.FOCUS }
     }
 
     fun findById(sessionId: UUID): TimerSession =

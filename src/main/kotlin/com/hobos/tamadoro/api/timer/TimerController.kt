@@ -2,7 +2,6 @@ package com.hobos.tamadoro.api.timer
 
 import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.timer.TimerApplicationService
-import com.hobos.tamadoro.application.timer.TimerSessionDto
 import com.hobos.tamadoro.application.timer.TimerSettingsDto
 import com.hobos.tamadoro.config.CurrentUserId
 import com.hobos.tamadoro.domain.timer.TimerSessionType
@@ -10,13 +9,11 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.net.URI
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -58,49 +55,15 @@ class TimerController(
     fun startTimerSession(
         @CurrentUserId userId: UUID,
         @Valid @RequestBody request: StartTimerSessionRequest
-    ): ResponseEntity<ApiResponse<TimerSessionDto>> {
-        val sessionType = request.type.toTimerSessionType()
-        val session = timerApplicationService.startTimerSession(
+    ): ResponseEntity<ApiResponse<Unit>> {
+        timerApplicationService.completeSession(
             userId = userId,
-            type = sessionType,
-            duration = request.duration,
-            startedAt = parseDateTime(request.startedAt),
-            completed = request.completed ?: false,
-            completedAt = parseDateTime(request.completedAt)
+            type = request.type
         )
-        return ResponseEntity.created(URI.create("/timer/sessions/${session.id}")).body(ApiResponse.success(session))
+        return ResponseEntity.ok(ApiResponse.success())
     }
 
-    @PutMapping("/sessions/{sessionId}")
-    fun updateTimerSession(
-        @PathVariable sessionId: UUID,
-        @RequestBody body: TimerSessionUpdateRequest
-    ): ResponseEntity<ApiResponse<TimerSessionDto>> {
-        val session = timerApplicationService.updateTimerSession(
-            sessionId = sessionId,
-            duration = body.duration,
-            completed = body.completed,
-            completedAt = parseDateTime(body.completedAt),
-            startedAt = parseDateTime(body.startedAt)
-        )
-        return ResponseEntity.ok(ApiResponse.success(session))
-    }
 
-    @GetMapping("/sessions/current")
-    fun getCurrentSession(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<TimerSessionDto?>> {
-        val session = timerApplicationService.getCurrentSession(userId)
-        return ResponseEntity.ok(ApiResponse.successNullable(session))
-    }
-
-    private fun String.toTimerSessionType(): TimerSessionType {
-        val normalized = replace("_", "").replace(" ", "").lowercase()
-        return when (normalized) {
-            "work", "focus" -> TimerSessionType.WORK
-            "shortbreak", "short" -> TimerSessionType.SHORT_BREAK
-            "longbreak", "long" -> TimerSessionType.LONG_BREAK
-            else -> throw IllegalArgumentException("Invalid timer session type: $this")
-        }
-    }
 
     private fun parseDateTime(value: String?): LocalDateTime? {
         if (value.isNullOrBlank()) return null
@@ -129,8 +92,7 @@ data class UpdateTimerSettingsRequest(
 )
 
 data class StartTimerSessionRequest(
-    @field:NotBlank
-    val type: String,
+    val type: TimerSessionType,
     val duration: Int,
     val startedAt: String? = null,
     val completedAt: String? = null,

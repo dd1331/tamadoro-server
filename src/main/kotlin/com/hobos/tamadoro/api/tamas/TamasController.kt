@@ -75,15 +75,6 @@ class TamasController(
         return ResponseEntity.ok(ApiResponse.success())
     }
 
-    @PostMapping("/{tamaId}/experience")
-    fun addExperience(
-        @CurrentUserId userId: UUID,
-        @PathVariable tamaId: UUID,
-        @RequestBody request: ExperienceRequest
-    ): ResponseEntity<ApiResponse<Unit>> {
-        tamaApplicationService.addExperience(userId, tamaId, request.amount)
-        return ResponseEntity.ok(ApiResponse.success())
-    }
 
     data class ExperienceRequest(val amount: Int)
 }

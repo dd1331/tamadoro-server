@@ -14,7 +14,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "tama_catalog_stages", indexes = [Index(name = "idx_tama_id", columnList = "tama_id")])
+@Table(name = "tama_catalog_stages")
  class TamaCatalogStageEntity(
 
 
