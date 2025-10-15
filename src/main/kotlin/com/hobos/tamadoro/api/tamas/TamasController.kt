@@ -1,7 +1,7 @@
 package com.hobos.tamadoro.api.tamas
 
 import com.hobos.tamadoro.api.common.ApiResponse
-import com.hobos.tamadoro.application.tama.CreateTamaRequest
+import com.hobos.tamadoro.application.tama.OwnTamaRequest
 import com.hobos.tamadoro.application.tama.TamaApplicationService
 import com.hobos.tamadoro.application.tama.TamaDto
 import com.hobos.tamadoro.application.tama.UpdateTamaRequest
@@ -31,11 +31,11 @@ class TamasController(
     }
 
     @PostMapping
-    fun createTama(
+    fun ownTama(
         @CurrentUserId userId: UUID,
-        @RequestBody request: CreateTamaRequest
+        @RequestBody request: OwnTamaRequest
     ): ResponseEntity<ApiResponse<TamaDto>> {
-        val tama = tamaApplicationService.createTama(userId, request)
+        val tama = tamaApplicationService.ownTama(userId, request)
         return ResponseEntity.created(URI.create("/tamas/${tama.id}")).body(ApiResponse.success(tama))
     }
 

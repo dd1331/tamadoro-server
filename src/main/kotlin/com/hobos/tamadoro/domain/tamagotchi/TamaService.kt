@@ -30,6 +30,7 @@ class TamaService(
     ): UserTama {
         val tama = UserTama(
             user = user,
+            name = name,
             tama = tamaCatalogEntity,
         )
         

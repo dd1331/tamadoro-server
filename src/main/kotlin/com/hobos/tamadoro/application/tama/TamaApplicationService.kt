@@ -80,7 +80,7 @@ class TamaApplicationService(
      * Creates a new tama.
      */
     @Transactional
-    fun createTama(userId: UUID, request: CreateTamaRequest): TamaDto {
+    fun ownTama(userId: UUID, request: OwnTamaRequest): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
@@ -281,7 +281,7 @@ data class TamaDto(
 /**
  * Request for creating a tama.
  */
-data class CreateTamaRequest(
+data class OwnTamaRequest(
     val id: Long,
     val name: String? = null
 )
