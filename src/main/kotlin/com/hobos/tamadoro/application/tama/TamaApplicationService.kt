@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.application.tama
 
+import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
 import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
 import com.hobos.tamadoro.domain.collections.UserTama
 import com.hobos.tamadoro.domain.tama.TamaService
@@ -24,12 +25,39 @@ class TamaApplicationService(
      * Gets all tamas for a user.
      */
     fun getTamas(userId: UUID): List<TamaDto> {
+        val catalogs = tamaCatalogRepository.findAll()
+        val ownedTamas = userTamaRepository.findByUserId(userId)
 
+        // 카탈로그별 1:1 소유라는 가정 → 단일 매핑
+        val ownedByCatalogId: Map<Long, UserTama> =
+            ownedTamas.associateBy { it.tama.id }
 
-        val tamas = userTamaRepository.findByUserId(userId)
-        return tamas.map { TamaDto.fromEntity(it) }
+        // 액티브는 하나만 (여러 개면 첫 것만 사용, 가능하면 도메인에서 강제)
+        val activeCatalogId: Long? =
+            ownedTamas.firstOrNull { it.isActive }?.tama?.id
+
+        // (선택) 데이터 방어: 중복 감지
+        // if (ownedTamas.size != ownedByCatalogId.size) {
+        //     log.warn("User $userId has duplicate ownerships per catalog. Check unique constraint.")
+        // }
+
+        return catalogs.map { catalog ->
+            val owned: UserTama? = ownedByCatalogId[catalog.id]
+            val isOwned = owned != null
+            val isActive = (catalog.id == activeCatalogId)
+
+            val displayName = owned?.let { ut ->
+                ut.name?.takeIf { it.isNotBlank() } ?: catalog.title
+            } ?: catalog.title
+
+            TamaDto.fromCatalog(
+                catalog = catalog,
+                isOwned = isOwned,
+                isActive = isActive,
+                name = displayName
+            )
+        }
     }
-    
     /**
      * Gets a specific tama by ID.
      */
@@ -202,16 +230,16 @@ class TamaApplicationService(
  * DTO for tama data.
  */
 data class TamaDto(
-    val id: Long,
-    val userId: UUID,
+    val id: Long? = null,
     val tamaCatalogId: Long?,
     val url: String,
-    val name: String?,
-    val experience: Int,
-    val happiness: Int,
-    val energy: Int,
-    val hunger: Int,
-    val isActive: Boolean,
+    val name: String? = null,
+    val experience: Int? = null,
+    val happiness: Int? = null,
+    val energy: Int? = null,
+    val hunger: Int? = null,
+    val isActive: Boolean = false,
+    val isOwned: Boolean = false,
 ) {
     companion object {
         fun fromEntity(entity: UserTama): TamaDto {
@@ -220,8 +248,6 @@ data class TamaDto(
                 ?: entity.tama.title
 
             return TamaDto(
-
-                userId = entity.user.id,
                 tamaCatalogId = entity.tama.id,
                 url = entity.tama.url,
                 id = entity.id,
@@ -231,6 +257,22 @@ data class TamaDto(
                 energy = entity.energy,
                 hunger = entity.hunger,
                 isActive = entity.isActive,
+            )
+        }
+
+        fun fromCatalog(
+            catalog: TamaCatalogEntity,
+            isOwned: Boolean = false,
+            isActive: Boolean = false,
+            name: String? = null
+        ): TamaDto {
+            return TamaDto(
+                id = null,                           // 카탈로그-only는 null
+                tamaCatalogId = catalog.id,
+                url = catalog.url,
+                name = name ?: catalog.title,
+                isActive = isActive,
+                isOwned = isOwned
             )
         }
     }
