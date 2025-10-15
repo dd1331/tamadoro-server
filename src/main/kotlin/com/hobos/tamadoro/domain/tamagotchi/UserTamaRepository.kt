@@ -21,6 +21,13 @@ interface UserTamaRepository : JpaRepository<UserTama, UUID> {
     fun findByUserIdAndIsActiveTrue(userId: UUID): List<UserTama>
     fun findOneByUserIdAndIsActiveTrue(userId: UUID): UserTama?
 
+    @Query("""
+        SELECT ut FROM UserTama ut
+        JOIN fetch ut.tama t
+        order by ut.experience DESC
+    """)
+    fun findAllWithTamaOrderByCreatedAtDesc(): List<UserTama>
+
     
     /**
      * Count the number of tamas a user has.

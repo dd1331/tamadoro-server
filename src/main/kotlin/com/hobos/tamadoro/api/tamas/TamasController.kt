@@ -4,8 +4,11 @@ import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.tama.OwnTamaRequest
 import com.hobos.tamadoro.application.tama.TamaApplicationService
 import com.hobos.tamadoro.application.tama.TamaDto
+import com.hobos.tamadoro.application.tama.TamaRankApplicationService
+import com.hobos.tamadoro.application.tama.TamaRankDto
 import com.hobos.tamadoro.application.tama.UpdateTamaRequest
 import com.hobos.tamadoro.config.CurrentUserId
+import com.hobos.tamadoro.domain.collections.UserTama
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,7 +24,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/tamas")
 class TamasController(
-    private val tamaApplicationService: TamaApplicationService
+    private val tamaApplicationService: TamaApplicationService,
+    private val tamaRankApplicationService: TamaRankApplicationService
 ) {
     @GetMapping
     fun getTamas(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamaDto>>> {
@@ -37,6 +41,11 @@ class TamasController(
     ): ResponseEntity<ApiResponse<TamaDto>> {
         val tama = tamaApplicationService.ownTama(userId, request)
         return ResponseEntity.created(URI.create("/tamas/${tama.id}")).body(ApiResponse.success(tama))
+    }
+    @GetMapping("/ranking")
+    fun getRank(): ResponseEntity<ApiResponse<List<TamaRankDto>>> {
+        val list = tamaRankApplicationService.getRank()
+        return ResponseEntity.ok(ApiResponse.success(list))
     }
 
     @PutMapping("/{tamaId}")
