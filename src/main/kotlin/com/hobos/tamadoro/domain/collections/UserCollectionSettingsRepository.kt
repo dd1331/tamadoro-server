@@ -8,4 +8,6 @@ import java.util.UUID
 @Repository
 interface UserCollectionSettingsRepository : JpaRepository<UserCollectionSettings, UUID> {
     fun findByUser_Id(userId: UUID): Optional<UserCollectionSettings>
+
+    fun findByUser_IdIn(userIds: Collection<UUID>): List<UserCollectionSettings>
 }

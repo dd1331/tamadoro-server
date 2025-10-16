@@ -2,6 +2,9 @@ package com.hobos.tamadoro.domain.collections
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+import java.util.Optional
 
 @Repository
-interface BackgroundRepository : JpaRepository<BackgroundEntity, Long>
+interface BackgroundRepository : JpaRepository<BackgroundEntity, Long> {
+    fun findByUrl(url: String): Optional<BackgroundEntity>
+}

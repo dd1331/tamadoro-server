@@ -147,7 +147,6 @@ class AuthApplicationService(
         val user = userRepository.save(User(providerId = providerId))
 
         val defaultCatalog = ensureDefaultTama()
-        val defaultBackground = ensureDefaultBackground()
         val defaultMusic = ensureDefaultMusic()
 
         val starterTama = userTamaRepository.save(
@@ -160,7 +159,6 @@ class AuthApplicationService(
 
         val settings = userCollectionSettingsRepository.findByUser_Id(user.id)
             .orElseGet { UserCollectionSettings(user = user) }
-        settings.activeBackgroundId = defaultBackground.id
         settings.activeMusicId = defaultMusic.id
         settings.activeTamaId = starterTama.tama.id
         userCollectionSettingsRepository.save(settings)
@@ -175,12 +173,6 @@ class AuthApplicationService(
             ?: createDefaultTamaForTests()
     }
 
-    private fun ensureDefaultBackground(): BackgroundEntity {
-        val backgrounds = backgroundRepository.findAll()
-        return backgrounds.firstOrNull { !it.isPremium }
-            ?: backgrounds.firstOrNull()
-            ?: createDefaultBackgroundForTests()
-    }
 
     private fun ensureDefaultMusic(): MusicTrackEntity {
         val musicTracks = musicTrackRepository.findAll()
@@ -197,17 +189,6 @@ class AuthApplicationService(
                 title = "Tamadoro",
                 url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
                 isPremium = false
-            )
-        )
-    }
-
-    private fun createDefaultBackgroundForTests(): BackgroundEntity {
-        assertTestProfile()
-        return backgroundRepository.save(
-            BackgroundEntity(
-                theme = "default",
-                title = "Cozy Room",
-                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s"
             )
         )
     }

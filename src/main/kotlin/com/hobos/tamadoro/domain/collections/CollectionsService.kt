@@ -20,17 +20,22 @@ class CollectionsService(
     // Query responsibilities have been moved to application layer
 
     @Transactional
-    fun setActiveBackground(userId: UUID, id: Long): Map<String, Any?> {
+    fun setActiveBackground(userId: UUID, url: String): Map<String, Any?> {
         // must own or be free
-        val bg = backgroundRepository.findById(id).orElseThrow { NoSuchElementException("Background not found") }
-        if (bg.isPremium && !userTamaRepository.existsByUser_IdAndId(userId,  id)) {
+        val bg = backgroundRepository.findByUrl(url).orElseGet { backgroundRepository.save(BackgroundEntity(
+            url = url,
+            theme = "TODO()",
+            title = "TODO()",
+            userId = userId,
+        )) }
+        if (bg.isPremium) {
             throw IllegalStateException("User does not own background")
         }
         val settings = settingsRepository.findByUser_Id(userId)
             .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
-        settings.activeBackgroundId = id
+        settings.activeBackgroundId = bg.id
         settingsRepository.save(settings)
-        return mapOf("activeBackgroundId" to id)
+        return mapOf("activeBackgroundId" to bg.id)
     }
 
     @Transactional

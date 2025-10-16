@@ -13,5 +13,6 @@ object BackgroundFixture {
             title = title,
             theme = theme,
             url = url,
+            userId = null
         )
 }

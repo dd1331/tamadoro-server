@@ -9,6 +9,8 @@ import com.hobos.tamadoro.domain.collections.CollectionsService
 import com.hobos.tamadoro.domain.collections.MusicTrackRepository
 import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
 import com.hobos.tamadoro.domain.collections.TamaCatalogStageRepository
+import com.hobos.tamadoro.domain.collections.UserCollectionSettings
+import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -19,7 +21,28 @@ class CollectionsApplicationService(
     private val musicTrackRepository: MusicTrackRepository,
     private val characterRepository: TamaCatalogRepository,
     private val characterStageRepository: TamaCatalogStageRepository,
+    private val userCollectionSettingsRepository: UserCollectionSettingsRepository,
 ) {
+    data class UserCollectionSettingsDto(
+        val activeBackgroundId: Long?,
+        val activeBackgroundUrl: String?,
+        val activeMusicId: Long?,
+        val activeTamaId: Long?,
+    )
+
+    fun getSettings(userId: UUID): UserCollectionSettingsDto {
+        val settings = userCollectionSettingsRepository.findByUser_Id(userId).orElse(null)
+        val bgUrl = settings?.activeBackgroundId?.let { id ->
+            backgroundRepository.findById(id).map { it.url }.orElse(null)
+        }
+        return UserCollectionSettingsDto(
+            activeBackgroundId = settings?.activeBackgroundId,
+            activeBackgroundUrl = bgUrl,
+            activeMusicId = settings?.activeMusicId,
+            activeTamaId = settings?.activeTamaId,
+        )
+    }
+
     fun getBackgrounds(): List<BackgroundItem> =
         backgroundRepository.findAll().takeIf { it.isNotEmpty() }?.map {
             BackgroundItem(id = it.id, title = it.title, theme = it.theme, url = it.url, isPremium = it.isPremium)
@@ -29,7 +52,7 @@ class CollectionsApplicationService(
             BackgroundItem(3L, "Sunrise2",  url = "https://picsum.photos/200", theme = "light", isPremium = false),
             BackgroundItem(4L, "Forest2", theme = "nature", url = "https://picsum.photos/400", isPremium = true)
         )
-    fun setActiveBackground(userId: UUID, id: Long) = collectionsService.setActiveBackground(userId, id)
+    fun setActiveBackground(userId: UUID, url: String) = collectionsService.setActiveBackground(userId, url)
 
     fun getSound(): List<MusicItem> =
         musicTrackRepository.findAll().takeIf { it.isNotEmpty() }?.map {

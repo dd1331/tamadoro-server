@@ -5,6 +5,7 @@ import com.hobos.tamadoro.application.collections.CollectionsApplicationService
 import com.hobos.tamadoro.application.collections.model.BackgroundItem
 import com.hobos.tamadoro.application.collections.model.MusicItem
 import com.hobos.tamadoro.application.collections.model.TamaItem
+import com.hobos.tamadoro.application.collections.CollectionsApplicationService.UserCollectionSettingsDto
 import com.hobos.tamadoro.config.CurrentUserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
@@ -17,16 +18,18 @@ import java.util.UUID
 class CollectionsController(
     private val collectionsApplicationService: CollectionsApplicationService
 ) {
-    @GetMapping("/backgrounds")
-    fun getBackgrounds(): ResponseEntity<ApiResponse<List<BackgroundItem>>> =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getBackgrounds()))
+    @GetMapping("/settings")
+    fun getSettings(
+        @CurrentUserId userId: UUID
+    ): ResponseEntity<ApiResponse<UserCollectionSettingsDto>> =
+        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getSettings(userId)))
 
     @PutMapping("/backgrounds/active")
     fun setActiveBackground(
         @CurrentUserId userId: UUID,
-        @Valid @RequestBody req: SetActiveRequest
+        @Valid @RequestBody req: SetActiveBGRequest
     ): ResponseEntity<ApiResponse<Map<String, Any?>>> =
-        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveBackground(userId, req.id)))
+        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveBackground(userId, req.url)))
 
     @GetMapping("/sound/tracks")
     fun getMusic(): ResponseEntity<ApiResponse<List<MusicItem>>> =
@@ -56,4 +59,5 @@ class CollectionsController(
         ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.purchaseTama(userId, id)))
 }
 
+data class SetActiveBGRequest(@field:NotBlank val url: String)
 data class SetActiveRequest(@field:NotBlank val id: Long)
