@@ -49,7 +49,7 @@ class TamaService(
      * Feeds a tama to reduce hunger.
      */
     @Transactional
-    fun feedTama(tamaId: UUID, amount: Int = 20): UserTama {
+    fun feedTama(tamaId: Long, amount: Int = 20): UserTama {
         val UserTama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
@@ -62,7 +62,7 @@ class TamaService(
      * Plays with a tama to increase happiness.
      */
     @Transactional
-    fun playWithTama(tamaId: UUID, amount: Int = 15): UserTama {
+    fun playWithTama(tamaId: Long, amount: Int = 15): UserTama {
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
         // TODO: use ownership??
@@ -74,7 +74,7 @@ class TamaService(
      * Lets a tama rest to restore energy.
      */
     @Transactional
-    fun restTama(tamaId: UUID, amount: Int = 30): UserTama {
+    fun restTama(tamaId: Long, amount: Int = 30): UserTama {
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
@@ -87,7 +87,7 @@ class TamaService(
      * Adds experience to a tama.
      */
     @Transactional
-    fun addExperienceToTama(tamaId: UUID, amount: Int): UserTama {
+    fun addExperienceToTama(tamaId: Long, amount: Int): UserTama {
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
@@ -103,20 +103,18 @@ class TamaService(
      * Sets a tama as the active tama for a user.
      */
     @Transactional
-    fun setActiveTama(userId: UUID, tamaId: UUID): UserInventory {
-        val userInventory = userInventoryRepository.findByUserId(userId)
-            .orElseThrow { NoSuchElementException("User inventory not found for user ID: $userId") }
-        
-        val tama = userTamaRepository.findById(tamaId)
-            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
-        // Ensure the tama belongs to the user
-        if (tama.user.id != userId) {
-            throw IllegalArgumentException("Tama does not belong to the user")
+    fun setActiveTama(userId: UUID, tamaId: Long): List<UserTama?> {
+
+        val tamas = userTamaRepository.findByUserId(userId)
+
+        val updated = tamas.map { tama ->
+            tama.isActive = false
+            if(tamaId == tama.id) tama.isActive = true
+            tama
         }
         
-        userInventory.changeActiveTama(tama)
-        return userInventoryRepository.save(userInventory)
+
+        return userTamaRepository.saveAll(updated)
     }
     
     /**

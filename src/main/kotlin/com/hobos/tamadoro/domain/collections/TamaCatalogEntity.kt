@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.domain.collections
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
@@ -18,6 +19,9 @@ class TamaCatalogEntity(
     url: String,
 
     isPremium: Boolean = false,
+
+    @Column(name = "is_custom")
+    val isCustom: Boolean = false,
 
 
 ): ItemEntity(theme, title, url, isPremium)

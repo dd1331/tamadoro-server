@@ -54,14 +54,15 @@ class TamaApplicationService(
                 catalog = catalog,
                 isOwned = isOwned,
                 isActive = isActive,
-                name = displayName
+                name = displayName,
+                id = owned?.id
             )
         }
     }
     /**
      * Gets a specific tama by ID.
      */
-    fun getTama(userId: UUID, tamaId: UUID): TamaDto {
+    fun getTama(userId: UUID, tamaId: Long): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
@@ -74,6 +75,20 @@ class TamaApplicationService(
         }
         
         return TamaDto.fromEntity(tama)
+    }
+
+    @Transactional
+    fun createCustomTama(userId: UUID,  request: CustomTamaRequest): TamaDto {
+        val tama = tamaCatalogRepository.save(TamaCatalogEntity(
+            url = request.url,
+            theme = "TODO()",
+            title = "TODO()"
+        ))
+        println("@@@@"+ tama.toString())
+        return ownTama(userId, OwnTamaRequest(
+            id = tama.id,
+            name = request.name
+        ))
     }
     
     /**
@@ -102,7 +117,7 @@ class TamaApplicationService(
      * Updates a tama.
      */
     @Transactional
-    fun updateTama(userId: UUID, tamaId: UUID, request: UpdateTamaRequest): TamaDto {
+    fun updateTama(userId: UUID, tamaId: Long, request: UpdateTamaRequest): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
@@ -135,7 +150,7 @@ class TamaApplicationService(
      * Deletes a tama.
      */
     @Transactional
-    fun deleteTama(userId: UUID, tamaId: UUID) {
+    fun deleteTama(userId: UUID, tamaId: Long) {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
@@ -154,7 +169,7 @@ class TamaApplicationService(
      * Feeds a tama.
      */
     @Transactional
-    fun feedTama(userId: UUID, tamaId: UUID): TamaDto {
+    fun feedTama(userId: UUID, tamaId: Long): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
@@ -174,7 +189,7 @@ class TamaApplicationService(
      * Plays with a tama.
      */
     @Transactional
-    fun playWithTama(userId: UUID, tamaId: UUID): TamaDto {
+    fun playWithTama(userId: UUID, tamaId: Long): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
@@ -194,13 +209,13 @@ class TamaApplicationService(
      * Activates a tama.
      */
     @Transactional
-    fun activateTama(userId: UUID, tamaId: UUID) {
+    fun activateTama(userId: UUID, tamaId: Long) {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
         
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
+        println("@@@@"+tama.user.id+ tama.id +"@"+ tamaId+"@"+ userId)
         // Ensure the tama belongs to the user
         if (tama.user.id != userId) {
             throw IllegalArgumentException("Tama does not belong to the user")
@@ -210,7 +225,7 @@ class TamaApplicationService(
     }
 
     @Transactional
-    fun addExperience(userId: UUID, tamaId: UUID, amount: Int): TamaDto {
+    fun addExperience(userId: UUID, tamaId: Long, amount: Int): TamaDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
@@ -264,10 +279,11 @@ data class TamaDto(
             catalog: TamaCatalogEntity,
             isOwned: Boolean = false,
             isActive: Boolean = false,
-            name: String? = null
+            name: String? = null,
+            id: Long? = null,
         ): TamaDto {
             return TamaDto(
-                id = null,                           // 카탈로그-only는 null
+                id = id,                           // 카탈로그-only는 null
                 tamaCatalogId = catalog.id,
                 url = catalog.url,
                 name = name ?: catalog.title,
@@ -284,6 +300,11 @@ data class TamaDto(
 data class OwnTamaRequest(
     val id: Long,
     val name: String? = null
+)
+
+data class CustomTamaRequest(
+    val url: String,
+    val name: String,
 )
 
 /**

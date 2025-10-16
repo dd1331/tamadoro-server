@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.api.tamas
 
 import com.hobos.tamadoro.api.common.ApiResponse
+import com.hobos.tamadoro.application.tama.CustomTamaRequest
 import com.hobos.tamadoro.application.tama.OwnTamaRequest
 import com.hobos.tamadoro.application.tama.TamaApplicationService
 import com.hobos.tamadoro.application.tama.TamaDto
@@ -34,12 +35,15 @@ class TamasController(
         return ResponseEntity.ok(ApiResponse.success(tamas))
     }
 
+
     @PostMapping
-    fun ownTama(
+    fun createCustomTama(
         @CurrentUserId userId: UUID,
-        @RequestBody request: OwnTamaRequest
+        @RequestBody request: CustomTamaRequest
     ): ResponseEntity<ApiResponse<TamaDto>> {
-        val tama = tamaApplicationService.ownTama(userId, request)
+
+        println("userId" +userId)
+        val tama = tamaApplicationService.createCustomTama(userId, request)
         return ResponseEntity.created(URI.create("/tamas/${tama.id}")).body(ApiResponse.success(tama))
     }
     @GetMapping("/ranking")
@@ -51,7 +55,7 @@ class TamasController(
     @PutMapping("/{tamaId}")
     fun updateTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamaId: UUID,
+        @PathVariable tamaId: Long,
         @RequestBody request: UpdateTamaRequest
     ): ResponseEntity<ApiResponse<TamaDto>> {
         val tama = tamaApplicationService.updateTama(userId, tamaId, request)
@@ -61,7 +65,7 @@ class TamasController(
     @DeleteMapping("/{tamaId}")
     fun deleteTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamaId: UUID
+        @PathVariable tamaId: Long
     ): ResponseEntity<ApiResponse<Unit>> {
         tamaApplicationService.deleteTama(userId, tamaId)
         return ResponseEntity.ok(ApiResponse.success())
@@ -70,7 +74,7 @@ class TamasController(
     @PostMapping("/{tamaId}/feed")
     fun feedTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamaId: UUID
+        @PathVariable tamaId: Long
     ): ResponseEntity<ApiResponse<Unit>> {
         tamaApplicationService.feedTama(userId, tamaId)
         return ResponseEntity.ok(ApiResponse.success())
@@ -79,12 +83,14 @@ class TamasController(
     @PostMapping("/{tamaId}/play")
     fun playWithTama(
         @CurrentUserId userId: UUID,
-        @PathVariable tamaId: UUID
+        @PathVariable tamaId: Long
     ): ResponseEntity<ApiResponse<Unit>> {
         tamaApplicationService.playWithTama(userId, tamaId)
         return ResponseEntity.ok(ApiResponse.success())
     }
 
 
-    data class ExperienceRequest(val amount: Int)
+
+
+
 }

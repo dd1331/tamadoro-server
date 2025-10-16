@@ -82,7 +82,7 @@ class InventoryApplicationService(
      * Sets the active tama.
      */
     @Transactional
-    fun setActiveTama(userId: UUID, tamaId: UUID): InventoryDto {
+    fun setActiveTama(userId: UUID, tamaId: Long): InventoryDto {
         val user = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
@@ -152,5 +152,5 @@ data class UpdateGemsRequest(
  * Request for setting active tama.
  */
 data class SetActiveTamaRequest(
-    val id: UUID
+    val id: Long
 ) 

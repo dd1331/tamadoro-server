@@ -10,7 +10,7 @@ import java.util.UUID
  * Repository interface for Tama entity.
  */
 @Repository
-interface UserTamaRepository : JpaRepository<UserTama, UUID> {
+interface UserTamaRepository : JpaRepository<UserTama, Long> {
     /**
      * Find all tamas for a user.
      */
@@ -46,4 +46,5 @@ interface UserTamaRepository : JpaRepository<UserTama, UUID> {
      */
     @Query("SELECT t FROM UserTama t WHERE t.user.id = :userId")
     fun findUnhealthyTamasByUserId(userId: UUID): List<UserTama>
+    fun findByUserIdAndId(user_id: UUID, id: Long): List<UserTama>
 }
