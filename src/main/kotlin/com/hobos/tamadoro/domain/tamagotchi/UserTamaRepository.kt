@@ -1,6 +1,8 @@
 package com.hobos.tamadoro.domain.tama
 
 import com.hobos.tamadoro.domain.collections.UserTama
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -28,6 +30,13 @@ interface UserTamaRepository : JpaRepository<UserTama, Long> {
     """)
     fun findAllWithTamaOrderByCreatedAtDesc(): List<UserTama>
 
+    @Query("""
+        SELECT ut FROM UserTama ut
+        JOIN fetch ut.tama t
+        order by ut.experience DESC
+    """)
+    fun findAllWithTamaOrderByCreatedAtDesc(pageable: Pageable): Page<UserTama>
+
     
     /**
      * Count the number of tamas a user has.
@@ -47,4 +56,9 @@ interface UserTamaRepository : JpaRepository<UserTama, Long> {
     @Query("SELECT t FROM UserTama t WHERE t.user.id = :userId")
     fun findUnhealthyTamasByUserId(userId: UUID): List<UserTama>
     fun findByUserIdAndId(user_id: UUID, id: Long): List<UserTama>
+    
+    /**
+     * Count tamas with experience greater than the given value.
+     */
+    fun countByExperienceGreaterThan(experience: Int): Long
 }

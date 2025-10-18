@@ -24,7 +24,7 @@ class CollectionsApplicationService(
     private val userCollectionSettingsRepository: UserCollectionSettingsRepository,
 ) {
     data class UserCollectionSettingsDto(
-        val activeBackgroundId: Long?,
+//        val activeBackgroundId: Long?,
         val activeBackgroundUrl: String?,
         val activeMusicId: Long?,
         val activeTamaId: Long?,
@@ -32,11 +32,9 @@ class CollectionsApplicationService(
 
     fun getSettings(userId: UUID): UserCollectionSettingsDto {
         val settings = userCollectionSettingsRepository.findByUser_Id(userId).orElse(null)
-        val bgUrl = settings?.activeBackgroundId?.let { id ->
-            backgroundRepository.findById(id).map { it.url }.orElse(null)
-        }
+        val bgUrl = settings?.backgroundEntity?.url
         return UserCollectionSettingsDto(
-            activeBackgroundId = settings?.activeBackgroundId,
+//            activeBackgroundId = settings?.activeBackgroundId,
             activeBackgroundUrl = bgUrl,
             activeMusicId = settings?.activeMusicId,
             activeTamaId = settings?.activeTamaId,

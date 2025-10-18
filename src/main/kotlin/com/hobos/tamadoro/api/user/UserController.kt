@@ -7,6 +7,7 @@ import com.hobos.tamadoro.application.tama.TamaDto
 import com.hobos.tamadoro.application.user.UpdateUserProfileRequest
 import com.hobos.tamadoro.application.user.UserApplicationService
 import com.hobos.tamadoro.application.user.UserDto
+import com.hobos.tamadoro.application.user.UserRankDto
 import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -61,5 +62,11 @@ class UserController(
     ): ResponseEntity<ApiResponse<UserDto>> {
         val user = userApplicationService.updateUserProfile(userId, request)
         return ResponseEntity.ok(ApiResponse.success(user))
+    }
+
+    @GetMapping("/me/ranking")
+    fun getMyRanking(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<UserRankDto>> {
+        val userRank = userApplicationService.getMyRanking(userId)
+        return ResponseEntity.ok(ApiResponse.success(userRank))
     }
 }

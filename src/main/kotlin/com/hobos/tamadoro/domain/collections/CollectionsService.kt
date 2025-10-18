@@ -32,8 +32,7 @@ class CollectionsService(
             throw IllegalStateException("User does not own background")
         }
         val settings = settingsRepository.findByUser_Id(userId)
-            .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
-        settings.activeBackgroundId = bg.id
+            .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId), backgroundEntity = bg)) }
         settingsRepository.save(settings)
         return mapOf("activeBackgroundId" to bg.id)
     }

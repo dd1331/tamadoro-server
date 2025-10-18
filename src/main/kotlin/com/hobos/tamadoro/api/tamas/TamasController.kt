@@ -6,6 +6,8 @@ import com.hobos.tamadoro.application.tama.OwnTamaRequest
 import com.hobos.tamadoro.application.tama.TamaApplicationService
 import com.hobos.tamadoro.application.tama.TamaDto
 import com.hobos.tamadoro.application.tama.TamaRankApplicationService
+import com.hobos.tamadoro.application.tama.PagedResponse
+import com.hobos.tamadoro.application.tama.PagingRequest
 import com.hobos.tamadoro.application.tama.TamaRankDto
 import com.hobos.tamadoro.application.tama.UpdateTamaRequest
 import com.hobos.tamadoro.config.CurrentUserId
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 import java.util.UUID
@@ -47,9 +50,13 @@ class TamasController(
         return ResponseEntity.created(URI.create("/tamas/${tama.id}")).body(ApiResponse.success(tama))
     }
     @GetMapping("/ranking")
-    fun getRank(): ResponseEntity<ApiResponse<List<TamaRankDto>>> {
-        val list = tamaRankApplicationService.getRank()
-        return ResponseEntity.ok(ApiResponse.success(list))
+    fun getRank(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
+    ): ResponseEntity<ApiResponse<PagedResponse<TamaRankDto>>> {
+        val pagingRequest = PagingRequest(page, size)
+        val pagedResult = tamaRankApplicationService.getRankWithPaging(pagingRequest)
+        return ResponseEntity.ok(ApiResponse.success(pagedResult))
     }
 
     @PutMapping("/{tamaId}")

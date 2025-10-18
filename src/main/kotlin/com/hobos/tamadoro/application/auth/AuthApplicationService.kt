@@ -147,10 +147,9 @@ class AuthApplicationService(
         val user = userRepository.save(User(providerId = providerId))
 
         val defaultCatalog = ensureDefaultTama()
-        val defaultMusic = ensureDefaultMusic()
+        val defaultMusic = musicTrackRepository.findByIsPremium(isPremium = false)
         val defaultBackground = backgroundRepository.findByIsPremiumAndIsCustom(isPremium = false, isCustom = false)
 
-        println("defaultBackground  " + defaultBackground.toString())
         val starterTama = userTamaRepository.save(
             UserTama(
                 user = user,
@@ -160,15 +159,12 @@ class AuthApplicationService(
         )
         userCollectionSettingsRepository.save(UserCollectionSettings(
             user = user,
-            activeBackgroundId = defaultBackground.get(0).id
+//            activeBackgroundId = defaultBackground.get(0).id,
+            activeMusicId =  defaultMusic.get(0).id,
+            activeTamaId = starterTama.tama.id,
+            backgroundEntity = defaultBackground.get(0)
+
         ))
-
-        val settings = userCollectionSettingsRepository.findByUser_Id(user.id)
-            .orElseGet { UserCollectionSettings(user = user) }
-        settings.activeMusicId = defaultMusic.id
-        settings.activeTamaId = starterTama.tama.id
-        userCollectionSettingsRepository.save(settings)
-
         return user
     }
 

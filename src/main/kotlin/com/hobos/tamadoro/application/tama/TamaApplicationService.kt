@@ -255,6 +255,7 @@ data class TamaDto(
     val hunger: Int? = null,
     val isActive: Boolean = false,
     val isOwned: Boolean = false,
+    val backgroundUrl: String? = null,
 ) {
     companion object {
         fun fromEntity(entity: UserTama): TamaDto {

@@ -10,4 +10,5 @@ interface UserCollectionSettingsRepository : JpaRepository<UserCollectionSetting
     fun findByUser_Id(userId: UUID): Optional<UserCollectionSettings>
 
     fun findByUser_IdIn(userIds: Collection<UUID>): List<UserCollectionSettings>
+    fun findOneByUserId(userId: UUID): Optional<UserCollectionSettings>
 }

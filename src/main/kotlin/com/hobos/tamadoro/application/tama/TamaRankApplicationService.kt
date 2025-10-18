@@ -3,6 +3,7 @@ package com.hobos.tamadoro.application.tama
 import com.hobos.tamadoro.domain.collections.BackgroundRepository
 import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,13 +40,13 @@ class TamaRankApplicationService(
             .associateBy { it.user.id }
 
         // Collect unique background IDs and batch fetch backgrounds
-        val bgIds = settingsByUserId.values.mapNotNull { it.activeBackgroundId }.toSet()
+        val bgIds = settingsByUserId.values.map { it.backgroundEntity?.id }.toSet()
         val bgUrlById = backgroundRepository.findAllById(bgIds).associate { it.id to it.url }
 
         // Map result in-memory
         return ranked.map { ut ->
             val settings = settingsByUserId[ut.user.id]
-            val bgUrl = settings?.activeBackgroundId?.let(bgUrlById::get)
+            val bgUrl = settings?.backgroundEntity?.url
             TamaRankDto(
                 id = ut.id,
                 name = ut.name,
@@ -58,5 +59,48 @@ class TamaRankApplicationService(
                 backgroundUrl = bgUrl
             )
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun getRankWithPaging(request: PagingRequest): PagedResponse<TamaRankDto> {
+        val pageable = PageRequest.of(request.page, request.size, Sort.by(Sort.Direction.DESC, "experience"))
+        val rankedPage = tamaRepository.findAllWithTamaOrderByCreatedAtDesc(pageable)
+
+        // Batch load user settings for all ranked users
+        val userIds = rankedPage.content.map { it.user.id }.toSet()
+        val settingsByUserId = userCollectionSettingsRepository
+            .findByUser_IdIn(userIds)
+            .associateBy { it.user.id }
+
+        // Collect unique background IDs and batch fetch backgrounds
+        val bgIds = settingsByUserId.values.map { it.backgroundEntity?.id }.toSet()
+        val bgUrlById = backgroundRepository.findAllById(bgIds).associate { it.id to it.url }
+
+        // Map result in-memory
+        val content = rankedPage.content.map { ut ->
+            val settings = settingsByUserId[ut.user.id]
+            val bgUrl = settings?.backgroundEntity?.url
+            TamaRankDto(
+                id = ut.id,
+                name = ut.name,
+                experience = ut.experience,
+                happiness = ut.happiness,
+                energy = ut.energy,
+                hunger = ut.hunger,
+                url = ut.tama.url,
+                isActive = ut.isActive,
+                backgroundUrl = bgUrl
+            )
+        }
+
+        return PagedResponse(
+            content = content,
+            page = rankedPage.number,
+            size = rankedPage.size,
+            totalElements = rankedPage.totalElements,
+            totalPages = rankedPage.totalPages,
+            hasNext = rankedPage.hasNext(),
+            hasPrevious = rankedPage.hasPrevious()
+        )
     }
 }

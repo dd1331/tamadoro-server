@@ -1,5 +1,8 @@
 package com.hobos.tamadoro.application.user
 
+import com.hobos.tamadoro.application.tama.TamaDto
+import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -12,7 +15,9 @@ import java.util.UUID
 @Service
 class UserApplicationService(
     private val userRepository: UserRepository,
-    private val userProgressAssembler: UserProgressAssembler
+    private val userProgressAssembler: UserProgressAssembler,
+    private val userTamaRepository: UserTamaRepository,
+    private val userCollectionSettingsRepository: UserCollectionSettingsRepository
 ) {
     /**
      * Gets a user's profile.
@@ -38,11 +43,53 @@ class UserApplicationService(
         val progress = userProgressAssembler.assemble(updatedUser.id)
         return UserDto.fromEntity(updatedUser, progress = progress)
     }
+
+    /**
+     * Gets user's ranking information.
+     */
+    @Transactional(readOnly = true)
+    fun getMyRanking(userId: UUID): UserRankDto {
+        // Get user's active tama
+        val activeTama = userTamaRepository.findOneByUserIdAndIsActiveTrue(userId)
+            ?: throw NoSuchElementException("No active tama found for user: $userId")
+
+        // Get user's rank by counting tamas with higher experience
+        val rank = userTamaRepository.countByExperienceGreaterThan(activeTama.experience) + 1
+
+        val setting = userCollectionSettingsRepository.findOneByUserId(userId)
+        // Convert to TamaDto
+        val tamaDto = TamaDto(
+            id = activeTama.id,
+            tamaCatalogId = activeTama.tama.id,
+            url = activeTama.tama.url,
+            name = activeTama.name,
+            experience = activeTama.experience,
+            happiness = activeTama.happiness,
+            energy = activeTama.energy,
+            hunger = activeTama.hunger,
+            isActive = activeTama.isActive,
+            isOwned = true,
+            backgroundUrl = setting.orElseThrow().backgroundEntity?.url
+        )
+
+        return UserRankDto(
+            rank = rank,
+            tama = tamaDto
+        )
+    }
 }
 
 data class UpdateUserProfileRequest(
     val email: String? = null,
     val name: String? = null
+)
+
+/**
+ * DTO for user ranking information.
+ */
+data class UserRankDto(
+    val rank: Long,
+    val tama: TamaDto
 )
 
 /**
