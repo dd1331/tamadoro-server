@@ -7,4 +7,5 @@ import java.util.Optional
 @Repository
 interface BackgroundRepository : JpaRepository<BackgroundEntity, Long> {
     fun findByUrl(url: String): Optional<BackgroundEntity>
+    fun findByIsPremiumAndIsCustom(isPremium: Boolean, isCustom: Boolean): List<BackgroundEntity>
 }

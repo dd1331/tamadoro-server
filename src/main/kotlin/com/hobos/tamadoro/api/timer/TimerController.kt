@@ -31,6 +31,16 @@ class TimerController(
         return ResponseEntity.ok(ApiResponse.success(settings))
     }
 
+    @PostMapping("/completed")
+    fun completeTimerSession(@CurrentUserId userId: UUID, @RequestBody request: CompleteSessionRequest): ResponseEntity<ApiResponse<Unit>> {
+        timerApplicationService.completeSession(
+            userId = userId,
+            type = request.type,
+            time = request.completedTime
+        )
+        return ResponseEntity.ok(ApiResponse.success())
+    }
+
     @PutMapping("/settings")
     fun updateTimerSettings(
         @CurrentUserId userId: UUID,
@@ -51,33 +61,18 @@ class TimerController(
         return ResponseEntity.ok(ApiResponse.success(settings))
     }
 
-    @PostMapping("/sessions")
-    fun startTimerSession(
-        @CurrentUserId userId: UUID,
-        @Valid @RequestBody request: StartTimerSessionRequest
-    ): ResponseEntity<ApiResponse<Unit>> {
-        timerApplicationService.completeSession(
-            userId = userId,
-            type = request.type
-        )
-        return ResponseEntity.ok(ApiResponse.success())
-    }
 
 
 
-    private fun parseDateTime(value: String?): LocalDateTime? {
-        if (value.isNullOrBlank()) return null
-        return try {
-            OffsetDateTime.parse(value).toLocalDateTime()
-        } catch (_: DateTimeParseException) {
-            try {
-                LocalDateTime.parse(value)
-            } catch (ex: DateTimeParseException) {
-                LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            }
-        }
-    }
+
+
 }
+
+data class CompleteSessionRequest(
+    val type: TimerSessionType,
+    val completedTime: Int
+)
+
 
 data class UpdateTimerSettingsRequest(
     val workTime: Int? = null,

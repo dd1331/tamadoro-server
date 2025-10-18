@@ -29,6 +29,8 @@ class TimerApplicationService(
     fun completeSession(
         userId: UUID,
         type: TimerSessionType,
+        time: Int
+
     ) {
         val activeTama = tamaRepository.findOneByUserIdAndIsActiveTrue(userId)
 
@@ -36,16 +38,15 @@ class TimerApplicationService(
         if(activeTama == null) throw NoSuchElementException()
 
 
-        val xp = getXpToAdd(type)
+        val xp = getXpToAdd(type, time)
 
         activeTama.addExperience(xp)
 
         return
     }
 
-    private fun getXpToAdd(type: TimerSessionType): Int {
-        // TODO("Not yet implemented")
-        return 10
+    private fun getXpToAdd(type: TimerSessionType, time: Int): Int {
+        return time * 10
     }
 
 

@@ -40,8 +40,16 @@ class JwtAuthenticationFilter(
                 filterChain.doFilter(request, response)
                 return
             } catch (_: Exception) {
-                // fallthrough to unauthorized if token invalid
+                // Token is invalid or expired - return 401 Unauthorized
+                response.status = HttpServletResponse.SC_UNAUTHORIZED
+                response.writer.write("{\"error\":\"Unauthorized\",\"message\":\"Invalid or expired token\"}")
+                return
             }
+        } else if (authorization != null) {
+            // Authorization header exists but doesn't start with "Bearer "
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            response.writer.write("{\"error\":\"Unauthorized\",\"message\":\"Invalid authorization header format\"}")
+            return
         }
 
         filterChain.doFilter(request, response)
