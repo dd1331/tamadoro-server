@@ -8,8 +8,15 @@ import com.hobos.tamadoro.application.tama.TamaRankApplicationService
 import com.hobos.tamadoro.application.tama.PagedResponse
 import com.hobos.tamadoro.application.tama.PagingRequest
 import com.hobos.tamadoro.application.tama.TamaRankDto
+import com.hobos.tamadoro.application.tama.TamaGroupRankDto
 import com.hobos.tamadoro.application.tama.UpdateTamaRequest
+import com.hobos.tamadoro.application.tama.TamaGroupApplicationService
+import com.hobos.tamadoro.application.tama.CreateGroupRequest
+import com.hobos.tamadoro.application.tama.GroupDto
 import com.hobos.tamadoro.config.CurrentUserId
+import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.TamaGroup
+import com.hobos.tamadoro.domain.tamas.TamaGroupRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,7 +34,9 @@ import java.util.UUID
 @RequestMapping("/tamas")
 class TamasController(
     private val tamaApplicationService: TamaApplicationService,
-    private val tamaRankApplicationService: TamaRankApplicationService
+    private val tamaRankApplicationService: TamaRankApplicationService,
+    private val tamaGroupApplicationService: TamaGroupApplicationService,
+
 ) {
     @GetMapping
     fun getTamas(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<List<TamaDto>>> {
@@ -61,9 +70,20 @@ class TamasController(
     fun getGroupRanking(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int
-    ) {
+    ): ResponseEntity<ApiResponse<PagedResponse<TamaGroupRankDto>>> {
         val pagingRequest = PagingRequest(page, size)
         val pagedResult = tamaRankApplicationService.getGroupRankingWithPaging(pagingRequest)
+        return ResponseEntity.ok(ApiResponse.success(pagedResult))
+    }
+
+    @PostMapping("/groups")
+    fun createGroup(
+        @RequestBody request: CreateGroupRequest
+    ): ResponseEntity<ApiResponse<GroupDto>> {
+        val group = tamaGroupApplicationService.createGroup(request)
+
+
+        return ResponseEntity.created(URI.create("/tamas/groups/${group.id}")).body(ApiResponse.success(group))
     }
 
     @PutMapping("/{tamaId}")

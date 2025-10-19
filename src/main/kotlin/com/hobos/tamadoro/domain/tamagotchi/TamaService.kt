@@ -145,13 +145,7 @@ class TamaService(
         val active = tamas.firstOrNull { it.isActive }
         return Optional.ofNullable(active)
     }
-    
-    /**
-     * Gets all unhealthy tamas for a user.
-     */
-    fun getUnhealthyTamasForUser(userId: UUID): List<UserTama> {
-        return userTamaRepository.findUnhealthyTamasByUserId(userId)
-    }
+
     
     /**
      * Updates a tama.

@@ -31,22 +31,12 @@ class UserTama(
     var isActive: Boolean = false,
 ) {
 
-    @Column(name = "happiness")
-    var happiness: Int = 100
-        protected set
-
-    @Column(name = "energy")
-    var energy: Int = 100
-        protected set
 
 
     @Column(name = "experience")
     var experience: Int = 0
         protected set
 
-    @Column(name = "hunger")
-    var hunger: Int = 100
-        protected set
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
@@ -57,22 +47,9 @@ class UserTama(
         this.experience += amount
     }
 
-    fun feed(amount: Int) {
-        require(amount > 0)
-        when {
-            this.hunger - amount <= 0 -> this.hunger = 0
-            else -> this.hunger -= amount
-        }
-    }
 
-    fun play(amount: Int) {
-        // TODO: define what and amount to deduct or induct.
-        //  set validation
-        require(amount > 0)
-        this.energy -= amount
-        this.happiness += amount
-        this.experience += amount
-    }
+
+
 
 
 }

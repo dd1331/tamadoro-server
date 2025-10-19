@@ -17,9 +17,6 @@ class UserProgressAssembler(
                 tamaCatalogId = tama.tama?.id,
                 name = tama.name.takeIf { it.isNotBlank() } ?: tama.tama?.title,
                 experience = tama.experience,
-                happiness = tama.happiness,
-                energy = tama.energy,
-                hunger = tama.hunger,
                 isActive = tama.isActive
             )
         }

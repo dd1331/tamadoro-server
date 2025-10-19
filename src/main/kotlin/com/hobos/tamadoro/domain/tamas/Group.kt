@@ -8,19 +8,18 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "groups")
+@Table(name = "tama_groups")
 class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    @Column(name = "name")
-    val name: String = ""
+    @Column(name = "name", nullable = false)
+    var name: String = ""
 
-    @Column()
-    val avatar: String = ""
+    @Column(name = "avatar")
+    var avatar: String? = null
 
-    @Column()
-    val background: String = ""
-
+    @Column(name = "background")
+    var background: String? = null
 }

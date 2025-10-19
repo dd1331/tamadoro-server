@@ -51,7 +51,7 @@ class InAppPurchase(
     val purchaseToken: String? = null,
 
     @Lob
-    @Column(name = "receipt_data")
+    @Column(name = "receipt_data", columnDefinition = "text" )
     val receiptData: String? = null,
 
     @Column(name = "purchased_at", nullable = false)

@@ -13,11 +13,17 @@ data class TamaRankDto(
     val id: Long,
     val name: String?,
     val experience: Int,
-    val happiness: Int,
-    val energy: Int,
-    val hunger: Int,
     val isActive: Boolean,
     val url: String,
+    val backgroundUrl: String?
+)
+
+data class TamaGroupRankDto(
+    val groupId: Long,
+    val name: String,
+    val experience: Long,
+    val tamaCount: Long,
+    val url: String?,
     val backgroundUrl: String?
 )
 
@@ -52,9 +58,6 @@ class TamaRankApplicationService(
                 id = ut.id,
                 name = ut.name,
                 experience = ut.experience,
-                happiness = ut.happiness,
-                energy = ut.energy,
-                hunger = ut.hunger,
                 url = ut.tama.url,
                 isActive = ut.isActive,
                 backgroundUrl = bgUrl
@@ -72,10 +75,30 @@ class TamaRankApplicationService(
         )
     }
 
-    fun getGroupRankingWithPaging(request: PagingRequest) {
-        val pageable = PageRequest.of(request.page, request.size, Sort.by(Sort.Direction.DESC, "experience"))
+    @Transactional(readOnly = true)
+    fun getGroupRankingWithPaging(request: PagingRequest): PagedResponse<TamaGroupRankDto> {
+        val pageable = PageRequest.of(request.page, request.size)
+        val rankedPage = tamaRepository.findGroupRanking(pageable)
 
+        val content = rankedPage.content.map { projection ->
+            TamaGroupRankDto(
+                groupId = projection.groupId,
+                name = projection.groupName,
+                experience = projection.totalExperience,
+                tamaCount = projection.tamaCount,
+                url = projection.avatar,
+                backgroundUrl = projection.background
+            )
+        }
 
-
+        return PagedResponse(
+            content = content,
+            page = rankedPage.number,
+            size = rankedPage.size,
+            totalElements = rankedPage.totalElements,
+            totalPages = rankedPage.totalPages,
+            hasNext = rankedPage.hasNext(),
+            hasPrevious = rankedPage.hasPrevious()
+        )
     }
 }

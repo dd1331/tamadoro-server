@@ -8,6 +8,7 @@ import com.hobos.tamadoro.application.user.UpdateUserProfileRequest
 import com.hobos.tamadoro.application.user.UserApplicationService
 import com.hobos.tamadoro.application.user.UserDto
 import com.hobos.tamadoro.application.user.UserRankDto
+import com.hobos.tamadoro.application.user.UserGroupRankDto
 import com.hobos.tamadoro.config.CurrentUserId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -71,8 +72,8 @@ class UserController(
     }
 
     @GetMapping("/me/ranking/groups")
-    fun getMyGroupRanking(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<UserRankDto>> {
-        val userRank = userApplicationService.getMyRankingByUser(userId)
+    fun getMyGroupRanking(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<UserGroupRankDto>> {
+        val userRank = userApplicationService.getMyGroupRanking(userId)
         return ResponseEntity.ok(ApiResponse.success(userRank))
     }
 }

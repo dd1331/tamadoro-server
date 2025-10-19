@@ -5,6 +5,7 @@ import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -64,9 +65,6 @@ class UserApplicationService(
             url = activeTama.tama.url,
             name = activeTama.name,
             experience = activeTama.experience,
-            happiness = activeTama.happiness,
-            energy = activeTama.energy,
-            hunger = activeTama.hunger,
             isActive = activeTama.isActive,
             isOwned = true,
             backgroundUrl = setting.orElseThrow().backgroundEntity?.url
@@ -78,13 +76,35 @@ class UserApplicationService(
         )
     }
 
-    fun getMyRankingByUser(userId: UUID) {
-        val user = userRepository.findById(userId)
-        .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
+    @Transactional(readOnly = true)
+    fun getMyGroupRanking(userId: UUID): UserGroupRankDto {
+        val activeTama = userTamaRepository.findOneByUserIdAndIsActiveTrue(userId)
+            ?: throw NoSuchElementException("No active tama found for user: $userId")
 
+        val groupId = userTamaRepository.findGroupIdByUserTamaId(activeTama.id)
+            ?: throw NoSuchElementException("Active tama is not assigned to any group")
 
+        val groupRanks = userTamaRepository.findGroupRanking(Pageable.unpaged()).content
+        val position = groupRanks.indexOfFirst { it.groupId == groupId }
+        if (position < 0) {
+            throw IllegalStateException("Group ranking data not found for group: $groupId")
+        }
+        val rank = position + 1L
 
-        return UserRankDto(rank)
+        val projection = groupRanks[position]
+        val groupDto = GroupRankSummaryDto(
+            id = projection.groupId,
+            name = projection.groupName,
+            experience = projection.totalExperience,
+            url = projection.avatar,
+            backgroundUrl = projection.background,
+            memberCount = projection.tamaCount
+        )
+
+        return UserGroupRankDto(
+            rank = rank,
+            group = groupDto
+        )
     }
 }
 
@@ -99,6 +119,20 @@ data class UpdateUserProfileRequest(
 data class UserRankDto(
     val rank: Long,
     val tama: TamaDto
+)
+
+data class UserGroupRankDto(
+    val rank: Long,
+    val group: GroupRankSummaryDto
+)
+
+data class GroupRankSummaryDto(
+    val id: Long,
+    val name: String,
+    val experience: Long,
+    val url: String?,
+    val backgroundUrl: String?,
+    val memberCount: Long
 )
 
 /**
@@ -145,9 +179,6 @@ data class TamaProgressDto(
     val tamaCatalogId: Long?,
     val name: String?,
     val experience: Int,
-    val happiness: Int,
-    val energy: Int,
-    val hunger: Int,
     val isActive: Boolean
 )
 

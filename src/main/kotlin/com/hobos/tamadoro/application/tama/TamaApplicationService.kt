@@ -250,9 +250,6 @@ data class TamaDto(
     val url: String,
     val name: String? = null,
     val experience: Int? = null,
-    val happiness: Int? = null,
-    val energy: Int? = null,
-    val hunger: Int? = null,
     val isActive: Boolean = false,
     val isOwned: Boolean = false,
     val backgroundUrl: String? = null,
@@ -269,9 +266,6 @@ data class TamaDto(
                 id = entity.id,
                 name = displayName,
                 experience = entity.experience,
-                happiness = entity.happiness,
-                energy = entity.energy,
-                hunger = entity.hunger,
                 isActive = entity.isActive,
             )
         }
