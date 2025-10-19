@@ -1,4 +1,4 @@
-import com.hobos.tamadoro.domain.collections.MusicTrackEntity
+import com.hobos.tamadoro.domain.tamas.MusicTrackEntity
 
 object MusicTrackFixtures {
     fun create(

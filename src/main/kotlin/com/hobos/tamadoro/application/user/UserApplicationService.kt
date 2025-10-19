@@ -1,7 +1,7 @@
 package com.hobos.tamadoro.application.user
 
 import com.hobos.tamadoro.application.tama.TamaDto
-import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
@@ -76,6 +76,15 @@ class UserApplicationService(
             rank = rank,
             tama = tamaDto
         )
+    }
+
+    fun getMyRankingByUser(userId: UUID) {
+        val user = userRepository.findById(userId)
+        .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
+
+
+
+        return UserRankDto(rank)
     }
 }
 

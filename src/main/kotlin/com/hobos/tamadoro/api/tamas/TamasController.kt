@@ -2,7 +2,6 @@ package com.hobos.tamadoro.api.tamas
 
 import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.tama.CustomTamaRequest
-import com.hobos.tamadoro.application.tama.OwnTamaRequest
 import com.hobos.tamadoro.application.tama.TamaApplicationService
 import com.hobos.tamadoro.application.tama.TamaDto
 import com.hobos.tamadoro.application.tama.TamaRankApplicationService
@@ -11,7 +10,6 @@ import com.hobos.tamadoro.application.tama.PagingRequest
 import com.hobos.tamadoro.application.tama.TamaRankDto
 import com.hobos.tamadoro.application.tama.UpdateTamaRequest
 import com.hobos.tamadoro.config.CurrentUserId
-import com.hobos.tamadoro.domain.collections.UserTama
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -57,6 +55,15 @@ class TamasController(
         val pagingRequest = PagingRequest(page, size)
         val pagedResult = tamaRankApplicationService.getRankWithPaging(pagingRequest)
         return ResponseEntity.ok(ApiResponse.success(pagedResult))
+    }
+
+    @GetMapping("/ranking/groups")
+    fun getGroupRanking(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
+    ) {
+        val pagingRequest = PagingRequest(page, size)
+        val pagedResult = tamaRankApplicationService.getGroupRankingWithPaging(pagingRequest)
     }
 
     @PutMapping("/{tamaId}")

@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.collections
+package com.hobos.tamadoro.domain.tamas
 
 import jakarta.persistence.Column
 import jakarta.persistence.GeneratedValue

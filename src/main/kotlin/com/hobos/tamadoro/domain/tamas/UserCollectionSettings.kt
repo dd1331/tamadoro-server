@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.collections
+package com.hobos.tamadoro.domain.tamas
 
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*

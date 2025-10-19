@@ -1,7 +1,7 @@
 // test/fixtures/BackgroundFixture.kt
 package com.hobos.tamadoro.test.fixtures
 
-import com.hobos.tamadoro.domain.collections.BackgroundEntity
+import com.hobos.tamadoro.domain.tamas.BackgroundEntity
 
 object BackgroundFixture {
     fun create(

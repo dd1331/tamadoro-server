@@ -1,10 +1,7 @@
-package com.hobos.tamadoro.domain.collections
+package com.hobos.tamadoro.domain.tamas
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
 @Entity

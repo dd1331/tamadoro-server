@@ -69,4 +69,10 @@ class UserController(
         val userRank = userApplicationService.getMyRanking(userId)
         return ResponseEntity.ok(ApiResponse.success(userRank))
     }
+
+    @GetMapping("/me/ranking/groups")
+    fun getMyGroupRanking(@CurrentUserId userId: UUID): ResponseEntity<ApiResponse<UserRankDto>> {
+        val userRank = userApplicationService.getMyRankingByUser(userId)
+        return ResponseEntity.ok(ApiResponse.success(userRank))
+    }
 }

@@ -1,9 +1,8 @@
-package com.hobos.tamadoro.domain.collections
+package com.hobos.tamadoro.domain.tamas
 
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
-import java.util.UUID
 
 // TODO: 카테고리별로 테이블 구성
 @Entity

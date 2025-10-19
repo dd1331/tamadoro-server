@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.collections
+package com.hobos.tamadoro.domain.tamas
 
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository

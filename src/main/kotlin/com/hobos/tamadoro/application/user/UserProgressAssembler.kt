@@ -1,6 +1,6 @@
 package com.hobos.tamadoro.application.user
 
-import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import org.springframework.stereotype.Component
 import java.util.UUID

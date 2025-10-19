@@ -4,13 +4,12 @@ import com.hobos.tamadoro.application.collections.model.BackgroundItem
 import com.hobos.tamadoro.application.collections.model.MusicItem
 import com.hobos.tamadoro.application.collections.model.Stage
 import com.hobos.tamadoro.application.collections.model.TamaItem
-import com.hobos.tamadoro.domain.collections.BackgroundRepository
-import com.hobos.tamadoro.domain.collections.CollectionsService
-import com.hobos.tamadoro.domain.collections.MusicTrackRepository
-import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
-import com.hobos.tamadoro.domain.collections.TamaCatalogStageRepository
-import com.hobos.tamadoro.domain.collections.UserCollectionSettings
-import com.hobos.tamadoro.domain.collections.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tamas.BackgroundRepository
+import com.hobos.tamadoro.domain.tamas.CollectionsService
+import com.hobos.tamadoro.domain.tamas.MusicTrackRepository
+import com.hobos.tamadoro.domain.tamas.TamaCatalogRepository
+import com.hobos.tamadoro.domain.tamas.TamaCatalogStageRepository
+import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -73,7 +72,7 @@ class CollectionsApplicationService(
                 theme = "cat",
                 isPremium = false,
                 stages = listOf(
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.EGG, experience = 0, maxExperience = 10, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+                    Stage(name = com.hobos.tamadoro.domain.tamas.StageName.EGG, experience = 0, maxExperience = 10, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
                 ),
             ),
             TamaItem(
@@ -82,7 +81,7 @@ class CollectionsApplicationService(
                 theme = "dragon",
                 isPremium = true,
                 stages = listOf(
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.EGG, experience = 0, maxExperience = 20, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
+                    Stage(name = com.hobos.tamadoro.domain.tamas.StageName.EGG, experience = 0, maxExperience = 20, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image.png"),
                 ),
             ),
             TamaItem(
@@ -91,7 +90,7 @@ class CollectionsApplicationService(
                 theme = "dragon4",
                 isPremium = true,
                 stages = listOf(
-                    Stage(name = com.hobos.tamadoro.domain.collections.StageName.EGG, experience = 0, maxExperience = 20, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
+                    Stage(name = com.hobos.tamadoro.domain.tamas.StageName.EGG, experience = 0, maxExperience = 20, level = 1, url = "https://blurb-bucket.s3.ap-northeast-2.amazonaws.com/image2.png"),
                 ),
             ),
         )

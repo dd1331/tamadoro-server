@@ -1,9 +1,9 @@
 package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.application.auth.AuthApplicationService
-import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
-import com.hobos.tamadoro.domain.collections.TamaCatalogRepository
-import com.hobos.tamadoro.domain.collections.UserTama
+import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.TamaCatalogRepository
+import com.hobos.tamadoro.domain.tamas.UserTama
 import com.hobos.tamadoro.domain.tama.TamaService
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User

@@ -1,5 +1,4 @@
-import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
-import com.hobos.tamadoro.domain.collections.TamaCatalogStageEntity
+import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
 
 object TamaFixtures {
     fun list(count: Int = 3): List<TamaCatalogEntity> =

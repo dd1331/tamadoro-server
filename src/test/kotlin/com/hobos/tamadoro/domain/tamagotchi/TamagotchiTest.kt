@@ -1,7 +1,7 @@
 package com.hobos.tamadoro.domain.tama
 
-import com.hobos.tamadoro.domain.collections.TamaCatalogEntity
-import com.hobos.tamadoro.domain.collections.UserTama
+import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.UserTama
 import com.hobos.tamadoro.domain.user.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach

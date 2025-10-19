@@ -1,6 +1,6 @@
 package com.hobos.tamadoro.application.collections.model
 
-import com.hobos.tamadoro.domain.collections.StageName
+import com.hobos.tamadoro.domain.tamas.StageName
 
 open class Item(
     open val id: Long,
