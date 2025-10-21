@@ -29,7 +29,7 @@ data class TamaGroupRankDto(
     val averageExperience: Double?,
     val region: String?,
     val regionName: String?,
-    val emblemUrl: String?,
+    val avatarUrl: String?,
     val backgroundUrl: String?
 )
 
@@ -59,7 +59,7 @@ class TamaRankApplicationService(
             averageExperience = average,
             region = projection.country.name,
             regionName = projection.country.label,
-            emblemUrl = projection.avatar,
+            avatarUrl = projection.avatar,
             backgroundUrl = projection.background
         )
     }
@@ -72,7 +72,7 @@ class TamaRankApplicationService(
             experience = dto.totalExperience,
             averageExperience = dto.averageExperience,
             memberCount = dto.memberCount,
-            avatarUrl = dto.emblemUrl,
+            avatarUrl = dto.avatarUrl,
             backgroundUrl = dto.backgroundUrl,
             region = dto.region,
             regionName = dto.regionName,
