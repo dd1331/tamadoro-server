@@ -95,6 +95,7 @@ class UserApplicationService(
         val groupDto = GroupRankSummaryDto(
             id = projection.groupId,
             name = projection.groupName,
+            countryCode = projection.country.name,
             experience = projection.totalExperience,
             url = projection.avatar,
             backgroundUrl = projection.background,
@@ -129,6 +130,7 @@ data class UserGroupRankDto(
 data class GroupRankSummaryDto(
     val id: Long,
     val name: String,
+    val countryCode: String,
     val experience: Long,
     val url: String?,
     val backgroundUrl: String?,
@@ -141,6 +143,7 @@ data class GroupRankSummaryDto(
 data class UserDto(
     val id: UUID,
     val providerId: String,
+    val countryCode: String,
     val isPremium: Boolean,
     val createdAt: String,
     val updatedAt: String,
@@ -157,6 +160,7 @@ data class UserDto(
             return UserDto(
                 id = entity.id,
                 providerId = entity.providerId,
+                countryCode = entity.country.name,
                 isPremium = entity.hasPremium(),
                 createdAt = entity.createdAt.toString(),
                 updatedAt = entity.updatedAt.toString(),

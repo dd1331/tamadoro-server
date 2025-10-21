@@ -1,5 +1,6 @@
 package com.hobos.tamadoro.application.tama
 
+import com.hobos.tamadoro.domain.common.Country
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.tamas.Group
 import com.hobos.tamadoro.domain.tamas.GroupRepository
@@ -15,15 +16,31 @@ class TamaGroupApplicationService(
     private val tamaGroupRepository: TamaGroupRepository
 ) {
 
+    @Transactional(readOnly = true)
+    fun getGroups(): List<GroupDto> =
+        groupRepository.findAll().map { group ->
+            val id = requireNotNull(group.id) { "Group id must not be null" }
+            GroupDto(
+                id = id,
+                name = group.name,
+                avatar = group.avatar,
+                background = group.background,
+                countryCode = group.country.name
+            )
+        }
+
     @Transactional
     fun createGroup(request: CreateGroupRequest): GroupDto {
         val name = request.name.trim()
         require(name.isNotEmpty()) { "Group name must not be blank" }
 
+        val country = Country.fromCode(request.countryCode)
+
         val group = Group().apply {
             this.name = name
             this.avatar = request.avatar
             this.background = request.background
+            this.country = country
         }
 
         val saved = groupRepository.save(group)
@@ -37,7 +54,8 @@ class TamaGroupApplicationService(
             id = generatedId,
             name = saved.name,
             avatar = saved.avatar,
-            background = saved.background
+            background = saved.background,
+            countryCode = saved.country.name
         )
     }
 }
@@ -46,12 +64,14 @@ data class CreateGroupRequest(
     val name: String,
     val avatar: String,
     val background: String,
-    val tamaId: Long
+    val tamaId: Long,
+    val countryCode: String
 )
 
 data class GroupDto(
     val id: Long,
     val name: String,
     val avatar: String?,
-    val background: String?
+    val background: String?,
+    val countryCode: String
 )

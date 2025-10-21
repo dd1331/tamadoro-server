@@ -1,6 +1,14 @@
 package com.hobos.tamadoro.domain.user
 
-import jakarta.persistence.*
+import com.hobos.tamadoro.domain.common.Country
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
+import jakarta.persistence.Table
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -27,7 +35,11 @@ class User(
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "last_login_at")
-    var lastLoginAt: LocalDateTime? = null
+    var lastLoginAt: LocalDateTime? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "country", nullable = false)
+    var country: Country = Country.KR
 ) {
 
 //    companion object {

@@ -9,6 +9,7 @@ import com.hobos.tamadoro.application.tama.PagedResponse
 import com.hobos.tamadoro.application.tama.PagingRequest
 import com.hobos.tamadoro.application.tama.TamaRankDto
 import com.hobos.tamadoro.application.tama.TamaGroupRankDto
+import com.hobos.tamadoro.application.tama.HeatmapNodeDto
 import com.hobos.tamadoro.application.tama.UpdateTamaRequest
 import com.hobos.tamadoro.application.tama.TamaGroupApplicationService
 import com.hobos.tamadoro.application.tama.CreateGroupRequest
@@ -76,6 +77,31 @@ class TamasController(
         return ResponseEntity.ok(ApiResponse.success(pagedResult))
     }
 
+    @GetMapping("/ranking/groups/heatmap")
+    fun getGroupRankingHeatmap(
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false, name = "entryLimit") entryLimit: Int?
+    ): ResponseEntity<ApiResponse<List<HeatmapNodeDto>>> =
+        getGroupHeatmapByRegion(limit, entryLimit)
+
+    @GetMapping("/ranking/groups/heatmap/regions")
+    fun getGroupHeatmapByRegion(
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false, name = "entryLimit") entryLimit: Int?
+    ): ResponseEntity<ApiResponse<List<HeatmapNodeDto>>> {
+        val heatmap = tamaRankApplicationService.getRegionalHeatmap(limit, entryLimit)
+        return ResponseEntity.ok(ApiResponse.success(heatmap))
+    }
+
+    @GetMapping("/ranking/groups/heatmap/groups")
+    fun getGroupHeatmapByGroup(
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false, name = "entryLimit") entryLimit: Int?
+    ): ResponseEntity<ApiResponse<List<HeatmapNodeDto>>> {
+        val heatmap = tamaRankApplicationService.getGroupHeatmap(limit, entryLimit)
+        return ResponseEntity.ok(ApiResponse.success(heatmap))
+    }
+
     @PostMapping("/groups")
     fun createGroup(
         @RequestBody request: CreateGroupRequest
@@ -121,6 +147,12 @@ class TamasController(
     ): ResponseEntity<ApiResponse<Unit>> {
         tamaApplicationService.playWithTama(userId, tamaId)
         return ResponseEntity.ok(ApiResponse.success())
+    }
+
+    @GetMapping("/groups")
+    fun getGroups(): ResponseEntity<ApiResponse<List<GroupDto>>> {
+        val groups = tamaGroupApplicationService.getGroups()
+        return ResponseEntity.ok(ApiResponse.success(groups))
     }
 
 

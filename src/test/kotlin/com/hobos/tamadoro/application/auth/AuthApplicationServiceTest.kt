@@ -117,7 +117,8 @@ class AuthApplicationServiceTest {
             authorizationCode = "test.auth.code",
             user = AppleUser(
                 id = "apple.user.id",
-            )
+            ),
+            countryCode = "KR"
         )
     }
 

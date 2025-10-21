@@ -1,9 +1,12 @@
 package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.tamas.BackgroundRepository
+import com.hobos.tamadoro.domain.tama.GroupRankingProjection
 import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.BackgroundRepository
+import com.hobos.tamadoro.domain.tamas.UserTama
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,10 +23,13 @@ data class TamaRankDto(
 
 data class TamaGroupRankDto(
     val groupId: Long,
-    val name: String,
-    val experience: Long,
-    val tamaCount: Long,
-    val url: String?,
+    val groupName: String,
+    val totalExperience: Long,
+    val memberCount: Long,
+    val averageExperience: Double?,
+    val region: String?,
+    val regionName: String?,
+    val emblemUrl: String?,
     val backgroundUrl: String?
 )
 
@@ -33,6 +39,64 @@ class TamaRankApplicationService(
     private val userCollectionSettingsRepository: UserCollectionSettingsRepository,
     private val backgroundRepository: BackgroundRepository,
 ) {
+    companion object {
+        private const val DEFAULT_HEATMAP_NODE_LIMIT = 50
+        private const val DEFAULT_HEATMAP_ENTRY_LIMIT = 10
+    }
+
+    private fun toGroupRankDto(projection: GroupRankingProjection): TamaGroupRankDto {
+        val memberCount = projection.tamaCount
+        val average = if (memberCount > 0) {
+            projection.totalExperience.toDouble() / memberCount
+        } else {
+            null
+        }
+        return TamaGroupRankDto(
+            groupId = projection.groupId,
+            groupName = projection.groupName,
+            totalExperience = projection.totalExperience,
+            memberCount = memberCount,
+            averageExperience = average,
+            region = projection.country.name,
+            regionName = projection.country.label,
+            emblemUrl = projection.avatar,
+            backgroundUrl = projection.background
+        )
+    }
+
+    private fun toGroupHeatmapEntry(projection: GroupRankingProjection): HeatmapRankEntryDto {
+        val dto = toGroupRankDto(projection)
+        return HeatmapRankEntryDto(
+            id = dto.groupId,
+            name = dto.groupName,
+            experience = dto.totalExperience,
+            averageExperience = dto.averageExperience,
+            memberCount = dto.memberCount,
+            avatarUrl = dto.emblemUrl,
+            backgroundUrl = dto.backgroundUrl,
+            region = dto.region,
+            regionName = dto.regionName,
+            kind = HeatmapEntryKind.GROUP
+        )
+    }
+
+    private fun toIndividualHeatmapEntry(userTama: UserTama, projection: GroupRankingProjection): HeatmapRankEntryDto {
+        val name = if (userTama.name.isNotBlank()) userTama.name else userTama.tama.title
+        return HeatmapRankEntryDto(
+            id = userTama.id,
+            name = name,
+            experience = userTama.experience.toLong(),
+            avatarUrl = userTama.tama.url,
+            region = projection.country.name,
+            regionName = projection.country.label,
+            groupId = projection.groupId,
+            extra = mapOf("groupName" to projection.groupName),
+            kind = HeatmapEntryKind.INDIVIDUAL
+        )
+    }
+
+    private fun resolveLimit(limit: Int?, defaultValue: Int): Int =
+        limit?.takeIf { it > 0 } ?: defaultValue
 
 
     @Transactional(readOnly = true)
@@ -80,16 +144,7 @@ class TamaRankApplicationService(
         val pageable = PageRequest.of(request.page, request.size)
         val rankedPage = tamaRepository.findGroupRanking(pageable)
 
-        val content = rankedPage.content.map { projection ->
-            TamaGroupRankDto(
-                groupId = projection.groupId,
-                name = projection.groupName,
-                experience = projection.totalExperience,
-                tamaCount = projection.tamaCount,
-                url = projection.avatar,
-                backgroundUrl = projection.background
-            )
-        }
+        val content = rankedPage.content.map(::toGroupRankDto)
 
         return PagedResponse(
             content = content,
@@ -100,5 +155,87 @@ class TamaRankApplicationService(
             hasNext = rankedPage.hasNext(),
             hasPrevious = rankedPage.hasPrevious()
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getRegionalHeatmap(nodeLimit: Int?, entryLimit: Int?): List<HeatmapNodeDto> {
+        val rankedGroups = tamaRepository.findGroupRanking(Pageable.unpaged()).content
+        if (rankedGroups.isEmpty()) {
+            return emptyList()
+        }
+
+        val effectiveNodeLimit = resolveLimit(nodeLimit, DEFAULT_HEATMAP_NODE_LIMIT)
+        val effectiveEntryLimit = resolveLimit(entryLimit, DEFAULT_HEATMAP_ENTRY_LIMIT)
+
+        val nodes = rankedGroups
+            .groupBy { it.country }
+            .map { (country, projections) ->
+                val sortedProjections = projections.sortedByDescending { it.totalExperience }
+                val entries = sortedProjections
+                    .map(::toGroupHeatmapEntry)
+                    .take(effectiveEntryLimit)
+                val totalExperience = sortedProjections.sumOf { it.totalExperience }
+                val groupCount = sortedProjections.size.toLong()
+                val average = if (groupCount > 0) totalExperience.toDouble() / groupCount else null
+                val topEntry = entries.firstOrNull()
+                HeatmapNodeDto(
+                    key = country.name,
+                    label = country.label,
+                    kind = HeatmapNodeKind.REGION,
+                    totalExperience = totalExperience,
+                    unitCount = groupCount,
+                    averageExperience = average,
+                    topEntry = topEntry,
+                    entries = entries,
+                    avatarUrl = topEntry?.avatarUrl,
+                    backgroundUrl = topEntry?.backgroundUrl,
+                    extra = mapOf("region" to country.name)
+                )
+            }
+            .sortedByDescending { it.totalExperience }
+
+        return nodes.take(effectiveNodeLimit)
+    }
+
+    @Transactional(readOnly = true)
+    fun getGroupHeatmap(nodeLimit: Int?, entryLimit: Int?): List<HeatmapNodeDto> {
+        val rankedGroups = tamaRepository.findGroupRanking(Pageable.unpaged()).content
+        if (rankedGroups.isEmpty()) {
+            return emptyList()
+        }
+
+        val effectiveNodeLimit = resolveLimit(nodeLimit, DEFAULT_HEATMAP_NODE_LIMIT)
+        val effectiveEntryLimit = resolveLimit(entryLimit, DEFAULT_HEATMAP_ENTRY_LIMIT)
+
+        val sortedGroups = rankedGroups.sortedByDescending { it.totalExperience }
+        val selectedGroups = sortedGroups.take(effectiveNodeLimit)
+
+        return selectedGroups.map { projection ->
+            val members = tamaRepository.findTopMembersByGroupId(
+                projection.groupId,
+                PageRequest.of(0, effectiveEntryLimit)
+            )
+            val memberEntries = members.map { toIndividualHeatmapEntry(it, projection) }
+            val topEntry = memberEntries.firstOrNull()
+            val unitCount = projection.tamaCount
+            val totalExperience = projection.totalExperience
+            HeatmapNodeDto(
+                key = projection.groupId.toString(),
+                label = projection.groupName,
+                kind = HeatmapNodeKind.GROUP,
+                totalExperience = totalExperience,
+                unitCount = unitCount,
+                averageExperience = if (unitCount > 0) totalExperience.toDouble() / unitCount else null,
+                topEntry = topEntry,
+                entries = memberEntries,
+                avatarUrl = projection.avatar ?: topEntry?.avatarUrl,
+                backgroundUrl = projection.background ?: topEntry?.backgroundUrl,
+                extra = mapOf(
+                    "groupId" to projection.groupId,
+                    "region" to projection.country.name,
+                    "regionName" to projection.country.label
+                )
+            )
+        }
     }
 }

@@ -1,7 +1,10 @@
 package com.hobos.tamadoro.domain.tamas
 
+import com.hobos.tamadoro.domain.common.Country
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -22,4 +25,8 @@ class Group {
 
     @Column(name = "background")
     var background: String? = null
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "country", nullable = false)
+    var country: Country = Country.KR
 }

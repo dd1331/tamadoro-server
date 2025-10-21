@@ -3,6 +3,7 @@ package com.hobos.tamadoro.application.auth
 import com.hobos.tamadoro.application.user.UserDto
 import com.hobos.tamadoro.application.user.UserProgressAssembler
 import com.hobos.tamadoro.domain.auth.AuthService
+import com.hobos.tamadoro.domain.common.Country
 import com.hobos.tamadoro.domain.tamas.BackgroundRepository
 import com.hobos.tamadoro.domain.tamas.MusicTrackEntity
 import com.hobos.tamadoro.domain.tamas.MusicTrackRepository
@@ -14,6 +15,7 @@ import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
+import jakarta.validation.constraints.NotBlank
 import org.springframework.core.env.Environment
 import org.springframework.core.env.Profiles
 import org.springframework.stereotype.Service
@@ -26,7 +28,9 @@ import java.util.UUID
 data class AppleAuthRequest(
     val identityToken: String,
     val authorizationCode: String? = null,
-    val user: AppleUser
+    val user: AppleUser,
+//    @field:NotBlank
+    val countryCode: String
 )
 
 /**
@@ -44,6 +48,10 @@ data class AppleUser(
 data class AppleUserName(
     val firstName: String? = null,
     val lastName: String? = null
+)
+
+data class GuestLoginRequest(
+    val countryCode: String
 )
 
 /**
@@ -68,15 +76,15 @@ class AuthApplicationService(
     fun authenticateWithApple(request: AppleAuthRequest, currentUserId: UUID? = null): AuthResponse {
         // Validate Apple identity token (in a real implementation, this would verify with Apple)
         val appleUserId = request.user.id
+        val country = Country.fromCode(request.countryCode)
 
         // Find or create user
         val user = userRepository.findByProviderId(appleUserId)
             .orElseGet {
                 currentUserId
                     ?.let { mergeGuestWithApple(it, appleUserId) }
-                    ?: createUserWithStarterTama(appleUserId)
+                    ?: createUserWithStarterTama(appleUserId, country)
             }
-
 
         // Record login
         user.recordLogin()
@@ -99,9 +107,10 @@ class AuthApplicationService(
      * Issues guest credentials by creating a lightweight user account.
      */
     @Transactional
-    fun loginAsGuest(): AuthResponse {
+    fun loginAsGuest(request: GuestLoginRequest): AuthResponse {
         val guestProviderId = "guest:${UUID.randomUUID()}"
-        val user = createUserWithStarterTama(guestProviderId)
+        val country = Country.fromCode(request.countryCode)
+        val user = createUserWithStarterTama(guestProviderId, country)
 
         user.recordLogin()
         userRepository.save(user)
@@ -142,8 +151,8 @@ class AuthApplicationService(
         authService.logoutAll(userId)
     }
 
-    private fun createUserWithStarterTama(providerId: String): User {
-        val user = userRepository.save(User(providerId = providerId))
+    private fun createUserWithStarterTama(providerId: String, country: Country): User {
+        val user = userRepository.save(User(providerId = providerId, country = country))
 
         val defaultCatalog = ensureDefaultTama()
         val defaultMusic = musicTrackRepository.findByIsPremium(isPremium = false)

@@ -1,6 +1,7 @@
 package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.application.auth.AuthApplicationService
+import com.hobos.tamadoro.application.auth.GuestLoginRequest
 import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
 import com.hobos.tamadoro.domain.tamas.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tamas.UserTama
@@ -78,7 +79,9 @@ class TamaApplicationServiceTest {
 
     @Test
     fun `should assign default tama on guest signup`() {
-        val guestSignup = authApplicationService.loginAsGuest()
+        val guestSignup = authApplicationService.loginAsGuest(
+            GuestLoginRequest(countryCode = "KR")
+        )
 
         val tamas = tamaService.getAllTamasForUser(guestSignup.user.id)
 
@@ -88,4 +91,3 @@ class TamaApplicationServiceTest {
         assertTrue(savedTama.isActive)
     }
 }
-
