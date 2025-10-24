@@ -47,9 +47,6 @@ class InAppPurchase(
     @Column(name = "transaction_id", nullable = false)
     val transactionId: String,
 
-    @Column(name = "purchase_token")
-    val purchaseToken: String? = null,
-
     @Lob
     @Column(name = "receipt_data", columnDefinition = "text" )
     val receiptData: String? = null,
@@ -63,6 +60,7 @@ class InAppPurchase(
     @Column(name = "price_amount")
     val priceAmount: Long? = null,
 
-    @Column(name = "currency_code")
-    val currencyCode: String? = null
+    @Column(name = "purchase_token")
+    val purchaseToken: String? = null
+
 )

@@ -43,7 +43,6 @@ class PurchaseController(
         val purchasedAt: LocalDateTime? = null,
         val expiresAt: LocalDateTime? = null,
         val priceAmount: Long? = null,
-        val currencyCode: String? = null
     ) {
         fun toCommand(): SubscribeCommand = SubscribeCommand(
             type = type,
@@ -56,7 +55,6 @@ class PurchaseController(
                 purchasedAt = purchasedAt,
                 expiresAt = expiresAt,
                 priceAmount = priceAmount,
-                currencyCode = currencyCode
             )
         )
     }

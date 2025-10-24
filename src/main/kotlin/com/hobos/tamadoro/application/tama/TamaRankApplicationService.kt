@@ -1,9 +1,9 @@
 package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.domain.tama.GroupRankingProjection
-import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tama.UserTamaRepository
 import com.hobos.tamadoro.domain.tamas.BackgroundRepository
+import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
 import com.hobos.tamadoro.domain.tamas.UserTama
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -95,8 +95,7 @@ class TamaRankApplicationService(
         )
     }
 
-    private fun resolveLimit(limit: Int?, defaultValue: Int): Int =
-        limit?.takeIf { it > 0 } ?: defaultValue
+    private fun resolveLimit(limit: Int?, defaultValue: Int): Int = limit?.takeIf { it > 0 } ?: defaultValue
 
 
     @Transactional(readOnly = true)
@@ -106,9 +105,7 @@ class TamaRankApplicationService(
 
         // Batch load user settings for all ranked users
         val userIds = rankedPage.content.map { it.user.id }.toSet()
-        val settingsByUserId = userCollectionSettingsRepository
-            .findByUser_IdIn(userIds)
-            .associateBy { it.user.id }
+        val settingsByUserId = userCollectionSettingsRepository.findByUser_IdIn(userIds).associateBy { it.user.id }
 
         // Collect unique background IDs and batch fetch backgrounds
         val bgIds = settingsByUserId.values.map { it.backgroundEntity?.id }.toSet()
@@ -167,32 +164,27 @@ class TamaRankApplicationService(
         val effectiveNodeLimit = resolveLimit(nodeLimit, DEFAULT_HEATMAP_NODE_LIMIT)
         val effectiveEntryLimit = resolveLimit(entryLimit, DEFAULT_HEATMAP_ENTRY_LIMIT)
 
-        val nodes = rankedGroups
-            .groupBy { it.country }
-            .map { (country, projections) ->
-                val sortedProjections = projections.sortedByDescending { it.totalExperience }
-                val entries = sortedProjections
-                    .map(::toGroupHeatmapEntry)
-                    .take(effectiveEntryLimit)
-                val totalExperience = sortedProjections.sumOf { it.totalExperience }
-                val groupCount = sortedProjections.size.toLong()
-                val average = if (groupCount > 0) totalExperience.toDouble() / groupCount else null
-                val topEntry = entries.firstOrNull()
-                HeatmapNodeDto(
-                    key = country.name,
-                    label = country.label,
-                    kind = HeatmapNodeKind.REGION,
-                    totalExperience = totalExperience,
-                    unitCount = groupCount,
-                    averageExperience = average,
-                    topEntry = topEntry,
-                    entries = entries,
-                    avatarUrl = topEntry?.avatarUrl,
-                    backgroundUrl = topEntry?.backgroundUrl,
-                    extra = mapOf("region" to country.name)
-                )
-            }
-            .sortedByDescending { it.totalExperience }
+        val nodes = rankedGroups.groupBy { it.country }.map { (country, projections) ->
+            val sortedProjections = projections.sortedByDescending { it.totalExperience }
+            val entries = sortedProjections.map(::toGroupHeatmapEntry).take(effectiveEntryLimit)
+            val totalExperience = sortedProjections.sumOf { it.totalExperience }
+            val groupCount = sortedProjections.size.toLong()
+            val average = if (groupCount > 0) totalExperience.toDouble() / groupCount else null
+            val topEntry = entries.firstOrNull()
+            HeatmapNodeDto(
+                key = country.name,
+                label = country.label,
+                kind = HeatmapNodeKind.REGION,
+                totalExperience = totalExperience,
+                unitCount = groupCount,
+                averageExperience = average,
+                topEntry = topEntry,
+                entries = entries,
+                avatarUrl = topEntry?.avatarUrl,
+                backgroundUrl = topEntry?.backgroundUrl,
+                extra = mapOf("region" to country.name)
+            )
+        }.sortedByDescending { it.totalExperience }
 
         return nodes.take(effectiveNodeLimit)
     }
@@ -212,8 +204,7 @@ class TamaRankApplicationService(
 
         return selectedGroups.map { projection ->
             val members = tamaRepository.findTopMembersByGroupId(
-                projection.groupId,
-                PageRequest.of(0, effectiveEntryLimit)
+                projection.groupId, PageRequest.of(0, effectiveEntryLimit)
             )
             val memberEntries = members.map { toIndividualHeatmapEntry(it, projection) }
             val topEntry = memberEntries.firstOrNull()

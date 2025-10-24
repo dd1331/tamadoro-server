@@ -30,7 +30,6 @@ data class PurchaseRecord(
     val purchasedAt: LocalDateTime?,
     val expiresAt: LocalDateTime?,
     val priceAmount: Long?,
-    val currencyCode: String?
 )
 
 @Service
@@ -81,7 +80,6 @@ class PurchaseService(
             purchasedAt = purchaseDetails.purchasedAt ?: LocalDateTime.now(),
             expiresAt = purchaseDetails.expiresAt,
             priceAmount = purchaseDetails.priceAmount,
-            currencyCode = purchaseDetails.currencyCode
         )
         inAppPurchaseRepository.save(purchaseEntity)
 

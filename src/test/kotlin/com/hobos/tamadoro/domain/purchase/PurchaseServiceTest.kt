@@ -273,6 +273,5 @@ class PurchaseServiceTest {
         purchasedAt = purchasedAt,
         expiresAt = null,
         priceAmount = null,
-        currencyCode = null
     )
 }
