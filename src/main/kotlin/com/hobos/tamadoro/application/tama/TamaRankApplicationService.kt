@@ -16,22 +16,31 @@ data class TamaRankDto(
     val id: Long,
     val name: String?,
     val experience: Int,
-    val isActive: Boolean,
     val url: String,
     val backgroundUrl: String?
 )
 
-data class TamaGroupRankDto(
-    val groupId: Long,
-    val groupName: String,
-    val totalExperience: Long,
-    val memberCount: Long,
-    val averageExperience: Double?,
+open class TamaGroupRankDto(
+    open val groupId: Long,
+    open val groupName: String,
+    open val totalExperience: Long,
+    open val memberCount: Long,
+    open val averageExperience: Double?,
+    open val avatarUrl: String?,
+    open val backgroundUrl: String?
+)
+
+data class TamaGroupHeatmapDto(
+    override val groupId: Long,
+    override val groupName: String,
+    override val totalExperience: Long,
+    override val memberCount: Long,
+    override val averageExperience: Double?,
     val region: String?,
     val regionName: String?,
-    val avatarUrl: String?,
-    val backgroundUrl: String?
-)
+    override val avatarUrl: String?,
+    override val backgroundUrl: String?
+) : TamaGroupRankDto(groupId, groupName, totalExperience, memberCount, averageExperience, avatarUrl, backgroundUrl) {}
 
 @Service
 class TamaRankApplicationService(
@@ -42,6 +51,26 @@ class TamaRankApplicationService(
     companion object {
         private const val DEFAULT_HEATMAP_NODE_LIMIT = 50
         private const val DEFAULT_HEATMAP_ENTRY_LIMIT = 10
+    }
+
+    private fun toTamaGroupHeatmapDto(projection: GroupRankingProjection): TamaGroupHeatmapDto {
+        val memberCount = projection.tamaCount
+        val average = if (memberCount > 0) {
+            projection.totalExperience.toDouble() / memberCount
+        } else {
+            null
+        }
+        return TamaGroupHeatmapDto(
+            groupId = projection.groupId,
+            groupName = projection.groupName,
+            totalExperience = projection.totalExperience,
+            memberCount = memberCount,
+            averageExperience = average,
+            region = projection.country.name,
+            regionName = projection.country.label,
+            avatarUrl = projection.avatar,
+            backgroundUrl = projection.background
+        )
     }
 
     private fun toGroupRankDto(projection: GroupRankingProjection): TamaGroupRankDto {
@@ -57,15 +86,13 @@ class TamaRankApplicationService(
             totalExperience = projection.totalExperience,
             memberCount = memberCount,
             averageExperience = average,
-            region = projection.country.name,
-            regionName = projection.country.label,
             avatarUrl = projection.avatar,
             backgroundUrl = projection.background
         )
     }
 
     private fun toGroupHeatmapEntry(projection: GroupRankingProjection): HeatmapRankEntryDto {
-        val dto = toGroupRankDto(projection)
+        val dto = toTamaGroupHeatmapDto(projection)
         return HeatmapRankEntryDto(
             id = dto.groupId,
             name = dto.groupName,
@@ -107,10 +134,6 @@ class TamaRankApplicationService(
         val userIds = rankedPage.content.map { it.user.id }.toSet()
         val settingsByUserId = userCollectionSettingsRepository.findByUser_IdIn(userIds).associateBy { it.user.id }
 
-        // Collect unique background IDs and batch fetch backgrounds
-        val bgIds = settingsByUserId.values.map { it.backgroundEntity?.id }.toSet()
-        val bgUrlById = backgroundRepository.findAllById(bgIds).associate { it.id to it.url }
-
         // Map result in-memory
         val content = rankedPage.content.map { ut ->
             val settings = settingsByUserId[ut.user.id]
@@ -120,7 +143,6 @@ class TamaRankApplicationService(
                 name = ut.name,
                 experience = ut.experience,
                 url = ut.tama.url,
-                isActive = ut.isActive,
                 backgroundUrl = bgUrl
             )
         }

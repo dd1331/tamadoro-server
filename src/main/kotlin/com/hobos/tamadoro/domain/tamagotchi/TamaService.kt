@@ -32,56 +32,17 @@ class TamaService(
             name = name,
             tama = tamaCatalogEntity,
         )
-        
+
         val savedTama = userTamaRepository.save(tama)
-        
+
         // If this is the user's first tama, make it active
         val userInventory = userInventoryRepository.findByUserId(user.id)
 
-        
+
         return savedTama
     }
-    
 
-    
-    /**
-     * Feeds a tama to reduce hunger.
-     */
-    @Transactional
-    fun feedTama(tamaId: Long, amount: Int = 20): UserTama {
-        val UserTama = userTamaRepository.findById(tamaId)
-            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
 
-        // TODO: use ownership??
-//        tama.feed(amount)
-        return userTamaRepository.save(UserTama)
-    }
-    
-    /**
-     * Plays with a tama to increase happiness.
-     */
-    @Transactional
-    fun playWithTama(tamaId: Long, amount: Int = 15): UserTama {
-        val tama = userTamaRepository.findById(tamaId)
-            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        // TODO: use ownership??
-//        tama.play(amount)
-        return userTamaRepository.save(tama)
-    }
-    
-    /**
-     * Lets a tama rest to restore energy.
-     */
-    @Transactional
-    fun restTama(tamaId: Long, amount: Int = 30): UserTama {
-        val tama = userTamaRepository.findById(tamaId)
-            .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-
-        // TODO: use ownership??
-//        tama.rest(amount)
-        return userTamaRepository.save(tama)
-    }
-    
     /**
      * Adds experience to a tama.
      */
@@ -97,7 +58,7 @@ class TamaService(
         tama.addExperience(amount)
         return userTamaRepository.save(tama)
     }
-    
+
     /**
      * Sets a tama as the active tama for a user.
      */
@@ -108,28 +69,15 @@ class TamaService(
 
         val updated = tamas.map { tama ->
             tama.isActive = false
-            if(tamaId == tama.id) tama.isActive = true
+            if (tamaId == tama.id) tama.isActive = true
             tama
         }
-        
+
 
         return userTamaRepository.saveAll(updated)
     }
-    
-    /**
-     * Updates the status of all tamas for a user.
-     */
-    @Transactional
-    fun updateTamaStatus(userId: UUID) {
-        val tamas = userTamaRepository.findByUserId(userId)
-        
-        tamas.forEach { tama ->
-            // TODO: use ownership??
-//            tama.updateStatus()
-            userTamaRepository.save(tama)
-        }
-    }
-    
+
+
     /**
      * Gets all tamas for a user.
      */
@@ -137,55 +85,16 @@ class TamaService(
         return userTamaRepository.findByUserId(userId)
     }
 
-    /**
-     * Gets a user's active tama.
-     */
-    fun getActiveTamaForUser(userId: UUID): Optional<UserTama> {
-        val tamas = userTamaRepository.findByUserId(userId)
-        val active = tamas.firstOrNull { it.isActive }
-        return Optional.ofNullable(active)
-    }
 
-    
     /**
      * Updates a tama.
      */
     @Transactional
-    fun updateTama(tama: UserTama, name: String?, stage: TamaGrowthStage?): UserTama {
+    fun updateTama(tama: UserTama, name: String?): UserTama {
         name?.let { tama.name = it }
         // TODO: use ownership??
 //        stage?.let { tama.growthStage = it }
         return userTamaRepository.save(tama)
     }
-    
-    /**
-     * Rewards a tama for completed pomodoro sessions.
-     */
-    @Transactional
-    fun rewardTamaForPomodoro(userId: UUID, completedMinutes: Int) {
-        if (completedMinutes <= 0) {
-            return
-        }
-
-        val activeTama = getActiveTamaForUser(userId).orElse(null) ?: return
-
-        val experienceToAdd = completedMinutes.coerceAtLeast(1)
-        activeTama.addExperience(experienceToAdd)
-        userTamaRepository.save(activeTama)
-    }
-    
-    /**
-     * Determines a random rarity based on probabilities.
-     */
-    private fun determineRandomRarity(): TamaRarity {
-        val random = Random.nextInt(100)
-        
-        return when {
-            random < 50 -> TamaRarity.COMMON      // 50%
-            random < 80 -> TamaRarity.RARE        // 30%
-            random < 95 -> TamaRarity.EPIC        // 15%
-            random < 99 -> TamaRarity.LEGENDARY   // 4%
-            else -> TamaRarity.MYTHIC             // 1%
-        }
-    }
 }
+    

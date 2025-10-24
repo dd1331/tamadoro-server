@@ -14,13 +14,10 @@ class UserCollectionSettings(
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     val user: User,
-//
-//    @Column(name = "active_background_id")
-//    var activeBackgroundId: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "active_background_id", nullable = false)
-    val backgroundEntity: BackgroundEntity? = null,
+    var backgroundEntity: BackgroundEntity? = null,
 
     @Column(name = "active_music_id")
     var activeMusicId: Long? = null,

@@ -33,6 +33,7 @@ class CollectionsService(
         }
         val settings = settingsRepository.findByUser_Id(userId)
             .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId), backgroundEntity = bg)) }
+        settings.backgroundEntity = bg // <--- Th
         settingsRepository.save(settings)
         return mapOf("activeBackgroundId" to bg.id)
     }

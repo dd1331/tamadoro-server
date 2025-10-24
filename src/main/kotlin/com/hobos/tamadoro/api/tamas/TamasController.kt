@@ -131,23 +131,8 @@ class TamasController(
         return ResponseEntity.ok(ApiResponse.success())
     }
 
-    @PostMapping("/{tamaId}/feed")
-    fun feedTama(
-        @CurrentUserId userId: UUID,
-        @PathVariable tamaId: Long
-    ): ResponseEntity<ApiResponse<Unit>> {
-        tamaApplicationService.feedTama(userId, tamaId)
-        return ResponseEntity.ok(ApiResponse.success())
-    }
 
-    @PostMapping("/{tamaId}/play")
-    fun playWithTama(
-        @CurrentUserId userId: UUID,
-        @PathVariable tamaId: Long
-    ): ResponseEntity<ApiResponse<Unit>> {
-        tamaApplicationService.playWithTama(userId, tamaId)
-        return ResponseEntity.ok(ApiResponse.success())
-    }
+
 
     @GetMapping("/groups")
     fun getGroups(): ResponseEntity<ApiResponse<List<GroupDto>>> {
