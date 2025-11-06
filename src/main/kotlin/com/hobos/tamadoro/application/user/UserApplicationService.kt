@@ -174,8 +174,7 @@ data class UserDto(
 
 data class UserProgressDto(
     val tamas: List<TamaProgressDto>,
-    val activeTamaId: String?,
-    val careItems: CareItemsDto
+    val activeTamaId: Long?,
 )
 
 data class TamaProgressDto(
@@ -186,11 +185,7 @@ data class TamaProgressDto(
     val isActive: Boolean
 )
 
-data class CareItemsDto(
-    val food: Int,
-    val toy: Int,
-    val snack: Int
-)
+
 
 /**
  * DTO for subscription data.

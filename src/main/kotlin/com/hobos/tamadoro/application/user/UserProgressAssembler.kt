@@ -25,12 +25,7 @@ class UserProgressAssembler(
 
         return UserProgressDto(
             tamas = tamaDtos,
-            activeTamaId = activeTamaId?.toString(),
-            careItems = CareItemsDto(
-                food = 0,
-                toy = 0,
-                snack = 0
-            )
+            activeTamaId = activeTamaId,
         )
     }
 
