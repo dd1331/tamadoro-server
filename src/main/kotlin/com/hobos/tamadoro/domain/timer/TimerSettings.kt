@@ -72,14 +72,5 @@ class TimerSettings(
         notificationEnabled?.let { this.notificationsEnabled = it }
     }
     
-    /**
-     * Gets the duration for a specific timer session type.
-     */
-    fun getDurationForSessionType(type: TimerSessionType): Int {
-        return when (type) {
-            TimerSessionType.FOCUS -> workTime
-            TimerSessionType.SHORT_BREAK -> shortBreakTime
-            TimerSessionType.LONG_BREAK -> longBreakTime
-        }
-    }
+
 }

@@ -6,5 +6,6 @@ package com.hobos.tamadoro.domain.timer
 enum class TimerSessionType {
     FOCUS,
     SHORT_BREAK,
-    LONG_BREAK
+    LONG_BREAK,
+    CLASSIC
 }

@@ -46,6 +46,8 @@ class TimerApplicationService(
     }
 
     private fun getXpToAdd(type: TimerSessionType, time: Int): Int {
+        if(type == TimerSessionType.CLASSIC) return time * 5
+
         return time * 10
     }
 
