@@ -31,6 +31,7 @@ class TamaTest {
         tama = UserTama(
             user = user,
             catalog = catalog,
+            name = "test-tama"
         )
     }
     

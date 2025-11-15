@@ -138,6 +138,7 @@ class AuthApplicationService(
             UserTama(
                 user = user,
                 catalog = defaultCatalog,
+                name = "dd",
                 isActive = true
             )
         )

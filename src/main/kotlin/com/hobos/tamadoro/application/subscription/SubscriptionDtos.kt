@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.application.purchase
+package com.hobos.tamadoro.application.subscription
 
 import com.hobos.tamadoro.domain.user.Subscription
 import com.hobos.tamadoro.domain.user.SubscriptionStatus

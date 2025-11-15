@@ -1,6 +1,5 @@
 package com.hobos.tamadoro.domain.tamas
 
-import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
 import com.hobos.tamadoro.domain.tamas.entity.BackgroundEntity
 import com.hobos.tamadoro.domain.tamas.entity.UserCollectionSettings
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
@@ -54,7 +53,7 @@ class CollectionsService(
             .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
 
         val existing = userTamaRepository.findOneByUserIdAndCatalogId(userId, id).orElseGet(
-            { userTamaRepository.save(UserTama(user = requireUser(userId), catalog = tama)) }
+            { userTamaRepository.save(UserTama(user = requireUser(userId), name = "TODO()", catalog = tama)) }
         )
 
         settings.activeTama = existing

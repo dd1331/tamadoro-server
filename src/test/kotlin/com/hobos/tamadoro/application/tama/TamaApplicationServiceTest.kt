@@ -68,6 +68,7 @@ class TamaApplicationServiceTest {
             UserTama(
                 user = user,
                 catalog = tamaCatalog,
+                name = "test-tama"
             )
         )
         val tamas = tamaService.getAllTamasForUser(user.id)

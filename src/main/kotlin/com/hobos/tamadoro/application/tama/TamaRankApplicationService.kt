@@ -108,7 +108,7 @@ class TamaRankApplicationService(
     }
 
     private fun toIndividualHeatmapEntry(userTama: UserTama, projection: GroupRankingProjection): HeatmapRankEntryDto {
-        val name = if (userTama.name.isNotBlank()) userTama.name else userTama.catalog.title
+        val name = if (userTama.name != null) userTama.name else userTama.catalog.title
         return HeatmapRankEntryDto(
             id = userTama.id,
             name = name,

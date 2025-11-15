@@ -30,10 +30,7 @@ class TimerApplicationService(
         time: Int
 
     ) {
-        val activeTama = tamaRepository.findOneByUserIdAndIsActiveTrue(userId)
-
-
-        if(activeTama == null) throw NoSuchElementException()
+        val activeTama = tamaRepository.findOneByUserIdAndIsActiveTrue(userId) ?: throw NoSuchElementException()
 
 
         val xp = getXpToAdd(type, time)

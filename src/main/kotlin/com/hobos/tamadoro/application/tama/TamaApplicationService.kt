@@ -82,17 +82,12 @@ class TamaApplicationService(
      */
     @Transactional
     fun ownTama(userId: UUID, request: OwnTamaRequest): TamaDto {
-        val user = userRepository.findById(userId)
-            .orElseThrow { NoSuchElementException("User not found with ID: $userId") }
 
-        val catalog = tamaCatalogRepository.findById(request.id)
-        .orElseThrow { NoSuchElementException("Tama not found with ID: $request.id") }
-        val name = request.name?.ifBlank { null } ?: catalog.title
 
         val tama = tamaService.createTama(
-            user = user,
-            name = name,
-            catalog
+            userId = userId,
+            name = request.name,
+            catalogId = request.id
 
         )
         
@@ -158,6 +153,11 @@ class TamaApplicationService(
         tamaService.setActiveTama(userId, tamaId)
     }
 
+    fun assignGroup(userId: UUID, tamaId: Long, groupId: Long) {
+
+
+    }
+
 
 }
 
@@ -177,8 +177,7 @@ data class TamaDto(
     companion object {
         fun fromEntity(entity: UserTama): TamaDto {
             val displayName = entity.name
-                .takeIf { it.isNotBlank() }
-                ?: entity.catalog.title
+
 
             return TamaDto(
                 tamaCatalogId = entity.catalog.id,
@@ -214,7 +213,7 @@ data class TamaDto(
  */
 data class OwnTamaRequest(
     val id: Long,
-    val name: String? = null
+    val name: String
 )
 
 data class CustomTamaRequest(

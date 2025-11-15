@@ -1,7 +1,7 @@
-package com.hobos.tamadoro.api.purchase
+package com.hobos.tamadoro.api.subscription
 
 import com.hobos.tamadoro.api.common.ApiResponse
-import com.hobos.tamadoro.application.purchase.PurchaseApplicationService
+import com.hobos.tamadoro.application.subscription.SubscriptionApplicationService
 import com.hobos.tamadoro.config.CurrentUserId
 import com.hobos.tamadoro.domain.purchase.PurchasePlatform
 import com.hobos.tamadoro.domain.purchase.PurchaseRecord
@@ -16,8 +16,8 @@ import java.util.UUID
 
 @RestController
 @RequestMapping
-class PurchaseController(
-    private val purchaseApplicationService: PurchaseApplicationService
+class SubscriptionController(
+    private val purchaseApplicationService: SubscriptionApplicationService
 ) {
 
 

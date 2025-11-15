@@ -39,10 +39,15 @@ class UserController(
         val tama = tamaApplicationService.ownTama(userId, request)
         return ResponseEntity.created(URI.create("/tamas/${tama.id}")).body(ApiResponse.success(tama))
     }
+    @PostMapping("/me/tamas/{tamaId}/groups")
+    fun activateTama(@CurrentUserId userId: UUID, @PathVariable tamaId: Long, @RequestBody groupId: Long,) {
+        return tamaApplicationService.assignGroup(userId, tamaId, groupId)
+
+    }
 
     @PutMapping("/me/tamas/{tamaId}")
     fun activateTama(@CurrentUserId userId: UUID, @PathVariable tamaId: Long,) {
-        tamaApplicationService.activateTama(userId, tamaId)
+        return tamaApplicationService.activateTama(userId, tamaId)
 
     }
 

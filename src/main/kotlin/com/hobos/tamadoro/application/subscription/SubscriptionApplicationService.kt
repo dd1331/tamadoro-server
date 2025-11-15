@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.application.purchase
+package com.hobos.tamadoro.application.subscription
 
 import com.hobos.tamadoro.domain.purchase.PurchaseService
 import com.hobos.tamadoro.domain.purchase.SubscribeCommand
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 
 @Service
-class PurchaseApplicationService(
+class SubscriptionApplicationService(
     private val purchaseService: PurchaseService
 ) {
     fun subscriptionPlans() = purchaseService.getSubscriptionPlans()

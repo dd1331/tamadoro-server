@@ -25,7 +25,7 @@ class UserTama(
 
 
     @Column(name = "name", nullable = true)
-    var name: String = "",
+    var name: String,
 
     @Column(name = "is_active")
     var isActive: Boolean = false,

@@ -1,11 +1,10 @@
 package com.hobos.tamadoro.domain.purchase
 
-import com.hobos.tamadoro.domain.user.SubscriptionStatus
 import com.hobos.tamadoro.domain.user.SubscriptionType
 import com.hobos.tamadoro.domain.user.UserRepository
-import com.hobos.tamadoro.application.purchase.SubscriptionStatusDto
-import com.hobos.tamadoro.application.purchase.SubscriptionHistoryItemDto
-import com.hobos.tamadoro.application.purchase.PremiumSubscriptionDto
+import com.hobos.tamadoro.application.subscription.SubscriptionStatusDto
+import com.hobos.tamadoro.application.subscription.SubscriptionHistoryItemDto
+import com.hobos.tamadoro.application.subscription.PremiumSubscriptionDto
 import com.hobos.tamadoro.domain.user.Subscription
 import com.hobos.tamadoro.domain.user.SubscriptionRepository
 import com.hobos.tamadoro.domain.user.User
