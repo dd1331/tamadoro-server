@@ -6,7 +6,7 @@ import com.hobos.tamadoro.domain.auth.AuthService
 import com.hobos.tamadoro.domain.common.Country
 import com.hobos.tamadoro.domain.tamas.repository.BackgroundRepository
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
-import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
 import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tamas.entity.UserCollectionSettings
 import com.hobos.tamadoro.domain.tamas.repository.UserCollectionSettingsRepository
@@ -74,7 +74,6 @@ class AuthApplicationService(
         val appleUserId = request.user.id
         val country = Country.fromCode(request.countryCode)
 
-        println("appleUserId +" + appleUserId)
         // Find or create user
         val user = userRepository.findByProviderId(appleUserId)
             .orElseGet {
@@ -138,14 +137,14 @@ class AuthApplicationService(
         val starterTama = userTamaRepository.save(
             UserTama(
                 user = user,
-                tama = defaultCatalog,
+                catalog = defaultCatalog,
                 isActive = true
             )
         )
         userCollectionSettingsRepository.save(
             UserCollectionSettings(
             user = user,
-            activeTama = starterTama.tama,
+            activeTama = starterTama,
             activeBackground = defaultBackground.get(0)
 
         )
@@ -153,7 +152,7 @@ class AuthApplicationService(
         return user
     }
 
-    private fun ensureDefaultTama(): TamaCatalogEntity {
+    private fun ensureDefaultTama(): TamaCatalog {
         return tamaCatalogRepository.findByIsPremium(isPremium = false)
             .firstOrNull()
             ?: throw IllegalStateException("Default starter assets must exist before onboarding users")

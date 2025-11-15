@@ -6,7 +6,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "tama_catalog")
-class TamaCatalogEntity(
+class TamaCatalog(
 
 
     theme: String,

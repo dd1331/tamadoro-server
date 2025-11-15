@@ -14,8 +14,8 @@ class UserProgressAssembler(
         val tamaDtos = tamas.map { tama ->
             TamaProgressDto(
                 id = tama.id,
-                tamaCatalogId = tama.tama?.id,
-                name = tama.name.takeIf { it.isNotBlank() } ?: tama.tama?.title,
+                tamaCatalogId = tama.catalog?.id,
+                name = tama.name.takeIf { it.isNotBlank() } ?: tama.catalog?.title,
                 experience = tama.experience,
                 isActive = tama.isActive
             )

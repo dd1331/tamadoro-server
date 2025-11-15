@@ -25,11 +25,13 @@ interface UserTamaRepository : JpaRepository<UserTama, Long> {
     fun findOneByUserIdAndIsActiveTrue(userId: UUID): UserTama?
 
 
-    @Query("""
+    @Query(
+        """
         SELECT ut FROM UserTama ut
-        JOIN fetch ut.tama t
+        JOIN fetch ut.catalog t
         order by ut.experience DESC
-    """)
+    """
+    )
     fun findAllWithTamaOrderByExperienceDesc(pageable: Pageable): Page<UserTama>
 
     @Query(
@@ -58,7 +60,7 @@ interface UserTamaRepository : JpaRepository<UserTama, Long> {
         """
         SELECT ut FROM UserTama ut
         JOIN TamaGroup tg ON tg.tama = ut
-        JOIN FETCH ut.tama
+        JOIN FETCH ut.catalog
         WHERE tg.group.id = :groupId
         ORDER BY ut.experience DESC
         """
@@ -79,6 +81,9 @@ interface UserTamaRepository : JpaRepository<UserTama, Long> {
      */
     fun countByExperienceGreaterThan(experience: Int): Long
     fun findOneById(tamaId: Long): Optional<UserTama>
+
+
+    fun findOneByUserIdAndCatalogId(userId: UUID, id: Long): Optional<UserTama>
 }
 
 interface GroupRankingProjection {

@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(
     name = "tamas",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id",  "tama_id"])],
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id",  "catalog_id"])],
 )
 class UserTama(
     @Id
@@ -20,11 +20,11 @@ class UserTama(
     val user: User,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tama_id", nullable = false)
-    val tama: TamaCatalogEntity,
+    @JoinColumn(name = "catalog_id", nullable = true)
+    val catalog: TamaCatalog,
 
 
-    @Column(name = " name", nullable = true)
+    @Column(name = "name", nullable = true)
     var name: String = "",
 
     @Column(name = "is_active")

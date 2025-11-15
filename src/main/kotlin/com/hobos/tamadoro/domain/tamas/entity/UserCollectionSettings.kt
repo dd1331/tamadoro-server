@@ -24,7 +24,7 @@ class UserCollectionSettings(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "active_tama_id", nullable = false)
-    var activeTama: TamaCatalogEntity? = null,
+    var activeTama: UserTama? = null,
 
     @CreatedDate
     val createdAt: LocalDateTime = LocalDateTime.now(),

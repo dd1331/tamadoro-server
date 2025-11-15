@@ -1,8 +1,7 @@
 package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.application.auth.AuthApplicationService
-import com.hobos.tamadoro.application.auth.GuestLoginRequest
-import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
 import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.tamas.TamaService
@@ -10,7 +9,6 @@ import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +34,7 @@ class TamaApplicationServiceTest {
 
     private lateinit var user: User
 
-    private lateinit var tamaCatalogEntity: TamaCatalogEntity
+    private lateinit var tamaCatalog: TamaCatalog
 
     @BeforeEach
     fun setUp() {
@@ -46,8 +44,8 @@ class TamaApplicationServiceTest {
             )
         )
 
-        tamaCatalogEntity = tamaCatalogRepository.save(
-            TamaCatalogEntity(
+        tamaCatalog = tamaCatalogRepository.save(
+            TamaCatalog(
                 isPremium = true,
                 theme = "premium-theme",
                 title = "Premium Tama",
@@ -55,7 +53,7 @@ class TamaApplicationServiceTest {
             )
         )
         tamaCatalogRepository.save(
-            TamaCatalogEntity(
+            TamaCatalog(
                 isPremium = false,
                 theme = "free-theme",
                 title = "Free Tama",
@@ -69,7 +67,7 @@ class TamaApplicationServiceTest {
         userTamaRepository.save(
             UserTama(
                 user = user,
-                tama = tamaCatalogEntity,
+                catalog = tamaCatalog,
             )
         )
         val tamas = tamaService.getAllTamasForUser(user.id)

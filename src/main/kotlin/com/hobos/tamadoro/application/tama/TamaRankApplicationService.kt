@@ -108,12 +108,12 @@ class TamaRankApplicationService(
     }
 
     private fun toIndividualHeatmapEntry(userTama: UserTama, projection: GroupRankingProjection): HeatmapRankEntryDto {
-        val name = if (userTama.name.isNotBlank()) userTama.name else userTama.tama.title
+        val name = if (userTama.name.isNotBlank()) userTama.name else userTama.catalog.title
         return HeatmapRankEntryDto(
             id = userTama.id,
             name = name,
             experience = userTama.experience.toLong(),
-            avatarUrl = userTama.tama.url,
+            avatarUrl = userTama.catalog.url,
             region = projection.country.name,
             regionName = projection.country.label,
             groupId = projection.groupId,
@@ -142,7 +142,7 @@ class TamaRankApplicationService(
                 id = ut.id,
                 name = ut.name,
                 experience = ut.experience,
-                url = ut.tama.url,
+                url = ut.catalog.url,
                 backgroundUrl = bgUrl
             )
         }

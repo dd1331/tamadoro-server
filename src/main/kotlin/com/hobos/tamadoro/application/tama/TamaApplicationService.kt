@@ -1,6 +1,6 @@
 package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
 import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.tamas.TamaService
@@ -29,11 +29,11 @@ class TamaApplicationService(
 
         // 카탈로그별 1:1 소유라는 가정 → 단일 매핑
         val ownedByCatalogId: Map<Long, UserTama> =
-            ownedTamas.associateBy { it.tama.id }
+            ownedTamas.associateBy { it.catalog.id }
 
         // 액티브는 하나만 (여러 개면 첫 것만 사용, 가능하면 도메인에서 강제)
         val activeCatalogId: Long? =
-            ownedTamas.firstOrNull { it.isActive }?.tama?.id
+            ownedTamas.firstOrNull { it.isActive }?.catalog?.id
 
         // (선택) 데이터 방어: 중복 감지
         // if (ownedTamas.size != ownedByCatalogId.size) {
@@ -64,7 +64,7 @@ class TamaApplicationService(
     @Transactional
     fun createCustomTama(userId: UUID,  request: CustomTamaRequest): TamaDto {
         val tama = tamaCatalogRepository.save(
-            TamaCatalogEntity(
+            TamaCatalog(
             url = request.url,
             theme = "TODO()",
             title = "TODO()"
@@ -178,11 +178,11 @@ data class TamaDto(
         fun fromEntity(entity: UserTama): TamaDto {
             val displayName = entity.name
                 .takeIf { it.isNotBlank() }
-                ?: entity.tama.title
+                ?: entity.catalog.title
 
             return TamaDto(
-                tamaCatalogId = entity.tama.id,
-                url = entity.tama.url,
+                tamaCatalogId = entity.catalog.id,
+                url = entity.catalog.url,
                 id = entity.id,
                 name = displayName,
                 experience = entity.experience,
@@ -191,7 +191,7 @@ data class TamaDto(
         }
 
         fun fromCatalog(
-            catalog: TamaCatalogEntity,
+            catalog: TamaCatalog,
             isOwned: Boolean = false,
             isActive: Boolean = false,
             name: String? = null,

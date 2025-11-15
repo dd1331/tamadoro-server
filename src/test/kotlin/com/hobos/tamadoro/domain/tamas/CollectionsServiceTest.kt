@@ -1,12 +1,17 @@
-package com.hobos.tamadoro.application.auth
+package com.hobos.tamadoro.domain.tamas
 
+import com.hobos.tamadoro.application.auth.AppleAuthRequest
+import com.hobos.tamadoro.application.auth.AppleUser
+import com.hobos.tamadoro.application.auth.AppleUserName
+import com.hobos.tamadoro.application.auth.AuthApplicationService
 import com.hobos.tamadoro.domain.tamas.entity.BackgroundEntity
-import com.hobos.tamadoro.domain.tamas.repository.BackgroundRepository
 import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
+import com.hobos.tamadoro.domain.tamas.repository.BackgroundRepository
 import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tamas.repository.UserCollectionSettingsRepository
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
+
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,18 +21,27 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-class AuthApplicationServiceTest @Autowired constructor(
+class CollectionsServiceTest @Autowired constructor(
     private val authService: AuthApplicationService,
     private val tamaRepo: TamaCatalogRepository,
     private val collectionRepo: UserCollectionSettingsRepository,
+
+    private val collectionsService: CollectionsService,
     private val backgroundRepository: BackgroundRepository
 ) {
-
-    val catalog = TamaCatalog(
-        theme = "classic",
-        title = "Tamadoro",
-        url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
-        isPremium = false
+    val catalogs = listOf(
+        TamaCatalog(
+            theme = "classic",
+            title = "Tamadoro",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+            isPremium = false
+        ),
+        TamaCatalog(
+            theme = "classic2",
+            title = "Tamadoro2",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+            isPremium = false
+        )
     )
     val background = BackgroundEntity(
         theme = "classic",
@@ -36,16 +50,25 @@ class AuthApplicationServiceTest @Autowired constructor(
     )
     @BeforeEach
     fun setUp() {
-        tamaRepo.save(catalog)
+        tamaRepo.saveAll(catalogs)
         backgroundRepository.save(background)
     }
 
+
     @Test
-    fun `가입시 기본 타마와 배경이 설정되어야 함`() {
+    fun `액티브 타마 설정 성공`() {
         val request = AppleAuthRequest("token", "213123213123", AppleUser("ddd", "ddd",  AppleUserName("dd", "ddd")), "KR")
         val (user) = authService.authenticateWithApple(request)
-        val userCollectionSettings = collectionRepo.findByUser_Id(user.id).orElseThrow()
-        assertEquals(userCollectionSettings.activeBackground?.theme, "classic")
-        assertEquals(userCollectionSettings.activeTama?.id, catalog.id)
+
+        val current =  collectionRepo.findOneByUserId(user.id).orElseThrow();
+
+
+        collectionsService.setActiveCharacter(user.id, catalogs[1].id)
+
+        println("current" + current)
+        assert(current.activeTama?.catalog?.id == catalogs[1].id)
+
     }
+
+
 }

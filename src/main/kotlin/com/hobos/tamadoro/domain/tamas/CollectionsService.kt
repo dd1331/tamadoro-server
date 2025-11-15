@@ -6,15 +6,16 @@ import com.hobos.tamadoro.domain.tamas.entity.UserCollectionSettings
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.tamas.repository.*
 import com.hobos.tamadoro.domain.user.User
+import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
 class CollectionsService(
-    private val userInventoryRepository: UserInventoryRepository,
+    private val userRepository: UserRepository,
     private val backgroundRepository: BackgroundRepository,
-    private val characterRepository: TamaCatalogRepository,
+    private val catalogRepo: TamaCatalogRepository,
     private val userTamaRepository: UserTamaRepository,
     private val settingsRepository: UserCollectionSettingsRepository,
     private val tamaCatalogRepository: TamaCatalogRepository,
@@ -45,13 +46,18 @@ class CollectionsService(
 
     @Transactional
     fun setActiveCharacter(userId: UUID, id: Long): Map<String, Any?> {
-        val tama = characterRepository.findById(id).orElseThrow { NoSuchElementException("Tama not found") }
+        val tama = catalogRepo.findById(id).orElseThrow { NoSuchElementException("Tama not found") }
         if (tama.isPremium && !userTamaRepository.existsByUser_IdAndId(userId,  id)) {
             throw IllegalStateException("User does not own tama")
         }
         val settings = settingsRepository.findByUser_Id(userId)
             .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
-        settings.activeTama = tama
+
+        val existing = userTamaRepository.findOneByUserIdAndCatalogId(userId, id).orElseGet(
+            { userTamaRepository.save(UserTama(user = requireUser(userId), catalog = tama)) }
+        )
+
+        settings.activeTama = existing
 
         settingsRepository.save(settings)
         return mapOf("activeTamaId" to id)
@@ -68,7 +74,7 @@ class CollectionsService(
         userTamaRepository.save(
             UserTama(
                 user = requireUser(userId),
-                tama = tama,
+                catalog = tama,
                 id = TODO(),
                 name = TODO(),
                 isActive = TODO()
@@ -79,8 +85,7 @@ class CollectionsService(
 
     private fun requireUser(userId: UUID): User {
         // lazy load via inventory repo to avoid adding UserRepository dependency here
-        val inv = userInventoryRepository.findByUserId(userId)
-        return inv.map { it.user }.orElseThrow { NoSuchElementException("User not found") }
+        return userRepository.findById(userId).orElseThrow()
     }
 
 

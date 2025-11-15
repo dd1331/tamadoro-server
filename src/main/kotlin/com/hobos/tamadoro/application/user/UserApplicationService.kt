@@ -61,8 +61,8 @@ class UserApplicationService(
         // Convert to TamaDto
         val tamaDto = TamaDto(
             id = activeTama.id,
-            tamaCatalogId = activeTama.tama.id,
-            url = activeTama.tama.url,
+            tamaCatalogId = activeTama.catalog.id,
+            url = activeTama.catalog.url,
             name = activeTama.name,
             experience = activeTama.experience,
             isActive = activeTama.isActive,

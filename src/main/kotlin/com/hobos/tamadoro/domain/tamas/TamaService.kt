@@ -1,6 +1,6 @@
 package com.hobos.tamadoro.domain.tamas
 
-import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
 import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
@@ -24,12 +24,12 @@ class TamaService(
     fun createTama(
         user: User,
         name: String,
-        tamaCatalogEntity: TamaCatalogEntity
+        tamaCatalog: TamaCatalog
     ): UserTama {
         val tama = UserTama(
             user = user,
             name = name,
-            tama = tamaCatalogEntity,
+            catalog = tamaCatalog,
         )
 
         val savedTama = userTamaRepository.save(tama)
