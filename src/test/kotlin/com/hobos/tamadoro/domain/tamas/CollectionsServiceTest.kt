@@ -43,15 +43,22 @@ class CollectionsServiceTest @Autowired constructor(
             isPremium = false
         )
     )
-    val background = BackgroundEntity(
-        theme = "classic",
-        title = "Tamadoro",
-        url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+    val backgrounds = listOf(
+        BackgroundEntity(
+            theme = "classic",
+            title = "Tamadoro",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+        ),
+        BackgroundEntity(
+            theme = "classic2",
+            title = "Tamadoro2",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3sIx-YjVltyxbaJaDLFXqJEYU1Dxqu4n01Q&s",
+        )
     )
     @BeforeEach
     fun setUp() {
         tamaRepo.saveAll(catalogs)
-        backgroundRepository.save(background)
+        backgroundRepository.saveAll(backgrounds)
     }
 
 
@@ -70,5 +77,19 @@ class CollectionsServiceTest @Autowired constructor(
 
     }
 
+    @Test
+    fun `배경 설정 성공`() {
+        val request =
+            AppleAuthRequest("token", "213123213123", AppleUser("ddd", "ddd", AppleUserName("dd", "ddd")), "KR")
+        val (user) = authService.authenticateWithApple(request)
+
+        val current = collectionRepo.findOneByUserId(user.id).orElseThrow();
+
+        assert(current.activeBackground?.url == backgrounds[0].url)
+
+        collectionsService.setActiveBackground(user.id, "test")
+
+        assert(current.activeBackground?.url == "test")
+    }
 
 }
