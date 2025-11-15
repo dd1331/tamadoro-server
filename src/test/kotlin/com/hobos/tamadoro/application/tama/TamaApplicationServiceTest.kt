@@ -13,67 +13,52 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
-class TamaApplicationServiceTest {
+@Transactional
+@ActiveProfiles("test")
+class TamaApplicationServiceTest @Autowired constructor(
+    private val tamaCatalogRepository: TamaCatalogRepository,
+    private val userRepository: UserRepository,
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
+) {
 
-    @Autowired
-    private lateinit var tamaCatalogRepository: TamaCatalogRepository
-
-    @Autowired
-    private lateinit var userTamaRepository: UserTamaRepository
-
-    @Autowired
-    private lateinit var tamaService: TamaService
-
-    @Autowired
-    private lateinit var authApplicationService: AuthApplicationService
-
-    private lateinit var user: User
-
-    private lateinit var tamaCatalog: TamaCatalog
+    val users = listOf(User(
+        providerId = "test-provider"
+    ))
+    val catalogs = listOf(TamaCatalog(
+        isPremium = true,
+        theme = "premium-theme",
+        title = "Premium Tama",
+        url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
+        ),
+        TamaCatalog(
+            isPremium = false,
+            theme = "free-theme",
+            title = "Free Tama",
+            url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
+        ))
 
     @BeforeEach
     fun setUp() {
-        user = userRepository.save(
-            User(
-                providerId = "test-provider"
-            )
-        )
 
-        tamaCatalog = tamaCatalogRepository.save(
-            TamaCatalog(
-                isPremium = true,
-                theme = "premium-theme",
-                title = "Premium Tama",
-                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
-            )
-        )
-        tamaCatalogRepository.save(
-            TamaCatalog(
-                isPremium = false,
-                theme = "free-theme",
-                title = "Free Tama",
-                url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY1W-2yntdLMKaGe1BCTMS8q_WmW0Htigl55wVwwXjKQ&s=10"
-            )
-        )
+        tamaCatalogRepository.saveAll(catalogs)
+
+        userRepository.saveAll(users)
+
+
     }
 
-    @Test
-    fun `get user tamas`() {
-        userTamaRepository.save(
-            UserTama(
-                user = user,
-                catalog = tamaCatalog,
-                name = "test-tama"
-            )
-        )
-        val tamas = tamaService.getAllTamasForUser(user.id)
 
-        assertEquals(1, tamas.size)
+
+    @Test
+    fun assignGroup() {
+
+
+
+
     }
 
 

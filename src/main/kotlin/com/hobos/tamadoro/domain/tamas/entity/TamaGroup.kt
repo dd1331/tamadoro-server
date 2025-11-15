@@ -15,13 +15,13 @@ import jakarta.persistence.FetchType
 class TamaGroup (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long = 0,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
-    var group: Group? = null,
+    var group: Group,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tama_id", nullable = false)
-    var tama: UserTama? = null
+    var tama: UserTama
 )

@@ -8,6 +8,7 @@ import com.hobos.tamadoro.domain.tamas.entity.TamaGroup
 import com.hobos.tamadoro.domain.tamas.repository.TamaGroupRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 class TamaGroupApplicationService(
@@ -36,6 +37,12 @@ class TamaGroupApplicationService(
 
         val country = Country.fromCode(request.countryCode)
 
+        val existing = groupRepository.findByName(name)
+
+        if(existing.isPresent) {
+            throw IllegalArgumentException("Group with name $name already exists")
+        }
+
         val group = Group().apply {
             this.name = name
             this.avatar = request.avatar
@@ -44,19 +51,32 @@ class TamaGroupApplicationService(
         }
 
         val saved = groupRepository.save(group)
-        val generatedId = saved.id ?: throw IllegalStateException("Group ID was not generated")
 
         val tama = userTamaRepository.findById(request.tamaId).orElseThrow()
         tamaGroupRepository.save(TamaGroup(tama = tama, group = group ))
         userTamaRepository.save(tama)
 
         return GroupDto(
-            id = generatedId,
+            id = saved.id,
             name = saved.name,
             avatar = saved.avatar,
             background = saved.background,
             countryCode = saved.country.name
         )
+    }
+    fun assignGroup(userId: UUID, tamaId: Long, groupId: Long) {
+
+        val existing = tamaGroupRepository.findOneByTamaIdAndGroupId(tamaId, groupId)
+        if(existing.isPresent) {
+            tamaGroupRepository.delete(existing.orElseThrow())
+        }
+
+        val tama = userTamaRepository.findById(tamaId).orElseThrow()
+        val group = groupRepository.findById(groupId).orElseThrow()
+        tamaGroupRepository.save(TamaGroup(tama = tama, group = group ))
+        userTamaRepository.save(tama)
+
+
     }
 }
 

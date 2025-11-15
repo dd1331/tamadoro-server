@@ -149,10 +149,10 @@ data class UserDto(
     val updatedAt: String,
     val lastLoginAt: String?,
     val subscription: SubscriptionDto?,
-    val progress: UserProgressDto?
+    val progress: UserProgressDto
 ) {
     companion object {
-        fun fromEntity(entity: User, progress: UserProgressDto? = null): UserDto {
+        fun fromEntity(entity: User, progress: UserProgressDto): UserDto {
             println("eeee"+ entity.subscriptions.toString())
             val latest = entity.subscriptions
                 .sortedByDescending { it.startDate }
@@ -174,7 +174,7 @@ data class UserDto(
 
 data class UserProgressDto(
     val tamas: List<TamaProgressDto>,
-    val activeTamaId: Long?,
+    val activeTamaId: Long,
 )
 
 data class TamaProgressDto(

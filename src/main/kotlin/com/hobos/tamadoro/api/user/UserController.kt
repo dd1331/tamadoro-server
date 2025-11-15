@@ -4,6 +4,7 @@ import com.hobos.tamadoro.api.common.ApiResponse
 import com.hobos.tamadoro.application.tama.OwnTamaRequest
 import com.hobos.tamadoro.application.tama.TamaApplicationService
 import com.hobos.tamadoro.application.tama.TamaDto
+import com.hobos.tamadoro.application.tama.TamaGroupApplicationService
 import com.hobos.tamadoro.application.user.UpdateUserProfileRequest
 import com.hobos.tamadoro.application.user.UserApplicationService
 import com.hobos.tamadoro.application.user.UserDto
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 import java.util.UUID
+data class AssignGroupRequest(
+    val groupId: Long,
+)
 
 /**
  * REST controller for user-related endpoints.
@@ -29,6 +33,7 @@ import java.util.UUID
 class UserController(
     private val userApplicationService: UserApplicationService,
     private val tamaApplicationService: TamaApplicationService,
+    private val tamaGroupService: TamaGroupApplicationService,
 ) {
 
     @PostMapping("/me/tamas")
@@ -39,9 +44,9 @@ class UserController(
         val tama = tamaApplicationService.ownTama(userId, request)
         return ResponseEntity.created(URI.create("/tamas/${tama.id}")).body(ApiResponse.success(tama))
     }
-    @PostMapping("/me/tamas/{tamaId}/groups")
-    fun activateTama(@CurrentUserId userId: UUID, @PathVariable tamaId: Long, @RequestBody groupId: Long,) {
-        return tamaApplicationService.assignGroup(userId, tamaId, groupId)
+    @PutMapping("/me/tamas/{tamaId}/group")
+    fun activateTama(@CurrentUserId userId: UUID, @PathVariable tamaId: Long, @RequestBody dto: AssignGroupRequest,) {
+        return tamaGroupService.assignGroup(userId, tamaId, dto.groupId)
 
     }
 

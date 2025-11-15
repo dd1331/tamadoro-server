@@ -15,7 +15,7 @@ import jakarta.persistence.Table
 class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    var id: Long = 0
 
     @Column(name = "name", nullable = false)
     var name: String = ""

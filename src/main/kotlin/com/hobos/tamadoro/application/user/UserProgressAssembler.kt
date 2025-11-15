@@ -25,7 +25,7 @@ class UserProgressAssembler(
 
         return UserProgressDto(
             tamas = tamaDtos,
-            activeTamaId = activeTamaId,
+            activeTamaId = activeTamaId!!, // TODO: refactor
         )
     }
 

@@ -153,10 +153,7 @@ class TamaApplicationService(
         tamaService.setActiveTama(userId, tamaId)
     }
 
-    fun assignGroup(userId: UUID, tamaId: Long, groupId: Long) {
 
-
-    }
 
 
 }
