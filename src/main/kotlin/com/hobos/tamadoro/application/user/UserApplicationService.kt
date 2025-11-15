@@ -1,8 +1,8 @@
 package com.hobos.tamadoro.application.user
 
 import com.hobos.tamadoro.application.tama.TamaDto
-import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.data.domain.Pageable
@@ -67,7 +67,7 @@ class UserApplicationService(
             experience = activeTama.experience,
             isActive = activeTama.isActive,
             isOwned = true,
-            backgroundUrl = setting.orElseThrow().backgroundEntity?.url
+            backgroundUrl = setting.orElseThrow().activeBackground?.url
         )
 
         return UserRankDto(

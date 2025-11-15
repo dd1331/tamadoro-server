@@ -1,7 +1,9 @@
-package com.hobos.tamadoro.domain.tamas
+package com.hobos.tamadoro.domain.tamas.entity
 
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
@@ -17,12 +19,13 @@ class UserCollectionSettings(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "active_background_id", nullable = false)
-    var backgroundEntity: BackgroundEntity? = null,
+    var activeBackground: BackgroundEntity? = null,
 
-    @Column(name = "active_music_id")
-    var activeMusicId: Long? = null,
 
-    @Column(name = "active_tama_id")
-    var activeTamaId: Long? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "active_tama_id", nullable = false)
+    var activeTama: TamaCatalogEntity? = null,
 
-)
+    @CreatedDate
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    )

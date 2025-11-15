@@ -1,6 +1,5 @@
 package com.hobos.tamadoro.application.collections.model
 
-import com.hobos.tamadoro.domain.tamas.StageName
 
 open class Item(
     open val id: Long,
@@ -32,15 +31,6 @@ data class TamaItem(
     override val title: String,
     override val theme: String,
     override val isPremium: Boolean,
-    val stages: List<Stage>,
 ) : Item(id, title, theme, isPremium, url = null)
-
-data class Stage(
-    val name: StageName,
-    val experience: Int,
-    val maxExperience: Int,
-    val level: Int,
-    val url: String
-)
 
 

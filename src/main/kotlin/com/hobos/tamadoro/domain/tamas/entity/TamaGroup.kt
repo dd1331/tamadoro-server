@@ -1,6 +1,5 @@
-package com.hobos.tamadoro.domain.tamas
+package com.hobos.tamadoro.domain.tamas.entity
 
-import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType

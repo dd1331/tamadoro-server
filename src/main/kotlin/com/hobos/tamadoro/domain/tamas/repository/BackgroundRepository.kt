@@ -1,5 +1,6 @@
-package com.hobos.tamadoro.domain.tamas
+package com.hobos.tamadoro.domain.tamas.repository
 
+import com.hobos.tamadoro.domain.tamas.entity.BackgroundEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional

@@ -1,14 +1,12 @@
 package com.hobos.tamadoro.application.timer
 
-import com.hobos.tamadoro.domain.tama.TamaService
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.TamaService
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.timer.TimerService
 import com.hobos.tamadoro.domain.timer.TimerSessionType
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**

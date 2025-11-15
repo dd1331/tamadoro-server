@@ -1,10 +1,10 @@
 package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.tama.GroupRankingProjection
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
-import com.hobos.tamadoro.domain.tamas.BackgroundRepository
-import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
-import com.hobos.tamadoro.domain.tamas.UserTama
+import com.hobos.tamadoro.domain.tamas.repository.GroupRankingProjection
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.repository.BackgroundRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -137,7 +137,7 @@ class TamaRankApplicationService(
         // Map result in-memory
         val content = rankedPage.content.map { ut ->
             val settings = settingsByUserId[ut.user.id]
-            val bgUrl = settings?.backgroundEntity?.url
+            val bgUrl = settings?.activeBackground?.url
             TamaRankDto(
                 id = ut.id,
                 name = ut.name,

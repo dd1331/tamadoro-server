@@ -1,10 +1,10 @@
 package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
-import com.hobos.tamadoro.domain.tamas.TamaCatalogRepository
-import com.hobos.tamadoro.domain.tamas.UserTama
-import com.hobos.tamadoro.domain.tama.TamaService
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
+import com.hobos.tamadoro.domain.tamas.TamaService
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -63,11 +63,13 @@ class TamaApplicationService(
 
     @Transactional
     fun createCustomTama(userId: UUID,  request: CustomTamaRequest): TamaDto {
-        val tama = tamaCatalogRepository.save(TamaCatalogEntity(
+        val tama = tamaCatalogRepository.save(
+            TamaCatalogEntity(
             url = request.url,
             theme = "TODO()",
             title = "TODO()"
-        ))
+        )
+        )
         println("@@@@"+ tama.toString())
         return ownTama(userId, OwnTamaRequest(
             id = tama.id,

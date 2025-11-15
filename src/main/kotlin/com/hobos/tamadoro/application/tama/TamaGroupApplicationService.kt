@@ -1,11 +1,11 @@
 package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.domain.common.Country
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
-import com.hobos.tamadoro.domain.tamas.Group
-import com.hobos.tamadoro.domain.tamas.GroupRepository
-import com.hobos.tamadoro.domain.tamas.TamaGroup
-import com.hobos.tamadoro.domain.tamas.TamaGroupRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.entity.Group
+import com.hobos.tamadoro.domain.tamas.repository.GroupRepository
+import com.hobos.tamadoro.domain.tamas.entity.TamaGroup
+import com.hobos.tamadoro.domain.tamas.repository.TamaGroupRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

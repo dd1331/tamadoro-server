@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.tamas
+package com.hobos.tamadoro.domain.tamas.entity
 
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(
     name = "tamas",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id",  "item_id"])],
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id",  "tama_id"])],
 )
 class UserTama(
     @Id

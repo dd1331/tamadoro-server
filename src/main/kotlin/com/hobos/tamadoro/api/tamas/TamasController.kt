@@ -15,9 +15,6 @@ import com.hobos.tamadoro.application.tama.TamaGroupApplicationService
 import com.hobos.tamadoro.application.tama.CreateGroupRequest
 import com.hobos.tamadoro.application.tama.GroupDto
 import com.hobos.tamadoro.config.CurrentUserId
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
-import com.hobos.tamadoro.domain.tamas.TamaGroup
-import com.hobos.tamadoro.domain.tamas.TamaGroupRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

@@ -1,7 +1,7 @@
-package com.hobos.tamadoro.domain.tama
+package com.hobos.tamadoro.domain.tamas.repository
 
 import com.hobos.tamadoro.domain.common.Country
-import com.hobos.tamadoro.domain.tamas.UserTama
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

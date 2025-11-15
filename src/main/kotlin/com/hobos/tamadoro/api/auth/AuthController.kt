@@ -29,10 +29,8 @@ class AuthController(
      */
     @PostMapping("/apple")
     fun authenticateWithApple(@Valid @RequestBody request: AppleAuthRequest): ResponseEntity<ApiResponse<AuthResponse>> {
-        val currentAuthentication = SecurityContextHolder.getContext().authentication
-        val currentUserId = runCatching { UUID.fromString(currentAuthentication?.name) }.getOrNull()
 
-        val response = authApplicationService.authenticateWithApple(request, currentUserId)
+        val response = authApplicationService.authenticateWithApple(request)
         return ResponseEntity.ok(ApiResponse.success(response))
     }
     

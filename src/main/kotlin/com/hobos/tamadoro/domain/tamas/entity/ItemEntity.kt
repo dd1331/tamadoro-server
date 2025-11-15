@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.tamas
+package com.hobos.tamadoro.domain.tamas.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.GeneratedValue

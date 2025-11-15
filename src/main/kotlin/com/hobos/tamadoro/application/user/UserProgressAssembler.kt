@@ -1,7 +1,7 @@
 package com.hobos.tamadoro.application.user
 
-import com.hobos.tamadoro.domain.tamas.UserCollectionSettingsRepository
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserCollectionSettingsRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import org.springframework.stereotype.Component
 import java.util.UUID
 @Component
@@ -32,7 +32,7 @@ class UserProgressAssembler(
     private fun resolveActiveTamaId(userId: UUID, fallback: Long?): Long? {
         val settings = userCollectionSettingsRepository.findByUser_Id(userId)
         if (settings.isPresent) {
-            settings.get().activeTamaId?.let { return it }
+            settings.get().activeTama?.let { return it.id }
         }
         return fallback
     }

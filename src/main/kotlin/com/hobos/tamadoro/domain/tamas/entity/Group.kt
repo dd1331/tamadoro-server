@@ -1,4 +1,4 @@
-package com.hobos.tamadoro.domain.tamas
+package com.hobos.tamadoro.domain.tamas.entity
 
 import com.hobos.tamadoro.domain.common.Country
 import jakarta.persistence.Column

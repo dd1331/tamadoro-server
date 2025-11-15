@@ -1,14 +1,13 @@
-package com.hobos.tamadoro.domain.tama
+package com.hobos.tamadoro.domain.tamas
 
-import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
-import com.hobos.tamadoro.domain.tamas.UserTama
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Optional
 import java.util.UUID
-import kotlin.random.Random
 
 /**
  * Domain service for tama-related business logic.

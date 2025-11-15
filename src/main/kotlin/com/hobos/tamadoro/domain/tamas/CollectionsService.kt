@@ -1,7 +1,10 @@
 package com.hobos.tamadoro.domain.tamas
 
 import com.hobos.tamadoro.domain.inventory.UserInventoryRepository
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.entity.BackgroundEntity
+import com.hobos.tamadoro.domain.tamas.entity.UserCollectionSettings
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
+import com.hobos.tamadoro.domain.tamas.repository.*
 import com.hobos.tamadoro.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -11,7 +14,6 @@ import java.util.UUID
 class CollectionsService(
     private val userInventoryRepository: UserInventoryRepository,
     private val backgroundRepository: BackgroundRepository,
-    private val musicTrackRepository: MusicTrackRepository,
     private val characterRepository: TamaCatalogRepository,
     private val userTamaRepository: UserTamaRepository,
     private val settingsRepository: UserCollectionSettingsRepository,
@@ -22,34 +24,24 @@ class CollectionsService(
     @Transactional
     fun setActiveBackground(userId: UUID, url: String): Map<String, Any?> {
         // must own or be free
-        val bg = backgroundRepository.findByUrl(url).orElseGet { backgroundRepository.save(BackgroundEntity(
+        val bg = backgroundRepository.findByUrl(url).orElseGet { backgroundRepository.save(
+            BackgroundEntity(
             url = url,
             theme = "TODO()",
             title = "TODO()",
             userId = userId,
-        )) }
+        )
+        ) }
         if (bg.isPremium) {
             throw IllegalStateException("User does not own background")
         }
         val settings = settingsRepository.findByUser_Id(userId)
-            .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId), backgroundEntity = bg)) }
-        settings.backgroundEntity = bg // <--- Th
+            .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId), activeBackground = bg)) }
+        settings.activeBackground = bg // <--- Th
         settingsRepository.save(settings)
         return mapOf("activeBackgroundId" to bg.id)
     }
 
-    @Transactional
-    fun setActiveMusic(userId: UUID, id: Long): Map<String, Any?> {
-        val track = musicTrackRepository.findById(id).orElseThrow { NoSuchElementException("Music not found") }
-        if (track.isPremium && !userTamaRepository.existsByUser_IdAndId(userId,  id)) {
-            throw IllegalStateException("User does not own music track")
-        }
-        val settings = settingsRepository.findByUser_Id(userId)
-            .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
-        settings.activeMusicId = id
-        settingsRepository.save(settings)
-        return mapOf("activeMusicId" to id)
-    }
 
     @Transactional
     fun setActiveCharacter(userId: UUID, id: Long): Map<String, Any?> {
@@ -59,7 +51,8 @@ class CollectionsService(
         }
         val settings = settingsRepository.findByUser_Id(userId)
             .orElseGet { settingsRepository.save(UserCollectionSettings(user = requireUser(userId))) }
-        settings.activeTamaId = id
+        settings.activeTama = tama
+
         settingsRepository.save(settings)
         return mapOf("activeTamaId" to id)
     }

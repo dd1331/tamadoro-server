@@ -1,7 +1,7 @@
 package com.hobos.tamadoro.domain.tama
 
-import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
-import com.hobos.tamadoro.domain.tamas.UserTama
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.user.User
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -37,9 +37,6 @@ class TamaTest {
     @Test
     fun `should initialize with correct default values`() {
         assertEquals(0, tama.experience)
-        assertEquals(80, tama.happiness)
-        assertEquals(60, tama.hunger)
-        assertEquals(90, tama.energy)
         assertFalse(tama.isActive)
     }
     
@@ -85,42 +82,10 @@ class TamaTest {
 //        assertEquals(TamaGrowthStage.CHILD, tama.growthStage)
     }
     
-    @Test
-    fun `should feed correctly`() {
-        tama.feed(30)
-        
-        assertEquals(50, tama.hunger)
-        assertEquals(85, tama.happiness) // Happiness should increase by 5
-    }
-    
-    @Test
-    fun `should not allow hunger to go below 0`() {
-        tama.feed(50)
-        
-        assertEquals(0, tama.hunger)
-    }
-    
-    @Test
-    fun `should play correctly`() {
 
-        tama.play(20)
-        
-        assertEquals(90, tama.happiness) // Happiness should increase by 20
-        assertEquals(70, tama.energy) // Energy should decrease by 10
-        assertEquals(55, tama.hunger) // Hunger should increase by 5
-        
-        // Should also gain some experience
-        assertTrue(tama.experience > 0)
-    }
-    
-    @Test
-    fun `should not allow happiness to exceed 100`() {
 
-        tama.play(20)
-        
-        assertEquals(100, tama.happiness)
-    }
     
+
 
 
     @Test

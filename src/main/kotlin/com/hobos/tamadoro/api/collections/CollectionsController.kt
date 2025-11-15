@@ -31,16 +31,7 @@ class CollectionsController(
     ): ResponseEntity<ApiResponse<Map<String, Any?>>> =
         ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveBackground(userId, req.url)))
 
-    @GetMapping("/sound/tracks")
-    fun getMusic(): ResponseEntity<ApiResponse<List<MusicItem>>> =
-        ResponseEntity.ok(ApiResponse.success(collectionsApplicationService.getSound()))
 
-    @PutMapping("/sound/active")
-    fun setActiveMusic(
-        @CurrentUserId userId: UUID,
-        @Valid @RequestBody req: SetActiveRequest
-    ): ResponseEntity<ApiResponse<Map<String, Any?>>> =
-        ResponseEntity.ok(ApiResponse.success<Map<String, Any?>>(collectionsApplicationService.setActiveMusic(userId, req.id)))
 
     // Catalog of characters (tamas) for collection
     @GetMapping("/characters")

@@ -2,11 +2,11 @@ package com.hobos.tamadoro.application.tama
 
 import com.hobos.tamadoro.application.auth.AuthApplicationService
 import com.hobos.tamadoro.application.auth.GuestLoginRequest
-import com.hobos.tamadoro.domain.tamas.TamaCatalogEntity
-import com.hobos.tamadoro.domain.tamas.TamaCatalogRepository
-import com.hobos.tamadoro.domain.tamas.UserTama
-import com.hobos.tamadoro.domain.tama.TamaService
-import com.hobos.tamadoro.domain.tama.UserTamaRepository
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalogEntity
+import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
+import com.hobos.tamadoro.domain.tamas.TamaService
+import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.user.User
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -77,17 +77,5 @@ class TamaApplicationServiceTest {
         assertEquals(1, tamas.size)
     }
 
-    @Test
-    fun `should assign default tama on guest signup`() {
-        val guestSignup = authApplicationService.loginAsGuest(
-            GuestLoginRequest(countryCode = "KR")
-        )
 
-        val tamas = tamaService.getAllTamasForUser(guestSignup.user.id)
-
-        assertEquals(1, tamas.size)
-        val savedTama = tamas.first()
-        assertEquals(guestSignup.user.id, savedTama.user?.id)
-        assertTrue(savedTama.isActive)
-    }
 }

@@ -1,6 +1,6 @@
 package com.hobos.tamadoro.domain.inventory
 
-import com.hobos.tamadoro.domain.tamas.UserTama
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
