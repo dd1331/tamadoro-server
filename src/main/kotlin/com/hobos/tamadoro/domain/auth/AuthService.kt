@@ -5,6 +5,7 @@ import com.hobos.tamadoro.domain.user.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -45,6 +46,7 @@ class AuthService(
             .compact()
     }
 
+    @Transactional
     fun issueRefreshToken(userId: UUID): String {
         val user = userRepository.findById(userId).orElseThrow()
         val now = LocalDateTime.now()

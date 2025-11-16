@@ -4,6 +4,7 @@ import com.hobos.tamadoro.domain.common.Country
 import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -84,6 +85,8 @@ interface UserTamaRepository : JpaRepository<UserTama, Long> {
 
 
     fun findOneByUserIdAndCatalogId(userId: UUID, id: Long): Optional<UserTama>
+    @EntityGraph(attributePaths = ["catalog"])
+    fun findAllByUserId(userId: UUID): List<UserTama>
 }
 
 interface GroupRankingProjection {

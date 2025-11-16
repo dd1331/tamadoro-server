@@ -13,7 +13,7 @@ class UserProgressAssembler(
         val tamas = userTamaRepository.findByUserId(userId)
         val tamaDtos = tamas.map { tama ->
             TamaProgressDto(
-                id = tama.id,
+                id = tama.id!!,
                 tamaCatalogId = tama.catalog?.id,
                 name = tama.name.takeIf { it.isNotBlank() } ?: tama.catalog?.title,
                 experience = tama.experience,

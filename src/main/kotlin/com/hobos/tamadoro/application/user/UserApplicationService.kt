@@ -81,7 +81,7 @@ class UserApplicationService(
         val activeTama = userTamaRepository.findOneByUserIdAndIsActiveTrue(userId)
             ?: throw NoSuchElementException("No active tama found for user: $userId")
 
-        val groupId = userTamaRepository.findGroupIdByUserTamaId(activeTama.id)
+        val groupId = userTamaRepository.findGroupIdByUserTamaId(activeTama.id!!)
             ?: throw NoSuchElementException("Active tama is not assigned to any group")
 
         val groupRanks = userTamaRepository.findGroupRanking(Pageable.unpaged()).content

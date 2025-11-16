@@ -1,14 +1,14 @@
 package com.hobos.tamadoro.application.tama
 
-import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
-import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
-import com.hobos.tamadoro.domain.tamas.entity.UserTama
 import com.hobos.tamadoro.domain.tamas.TamaService
+import com.hobos.tamadoro.domain.tamas.entity.TamaCatalog
+import com.hobos.tamadoro.domain.tamas.entity.UserTama
+import com.hobos.tamadoro.domain.tamas.repository.TamaCatalogRepository
 import com.hobos.tamadoro.domain.tamas.repository.UserTamaRepository
 import com.hobos.tamadoro.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.util.*
 
 /**
  * Application service for tama-related use cases.
@@ -25,58 +25,46 @@ class TamaApplicationService(
      */
     fun getTamas(userId: UUID): List<TamaDto> {
         val catalogs = tamaCatalogRepository.findAll()
-        val ownedTamas = userTamaRepository.findByUserId(userId)
 
-        // 카탈로그별 1:1 소유라는 가정 → 단일 매핑
-        val ownedByCatalogId: Map<Long, UserTama> =
-            ownedTamas.associateBy { it.catalog.id }
+        val tamas = userTamaRepository.findAllByUserId(userId)
 
-        // 액티브는 하나만 (여러 개면 첫 것만 사용, 가능하면 도메인에서 강제)
-        val activeCatalogId: Long? =
-            ownedTamas.firstOrNull { it.isActive }?.catalog?.id
 
-        // (선택) 데이터 방어: 중복 감지
-        // if (ownedTamas.size != ownedByCatalogId.size) {
-        //     log.warn("User $userId has duplicate ownerships per catalog. Check unique constraint.")
-        // }
 
-        return catalogs.map { catalog ->
-            val owned: UserTama? = ownedByCatalogId[catalog.id]
-            val isOwned = owned != null
-            val isActive = (catalog.id == activeCatalogId)
+        return tamas.map { tama ->
 
-            val displayName = owned?.let { ut ->
-                ut.name?.takeIf { it.isNotBlank() } ?: catalog.title
-            } ?: catalog.title
+            val isActive = tama.isActive
+
+            val displayName = tama.name.takeIf { it.isNotBlank() } ?: tama.catalog.title
 
             TamaDto.fromCatalog(
-                catalog = catalog,
-                isOwned = isOwned,
+                catalog = tama.catalog,
+                isOwned = true,
                 isActive = isActive,
                 name = displayName,
-                id = owned?.id
+                id = tama.id
             )
         }
     }
 
 
-
     @Transactional
-    fun createCustomTama(userId: UUID,  request: CustomTamaRequest): TamaDto {
+    fun createCustomTama(userId: UUID, request: CustomTamaRequest): TamaDto {
         val tama = tamaCatalogRepository.save(
             TamaCatalog(
-            url = request.url,
-            theme = "TODO()",
-            title = "TODO()"
+                url = request.url,
+                theme = "TODO()",
+                title = "TODO()",
+                isCustom = true
+            )
         )
+        return ownTama(
+            userId, OwnTamaRequest(
+                id = tama.id,
+                name = request.name
+            )
         )
-        println("@@@@"+ tama.toString())
-        return ownTama(userId, OwnTamaRequest(
-            id = tama.id,
-            name = request.name
-        ))
     }
-    
+
     /**
      * Creates a new tama.
      */
@@ -90,10 +78,10 @@ class TamaApplicationService(
             catalogId = request.id
 
         )
-        
+
         return TamaDto.fromEntity(tama)
     }
-    
+
     /**
      * Updates a tama.
      */
@@ -102,12 +90,11 @@ class TamaApplicationService(
 
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
+
         // Ensure the tama belongs to the user
         if (tama.user.id != userId) {
             throw IllegalArgumentException("Tama does not belong to the user")
         }
-        
 
 
         val updatedTama = tamaService.updateTama(
@@ -117,7 +104,7 @@ class TamaApplicationService(
 
         return TamaDto.fromEntity(updatedTama)
     }
-    
+
     /**
      * Deletes a tama.
      */
@@ -125,15 +112,14 @@ class TamaApplicationService(
     fun deleteTama(userId: UUID, tamaId: Long) {
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        
+
         // Ensure the tama belongs to the user
         if (tama.user.id != userId) {
             throw IllegalArgumentException("Tama does not belong to the user")
         }
-        
+
         userTamaRepository.delete(tama)
     }
-    
 
 
     /**
@@ -144,16 +130,14 @@ class TamaApplicationService(
 
         val tama = userTamaRepository.findById(tamaId)
             .orElseThrow { NoSuchElementException("Tama not found with ID: $tamaId") }
-        println("@@@@"+tama.user.id+ tama.id +"@"+ tamaId+"@"+ userId)
+        println("@@@@" + tama.user.id + tama.id + "@" + tamaId + "@" + userId)
         // Ensure the tama belongs to the user
         if (tama.user.id != userId) {
             throw IllegalArgumentException("Tama does not belong to the user")
         }
-        
+
         tamaService.setActiveTama(userId, tamaId)
     }
-
-
 
 
 }
