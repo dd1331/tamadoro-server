@@ -19,6 +19,15 @@ class WebConfig(
      */
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
+            .allowedOriginPatterns(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "http://192.168.35.*",
+                "http://211.201.16.40:*",
+                "http://tamadoro.drft.lol",
+                "http://tamadoro.drft.lol:*",
+                "https://tamadoro.drft.lol"
+            )
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(false)
