@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   app:
     build:
@@ -9,14 +10,19 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:mysql://db:3306/tamadoro?useSSL=false&characterEncoding=utf8&serverTimezone=UTC
-      DB_USERNAME: tamadoro
-      DB_PASSWORD: tamadoro
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/tamadoro?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: tamadoro
+      SPRING_DATASOURCE_PASSWORD: tamadoro
+      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "false"
       AUTH_SECRET: ${AUTH_SECRET:-base64:YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM=}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   db:
-    image: mysql:8.4
+    image: mysql:8.0
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: tamadoro
@@ -24,15 +30,17 @@ services:
       MYSQL_PASSWORD: tamadoro
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-    command:
-      [
-        "mysqld",
-        "--default-authentication-plugin=mysql_native_password",
-        "--character-set-server=utf8mb4",
-        "--collation-server=utf8mb4_0900_ai_ci",
-      ]
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   db_data: {}
